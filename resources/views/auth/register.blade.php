@@ -29,29 +29,47 @@
                             <div class="brand-logo">
                                 <img src="../../images/logo.svg" alt="logo">
                             </div>
-                            <h4>Hello! let's get started</h4>
-                            <h6 class="font-weight-light">Sign in to continue.</h6>
-                            <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
+                            <h4>New here?</h4>
+                            <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
+                            <form action="{{ route('register') }}" class="pt-3" method="POST">
                                 @csrf
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-lg"
-                                        id="exampleInputnpk" placeholder="NPK" style="padding-left: 16px" name="npk">
+                                    <input type="text" class="form-control form-control-lg" id="exampleInputNPK"
+                                        placeholder="NPK">
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control form-control-lg" id="exampleFormControlSelect2"
+                                        style="padding-left: 28px">
+                                        <option>Departemen</option>
+                                        @foreach ($departemens as $departemen)
+                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
-                                        id="exampleInputPassword1" placeholder="Password" style="padding-left: 16px" name="password">
+                                        id="exampleInputpassword1" placeholder="Password">
                                 </div>
-                                <div class="mt-3">
-                                    <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
-                                        IN</a>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-lg"
+                                        id="exampleInputPassword2" placeholder="Confirm Password">
                                 </div>
-                                <div class="my-2 d-flex justify-content-between align-items-center">
+                                <div class="mb-4">
                                     <div class="form-check">
                                         <label class="form-check-label text-muted">
                                             <input type="checkbox" class="form-check-input">
-                                            Keep me signed in
+                                            I agree to all Terms & Conditions
                                         </label>
                                     </div>
+                                </div>
+                                <div class="mt-3">
+                                    <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
+                                        href="../../index.html">SIGN UP</a>
+                                </div>
+                                <div class="text-center mt-4 font-weight-light">
+                                    Already have an account? <a href="{{ route('login-form') }}"
+                                        class="text-primary">Login</a>
                                 </div>
                             </form>
                         </div>

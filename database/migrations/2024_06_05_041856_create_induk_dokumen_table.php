@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('master_dokumen', function (Blueprint $table) {
+        Schema::create('induk_dokumen', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_proses');
-            $table->string('nama_proses');
+            $table->string('nomor_dokumen');
+            $table->string('nama_dokumen');
+            $table->dateTime('tgl_upload');
+            $table->text('file');
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('master_dokumen');
+        Schema::dropIfExists('induk_dokumen');
     }
 };
