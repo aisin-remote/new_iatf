@@ -1,31 +1,55 @@
 <nav class="sidebar sidebar-offcanvas" id="sidebar">
     <ul class="nav">
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('home') }}">
-                <i class="icon-grid menu-icon"></i>
-                <span class="menu-title">Dashboard</span>
+            <a class="nav-link" href="">
+                <i class="fa-solid fa-house" style="margin-right: 8px"></i>
+                <span class="menu-title"> Dashboard</span>
             </a>
         </li>
-
         <li class="nav-item">
-            <a class="nav-link" data-toggle="collapse" href="#ui-basic" aria-expanded="false" aria-controls="ui-basic">
-                <i class="icon-layout menu-icon"></i>
-                <span class="menu-title">Document</span>
+            <a class="nav-link" data-toggle="collapse" href="#prosedur" aria-expanded="false"
+                aria-controls="prosedur"><i class="fas fa-file" style="margin-right: 14px"></i>
+                <span class="menu-title"> Doc Rule</span>
                 <i class="menu-arrow"></i>
             </a>
-            <div class="collapse" id="ui-basic" style="">
+            <div class="collapse" id="prosedur">
                 <ul class="nav flex-column sub-menu">
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('upload-dokumen') }}">Upload</a></li>
-                    <li class="nav-item"> <a class="nav-link" href="{{ route('validate-dokumen') }}">Validate</a></li>
+
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'Prosedur']) }}">Prosedur</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link"
+                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
+                    </li>
+                </ul>
+
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#proses" aria-expanded="false" aria-controls="proses"><i
+                    class="fa-solid fa-file-lines" style="margin-right: 14px"></i>
+                <span class="menu-title"> Doc Proses</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="proses">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item"> <a class="nav-link" href="pages/charts/chartjs.html">QCPC</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="pages/charts/chartjs.html">FMEA</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="pages/charts/chartjs.html">DLL</a></li>
+                    <li class="nav-item"> <a class="nav-link" href="pages/charts/chartjs.html">DLL</a></li>
                 </ul>
             </div>
-        </li>        
-
-        <li class="nav-item">
-            <a class="nav-link btn btn-link" href="{{ route('user') }}">
-                <i class="icon-head menu-icon"></i>
-                <span class="menu-title">User</span> 
-            </a>
         </li>
+
     </ul>
 </nav>

@@ -34,27 +34,25 @@
                             <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
                                 @csrf
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-lg"
-                                        id="exampleInputnpk" placeholder="NPK" style="padding-left: 16px" name="npk">
+                                    <input type="text" class="form-control form-control-lg" id="exampleInputnpk"
+                                        placeholder="NPK" style="padding-left: 16px" name="npk">
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
-                                        id="exampleInputPassword1" placeholder="Password" style="padding-left: 16px" name="password">
+                                        id="exampleInputPassword1" placeholder="Password" style="padding-left: 16px"
+                                        name="password">
                                 </div>
                                 <div class="mt-3">
-                                    <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
-                                        IN</a>
-                                </div>
-                                <div class="my-2 d-flex justify-content-between align-items-center">
-                                    <div class="form-check">
-                                        <label class="form-check-label text-muted">
-                                            <input type="checkbox" class="form-check-input">
-                                            Keep me signed in
-                                        </label>
-                                    </div>
+                                    <button type="submit"
+                                        class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
+                                        IN</button>
                                 </div>
                             </form>
+                            <div class="text-center mt-4 font-weight-light">
+                                Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
+                            </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -74,6 +72,8 @@
     <script src="../../js/template.js"></script>
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <!-- endinject -->
 </body>
 

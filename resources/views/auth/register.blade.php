@@ -31,44 +31,51 @@
                             </div>
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
-                            <form action="{{ route('register') }}" class="pt-3" method="POST">
+                            <form action="{{ route('register.proses') }}" class="pt-3" method="POST">
                                 @csrf
                                 <div class="form-group">
                                     <input type="text" class="form-control form-control-lg" id="exampleInputNPK"
-                                        placeholder="NPK">
+                                        placeholder="NPK" name="npk" value="{{ old('npk') }}">
+                                    @error('npk')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <div class="form-group">
                                     <select class="form-control form-control-lg" id="exampleFormControlSelect2"
-                                        style="padding-left: 28px">
-                                        <option>Departemen</option>
+                                        style="padding-left: 28px" name="departemen">
+                                        <option value="">Departemen</option>
                                         @foreach ($departemens as $departemen)
-                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
-                                            </option>
+                                            <option value="{{ $departemen->id }}"
+                                                {{ old('departemen') == $departemen->id ? 'selected' : '' }}>
+                                                {{ $departemen->nama_departemen }}</option>
                                         @endforeach
                                     </select>
+                                    @error('departemen')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
-                                        id="exampleInputpassword1" placeholder="Password">
+                                        id="exampleInputpassword1" placeholder="Password" name="password">
+                                    @error('password')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
-                                        id="exampleInputPassword2" placeholder="Confirm Password">
-                                </div>
-                                <div class="mb-4">
-                                    <div class="form-check">
-                                        <label class="form-check-label text-muted">
-                                            <input type="checkbox" class="form-check-input">
-                                            I agree to all Terms & Conditions
-                                        </label>
-                                    </div>
+                                        id="exampleInputPassword2" placeholder="Confirm Password"
+                                        name="password_confirmation">
+                                    @error('password_confirmation')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
                                 <div class="mt-3">
-                                    <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn"
-                                        href="../../index.html">SIGN UP</a>
+                                    <button type="submit"
+                                        class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
+                                        UP</button>
                                 </div>
                                 <div class="text-center mt-4 font-weight-light">
-                                    Already have an account? <a href="{{ route('login-form') }}"
+                                    Already have an account? <a href="{{ route('login') }}"
                                         class="text-primary">Login</a>
                                 </div>
                             </form>
@@ -92,6 +99,18 @@
     <script src="../../js/template.js"></script>
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}"
+                });
+            });
+        </script>
+    @endif
     <!-- endinject -->
 </body>
 

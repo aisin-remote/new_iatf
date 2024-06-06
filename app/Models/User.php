@@ -22,7 +22,7 @@ class User extends Authenticatable
         'npk',
         'departemen_id',
         'password',
-        
+
     ];
 
     /**
