@@ -7,9 +7,12 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Dokumen {{ $jenis }} - {{ $tipe }}</h4>
-                        <button class="btn btn-primary btn-sm">
+                        <a class="btn btn-primary btn-sm"
+                            href="{{ route('dokumen.download', ['jenis' => $jenis, 'tipe' => $tipe]) }}">
                             Download
-                            <i class="fa-solid fa-file-arrow-down"></i></button>
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                        </a>
+
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddokumen"
                             style="margin-left: 4px">
                             Upload
@@ -40,7 +43,20 @@
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->revisi }}</td>
                                             <td>{{ $doc->status }}</td>
-                                            <td>{{ $doc->status }}</td>
+                                            <td>
+                                                <!-- Tombol Edit -->
+                                                <a data-toggle="modal" data-target="#uploaddokumen"
+                                                    class="btn btn-warning btn-sm">
+                                                    Edit
+                                                    <i class="fa-solid fa-edit"></i>
+                                                </a>
+                                                <!-- Tombol Download -->
+                                                <a href="{{ route('download.rule', ['id' => $doc->id, 'jenis' => $doc->jenis_dokumen, 'tipe' => $doc->tipe_dokumen]) }}"
+                                                    class="btn btn-primary btn-sm">
+                                                    Download
+                                                    <i class="fa-solid fa-file-arrow-down"></i>
+                                                </a>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -58,7 +74,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="uploaddokumenLabel">Upload Template</h5>
+                    <h5 class="modal-title" id="uploaddokumenLabel">Upload Template {{ $tipe }}</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -87,10 +103,53 @@
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="{{ route('admin-tambah-dokumen-prosedur') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('tambah.rule') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-header">
                         <h5 class="modal-title" id="addDokumenModalLabel">Add New Dokumen {{ ucfirst($tipe) }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nama_dokumen">Nama Dokumen</label>
+                            <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rule_id">Kode Proses</label>
+                            <select class="form-control" id="rule_id" name="rule_id" required>
+                                <option value="">Pilih Kode Proses</option>
+                                @foreach ($kodeProses as $kodeProses => $namaProses)
+                                    <option value="{{ $kodeProses }}">{{ $kodeProses }} - {{ $namaProses }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="file">File</label>
+                            <input type="file" class="form-control" id="file" name="file" required>
+                        </div>
+                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
+                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editDokumen" tabindex="-1" role="dialog" aria-labelledby="editDokumenLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editDokumenLabel">Add New Dokumen {{ ucfirst($tipe) }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

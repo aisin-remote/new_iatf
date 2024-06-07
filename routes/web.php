@@ -35,14 +35,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/dokumen/{jenis}/{tipe}', [DocruleController::class, 'index'])->name('rule.index');
         Route::put('/dokumen/upload/{jenis}/{tipe}', [DokumenController::class, 'upload'])->name('dokumen.upload');
         Route::get('/dokumen/download/{jenis}/{tipe}', [DokumenController::class, 'download'])->name('dokumen.download');
-        Route::post('/admin/dokumen-prosedur', [DocruleController::class, 'store'])->name('admin-tambah-dokumen-prosedur');
-        Route::get('/admin/dokumen-prosedur/download/{id}', [DocruleController::class, 'download'])->name('admin-download-dokumen');
-        Route::put('/admin/dokumen-prosedur/update/{id}', [DocruleController::class, 'update'])->name('admin-update-dokumen');
-        Route::delete('/admin/dokumen-prosedur/delete/{id}', [DocruleController::class, 'destroy'])->name('admin-delete-dokumen');
-        Route::get('/admin/template-dokumen/{tipe_dokumen}', [AdminController::class, 'index'])->name('admin-template-dokumen');
-        Route::post('/admin/template-dokumen/add', [DocruleController::class, 'store'])->name('admin-add-template');
-        Route::put('/admin/template-dokumen/update/{id}', [AdminController::class, 'update'])->name('admin-update-template');
-        Route::get('/admin/template-dokumen/download/{id}', [AdminController::class, 'download'])->name('admin-download-template');
+        Route::post('/admin/dokumen/tambah', [DocruleController::class, 'store'])->name('tambah.rule');
+        Route::put('/admin/dokumen/{jenis}/{tipe}/edit', [DocruleController::class, 'update'])->name('edit.rule');
+        Route::get('/admin/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download'])->name('download.rule');
     });
     Route::group(['middleware' => ['role:guest']], function () {     
         Route::get('/guest/dashboard-rule', [GuestController::class, 'dashboard_rule'])->name('guest.dashboard.rule');
