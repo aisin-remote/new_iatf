@@ -120,9 +120,9 @@
                             <label for="rule_id">Kode Proses</label>
                             <select class="form-control" id="rule_id" name="rule_id" required>
                                 <option value="">Pilih Kode Proses</option>
-                                @foreach ($kodeProses as $kodeProses => $namaProses)
-                                    <option value="{{ $kodeProses }}">{{ $kodeProses }} - {{ $namaProses }}
-                                    </option>
+                                @foreach ($kodeProses as $kodeProses)
+                                    <option value="{{ $kodeProses['id'] }}">{{ $kodeProses['kode_proses'] }} -
+                                        {{ $kodeProses['nama_proses'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -130,8 +130,8 @@
                             <label for="file">File</label>
                             <input type="file" class="form-control" id="file" name="file" required>
                         </div>
-                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
-                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
+                        <input type="hidden" name="jenis_dokumen" value="jenis_dokumen_value">
+                        <input type="hidden" name="tipe_dokumen" value="tipe_dokumen_value">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -14,7 +14,6 @@
             </a>
             <div class="collapse" id="prosedur">
                 <ul class="nav flex-column sub-menu">
-
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
                     </li>

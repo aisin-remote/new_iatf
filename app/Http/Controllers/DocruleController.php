@@ -8,6 +8,7 @@ use App\Models\IndukDokumen;
 use App\Models\RuleCode;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class DocruleController extends Controller
@@ -26,11 +27,10 @@ class DocruleController extends Controller
             ->where('tipe_dokumen', $tipe)
             ->get();
 
-        $kodeProses = RuleCode::pluck('nama_proses', 'kode_proses');
+        $kodeProses = RuleCode::all();
 
         return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'jenisDokumen', 'tipeDokumen', 'kodeProses'));
     }
-
 
     public function store(Request $request)
     {
@@ -39,59 +39,57 @@ class DocruleController extends Controller
             'nama_dokumen' => 'required',
             'rule_id' => 'required',
             'file' => 'required|file',
+            'jenis_dokumen' => 'required',
+            'tipe_dokumen' => 'required',
         ]);
 
-        // Mendapatkan user ID, misalnya dari session atau data user yang login
-        $userId = auth()->id(); // Sesuaikan dengan cara Anda mendapatkan user ID
+        // Mulai transaksi database
+        DB::beginTransaction();
 
-        // Mendapatkan id departemen dari user
-        $user = User::find($userId);
-        if (!$user) {
-            return redirect()->back()->with('error', 'User tidak ditemukan.');
+        try {
+            // Mendapatkan user ID dari user yang sedang login
+            $userId = auth()->id();
+
+            // Cari atau buat ID dokumen berdasarkan jenis dan tipe yang dipilih
+            $dokumen = Dokumen::firstOrCreate(
+                ['jenis_dokumen' => $request->jenis_dokumen, 'tipe_dokumen' => $request->tipe_dokumen],
+                ['other_attributes' => 'values'] // Tambahkan atribut lain yang diperlukan untuk membuat dokumen baru
+            );
+
+            // Menghasilkan nomor dokumen
+            $nomorDokumen = IndukDokumen::generateNomorDokumen($request->tipe_dokumen, $userId, $request->rule_id, 0);
+
+            // Mengambil file yang di-upload
+            $file = $request->file('file');
+
+            // Menyimpan file ke direktori yang diinginkan
+            $filePath = $file->store('dokumen');
+
+            // Menyimpan data dokumen ke tabel induk_dokumen
+            $dokumenInduk = new IndukDokumen([
+                'nama_dokumen' => $request->nama_dokumen,
+                'user_id' => $userId,
+                'dokumen_id' => $dokumen->id,
+                'rule_id' => $request->rule_id,
+                'tgl_upload' => now(),
+                'revisi_log' => 0,
+                'file' => $filePath,
+                'status' => 'Waiting',
+                'nomor_dokumen' => $nomorDokumen
+            ]);
+            $dokumenInduk->save();
+
+            // Commit transaksi
+            DB::commit();
+
+            // Redirect atau kembali ke halaman yang sesuai
+            return redirect()->route('rule.index', ['tipe' => $request->tipe_dokumen])->with('success', 'Dokumen berhasil diunggah.');
+        } catch (\Exception $e) {
+            // Rollback transaksi jika terjadi kesalahan
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-        $idDepartemen = $user->departemen_id;
-
-        // Mendapatkan nama departemen berdasarkan id departemen
-        $departemen = Departemen::find($idDepartemen);
-        if (!$departemen) {
-            return redirect()->back()->with('error', 'Departemen tidak ditemukan.');
-        }
-        $namaDepartemen = $departemen->nama_departemen;
-
-        // Mendapatkan tipe dokumen dari document_id
-        $document = RuleCode::find($request->rule_id);
-        if (!$document) {
-            return redirect()->back()->with('error', 'RuleDoc tidak ditemukan.');
-        }
-        $tipe = $document->tipe_dokumen;
-        $kodeProses = $document->kode_proses;
-
-        // Menghasilkan nomor dokumen berformat
-        $nomorDokumen = $tipe . '-' . $namaDepartemen . '-' . $kodeProses . '-' . IndukDokumen::count() + 1;
-
-        // Mengambil file yang di-upload
-        $file = $request->file('file');
-
-        // Menyimpan file ke direktori yang diinginkan
-        $filePath = $file->store('dokumen');
-
-        // Menyimpan data dokumen ke database
-        $dokumen = new Dokumen();
-        $dokumen->nama_dokumen = $request->nama_dokumen;
-        $dokumen->dokumen_id = $request->document_id; // Misalnya, dokumen_id diambil dari input form document_id
-        $dokumen->rule_id = $request->rule_id; // Misalnya, rule_id diambil dari input form rule_id
-        $dokumen->tgl_upload = now(); // Menggunakan timestamp saat ini sebagai tanggal upload
-        $dokumen->file = $filePath; // Misalnya, atribut file diisi dengan path file yang disimpan
-        $dokumen->status = 'Waiting'; // Misalnya, status awal dokumen adalah 'Aktif'
-        $dokumen->nomor_dokumen = $nomorDokumen;
-        $dokumen->user_id = $userId;
-        $dokumen->save();
-
-        // Redirect atau kembali ke halaman yang sesuai
-        return redirect()->route('rule.index', ['tipe' => $tipe])->with('success', 'Dokumen berhasil diunggah.');
     }
-
-
     // public function download($id)
     // {
     //     $dokumen = IndukDokumen::findOrFail($id);
