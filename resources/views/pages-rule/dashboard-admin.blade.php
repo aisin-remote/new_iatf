@@ -13,16 +13,9 @@
                     </div>
                     <div class="col-12 col-xl-4">
                         <div class="justify-content-end d-flex">
-                            <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
-                                <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button"
-                                    id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <i class="mdi mdi-calendar"></i> Today (10 Jan 2021)
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuDate2">
-                                    <a class="dropdown-item" href="#">January - March</a>
-                                    <a class="dropdown-item" href="#">March - June</a>
-                                    <a class="dropdown-item" href="#">June - August</a>
-                                    <a class="dropdown-item" href="#">August - November</a>
+                            <div class="justify-content-end d-flex">
+                                <div class="flex-md-grow-1 flex-xl-grow-0">
+                                    <span class="btn btn-sm btn-light bg-white" id="currentDateText"></span>
                                 </div>
                             </div>
                         </div>
@@ -45,7 +38,7 @@
                                     </div>
                                 </div>
                                 <h4 class="card-title">Pie chart</h4>
-                                <canvas id="pieChart" width="406" height="202"
+                                <canvas id="pieChart1" width="406" height="202"
                                     style="display: block; height: 162px; width: 325px;"
                                     class="chartjs-render-monitor"></canvas>
                             </div>
@@ -114,18 +107,18 @@
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
-                                <p class="mb-4">Today’s Bookings</p>
-                                <p class="fs-30 mb-2">4006</p>
-                                <p>10.00% (30 days)</p>
+                                <h4 class="mb-4">WI</h4>
+                                <p class="fs-30 mb-2">{{ $countByType->where('tipe_dokumen', 'WI')->first()->count ?? 0 }}
+                                </p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-dark-blue">
                             <div class="card-body">
-                                <p class="mb-4">Total Bookings</p>
-                                <p class="fs-30 mb-2">61344</p>
-                                <p>22.00% (30 days)</p>
+                                <h4 class="mb-4">Prosedur</h4>
+                                <p class="fs-30 mb-2">
+                                    {{ $countByType->where('tipe_dokumen', 'PROSEDUR')->first()->count ?? 0 }}</p>
                             </div>
                         </div>
                     </div>
@@ -136,18 +129,18 @@
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
-                                <p class="mb-4">Today’s Bookings</p>
-                                <p class="fs-30 mb-2">4006</p>
-                                <p>10.00% (30 days)</p>
+                                <h4 class="mb-4">Standar</h4>
+                                <p class="fs-30 mb-2">
+                                    {{ $countByType->where('tipe_dokumen', 'Standar')->first()->count ?? 0 }}</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-dark-blue">
                             <div class="card-body">
-                                <p class="mb-4">Total Bookings</p>
-                                <p class="fs-30 mb-2">61344</p>
-                                <p>22.00% (30 days)</p>
+                                <h4 class="mb-4">WIS</h4>
+                                <p class="fs-30 mb-2">{{ $countByType->where('tipe_dokumen', 'WIS')->first()->count ?? 0 }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -155,6 +148,8 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
     <script>
         $(document).ready(function() {
             // Mengatur interval untuk menggeser carousel setiap 10 detik
@@ -196,5 +191,57 @@
         function stopRealTimeUpdate() {
             clearInterval(intervalId); // Menghentikan pemanggilan setInterval
         }
+    </script>
+    <script>
+        // Data untuk grafik pie
+        var data = {
+            labels: {!! json_encode($countByType->pluck('tipe_dokumen')) !!},
+            datasets: [{
+                data: {!! json_encode($countByType->pluck('count')) !!},
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    // Anda dapat menambahkan warna tambahan jika diperlukan
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        // Konfigurasi untuk grafik pie
+        var options = {
+            responsive: true,
+            maintainAspectRatio: false,
+        };
+
+        // Membuat grafik pie
+        var ctx1 = document.getElementById('pieChart1').getContext('2d');
+        var myPieChart1 = new Chart(ctx1, {
+            type: 'pie',
+            data: data,
+            options: options
+        });
+
+        var ctx2 = document.getElementById('pieChart2').getContext('2d');
+        var myPieChart2 = new Chart(ctx2, {
+            type: 'pie',
+            data: data,
+            options: options
+        });
+
+        var ctx3 = document.getElementById('pieChart3').getContext('2d');
+        var myPieChart3 = new Chart(ctx3, {
+            type: 'pie',
+            data: data,
+            options: options
+        });
+
+        var ctx4 = document.getElementById('pieChart4').getContext('2d');
+        var myPieChart4 = new Chart(ctx4, {
+            type: 'pie',
+            data: data,
+            options: options
+        });
     </script>
 @endsection

@@ -9,5 +9,5 @@ class RuleCode extends Model
 {
     use HasFactory;
 
-    protected $table = 'master_dokumen';
+    protected $table = 'rule';
 }

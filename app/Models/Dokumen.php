@@ -10,4 +10,10 @@ class Dokumen extends Model
     use HasFactory;
 
     protected $table = 'dokumen';
+
+    public function indukDokumen()
+    {
+        return $this->hasMany(IndukDokumen::class, 'dokumen_id');
+    }
 }
+

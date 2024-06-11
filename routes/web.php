@@ -36,10 +36,10 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/dokumen/upload/{jenis}/{tipe}', [DokumenController::class, 'upload'])->name('dokumen.upload');
         Route::get('/dokumen/download/{jenis}/{tipe}', [DokumenController::class, 'download'])->name('dokumen.download');
         Route::post('/admin/dokumen/tambah', [DocruleController::class, 'store'])->name('tambah.rule');
-        Route::put('/admin/dokumen/{jenis}/{tipe}/edit', [DocruleController::class, 'update'])->name('edit.rule');
+        Route::post('/admin/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])->name('edit.rule');
         Route::get('/admin/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download'])->name('download.rule');
     });
-    Route::group(['middleware' => ['role:guest']], function () {     
+    Route::group(['middleware' => ['role:guest']], function () {
         Route::get('/guest/dashboard-rule', [GuestController::class, 'dashboard_rule'])->name('guest.dashboard.rule');
     });
 });

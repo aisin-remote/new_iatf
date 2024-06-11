@@ -9,4 +9,15 @@ class Departemen extends Model
 {
     use HasFactory;
     protected $table = 'departemen';
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'departemen_id');
+    }
+
+    // Relasi dengan dokumen (melalui pengguna)
+    public function dokumen()
+    {
+        return $this->hasManyThrough(IndukDokumen::class, User::class);
+    }
 }

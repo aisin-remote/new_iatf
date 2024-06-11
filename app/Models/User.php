@@ -44,4 +44,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function departemen()
+    {
+        return $this->belongsTo(Departemen::class, 'departemen_id');
+    }
+
+    // Relasi dengan dokumen
+    public function dokumen()
+    {
+        return $this->hasMany(IndukDokumen::class);
+    }
 }
