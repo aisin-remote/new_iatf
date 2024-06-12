@@ -145,50 +145,52 @@
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="editDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-        aria-labelledby="editDokumenLabel-{{ $doc->id }}" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{{ route('edit.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                    method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('POST')
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editDokumenLabel">Edit Dokumen {{ ucfirst($tipe) }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="nama_dokumen">Nama Dokumen</label>
-                            <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
+    @foreach ($indukDokumenList as $doc)
+        <div class="modal fade" id="editDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('edit.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                        method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('POST')
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editDokumenLabel">Edit Dokumen {{ ucfirst($tipe) }}</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-                        <div class="form-group">
-                            <label for="rule_id">Kode Proses</label>
-                            <select class="form-control" id="rule_id" name="rule_id" required>
-                                <option value="">Pilih Kode Proses</option>
-                                @foreach ($kodeProses as $item)
-                                    <option value="{{ $item['id'] }}">
-                                        {{ $item['kode_proses'] }} - {{ $item['nama_proses'] }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="nama_dokumen">Nama Dokumen</label>
+                                <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rule_id">Kode Proses</label>
+                                <select class="form-control" id="rule_id" name="rule_id" required>
+                                    <option value="">Pilih Kode Proses</option>
+                                    @foreach ($kodeProses as $item)
+                                        <option value="{{ $item['id'] }}">
+                                            {{ $item['kode_proses'] }} - {{ $item['nama_proses'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">File</label>
+                                <input type="file" class="form-control" id="file" name="file" required>
+                            </div>
+                            <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
+                            <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
                         </div>
-                        <div class="form-group">
-                            <label for="file">File</label>
-                            <input type="file" class="form-control" id="file" name="file" required>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
                         </div>
-                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
-                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
+    @endforeach
 @endsection

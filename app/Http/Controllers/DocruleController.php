@@ -227,4 +227,17 @@ class DocruleController extends Controller
             return redirect()->route('rule.index', ['jenis' => $jenis, 'tipe' => $tipe])->with('error', 'File not found.');
         }
     }
+    public function validate_index($jenis, $tipe)
+    {
+        $dokumen = Dokumen::where('jenis_dokumen', $jenis)
+            ->where('tipe_dokumen', $tipe)
+            ->get();
+
+        // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
+        $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))->get();
+
+        $kodeProses = RuleCode::all();
+
+        return view('pages-rule.validasi-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses'));
+    }
 }

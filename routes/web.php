@@ -5,7 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocruleController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\GuestController;
-use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/dokumen/tambah', [DocruleController::class, 'store'])->name('tambah.rule');
         Route::post('/admin/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])->name('edit.rule');
         Route::get('/admin/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download'])->name('download.rule');
+        Route::get('/admin/validate-dokumen/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])->name('rule.validate');
     });
     Route::group(['middleware' => ['role:guest']], function () {
         Route::get('/guest/dashboard-rule', [GuestController::class, 'dashboard_rule'])->name('guest.dashboard.rule');

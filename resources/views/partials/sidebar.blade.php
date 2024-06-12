@@ -57,22 +57,21 @@
             <div class="collapse" id="validasi-rule">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
+                        <a class="nav-link" href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'Prosedur']) }}">Prosedur</a>
+                            href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'Prosedur']) }}">Prosedur</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standar</a>
+                            href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standar</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
+                            href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
                     </li>
                 </ul>
-
             </div>
         </li>
     </ul>
