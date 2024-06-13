@@ -12,7 +12,7 @@ class Departemen extends Model
 
     public function users()
     {
-        return $this->hasMany(User::class, 'departemen_id');
+        return $this->hasMany(User::class);
     }
 
     // Relasi dengan dokumen (melalui pengguna)

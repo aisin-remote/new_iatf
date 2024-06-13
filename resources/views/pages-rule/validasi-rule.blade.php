@@ -19,9 +19,11 @@
                         </button>
                         <p class="card-description"></p>
                         <div class="d-flex justify-content-end mb-3">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDokumenModal">
-                                Add New
+                            <button class="btn btn-sm" style="background: #808080; color: white;" data-toggle="modal"
+                                data-target="#filterModal">
+                                Filter
                             </button>
+
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -47,18 +49,29 @@
                                             <td>{{ $doc->status }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editDokumen-{{ $doc->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button>
-
-                                                <!-- Tombol Download -->
                                                 <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                     class="btn btn-primary btn-sm">
                                                     Download
                                                     <i class="fa-solid fa-file-arrow-down"></i>
                                                 </a>
+
+                                                <!-- Tombol Approval -->
+                                                <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" class="btn btn-success btn-sm">Approve <i
+                                                            class="fa-solid fa-circle-check"></i></button>
+                                                </form>
+
+                                                <!-- Tombol Reject -->
+                                                <form action="{{ route('dokumen.rejected', ['id' => $doc->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('POST')
+                                                    <button type="submit" class="btn btn-danger btn-sm">Reject <i
+                                                            class="fa-solid fa-circle-xmark"></i></button>
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -95,97 +108,6 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Document Modal -->
-    <div class="modal fade" id="addDokumenModal" tabindex="-1" role="dialog" aria-labelledby="addDokumenModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{{ route('tambah.rule') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addDokumenModalLabel">Add New Dokumen {{ ucfirst($tipe) }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="nama_dokumen">Nama Dokumen</label>
-                            <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="rule_id">Kode Proses</label>
-                            <select class="form-control" id="rule_id" name="rule_id" required>
-                                <option value="">Pilih Kode Proses</option>
-                                @foreach ($kodeProses as $item)
-                                    <option value="{{ $item['id'] }}">
-                                        {{ $item['kode_proses'] }} - {{ $item['nama_proses'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="file">File</label>
-                            <input type="file" class="form-control" id="file" name="file" required>
-                        </div>
-                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
-                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-        aria-labelledby="editDokumenLabel-{{ $doc->id }}" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form action="{{ route('edit.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                    method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('POST')
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editDokumenLabel">Edit Dokumen {{ ucfirst($tipe) }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="nama_dokumen">Nama Dokumen</label>
-                            <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="rule_id">Kode Proses</label>
-                            <select class="form-control" id="rule_id" name="rule_id" required>
-                                <option value="">Pilih Kode Proses</option>
-                                @foreach ($kodeProses as $item)
-                                    <option value="{{ $item['id'] }}">
-                                        {{ $item['kode_proses'] }} - {{ $item['nama_proses'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="file">File</label>
-                            <input type="file" class="form-control" id="file" name="file" required>
-                        </div>
-                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
-                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </form>
             </div>

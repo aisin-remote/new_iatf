@@ -47,11 +47,15 @@ class User extends Authenticatable
 
     public function departemen()
     {
-        return $this->belongsTo(Departemen::class, 'departemen_id');
+        return $this->belongsTo(Departemen::class);
     }
 
     // Relasi dengan dokumen
     public function dokumen()
+    {
+        return $this->hasMany(Dokumen::class);
+    }
+    public function indukdokumen()
     {
         return $this->hasMany(IndukDokumen::class);
     }

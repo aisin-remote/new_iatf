@@ -151,19 +151,22 @@
                 var ctx{{ $type }} = document.getElementById('statusPieChart{{ $type }}')
                     .getContext('2d');
                 var chartData{{ $type }} = {
-                    labels: ['Waiting', 'Approve'],
+                    labels: ['Waiting', 'Approved', 'Rejected'],
                     datasets: [{
                         data: [
                             {{ $typeData->where('status', 'waiting')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'approve')->first()->count ?? 0 }}
+                            {{ $typeData->where('status', 'approved')->first()->count ?? 0 }},
+                            {{ $typeData->where('status', 'rejected')->first()->count ?? 0 }}
                         ],
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
                             'rgba(54, 162, 235, 0.2)',
+                            'rgba(0, 255, 0, 0.2)',
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
+                            'rgba(0, 255, 0, 1)'
                         ],
                         borderWidth: 1
                     }]

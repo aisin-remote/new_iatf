@@ -7,21 +7,33 @@ use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
 use App\Models\User;
+use App\Notifications\DokumenMasukNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class DocruleController extends Controller
 {
     public function index($jenis, $tipe)
     {
-        // Ambil dokumen berdasarkan jenis dan tipe yang dipilih
+        $user = auth()->user();
+        $departemen_user = $user->departemen->nama_departemen;
+
+        // Ambil dokumen berdasarkan jenis, tipe dan departemen user yang login
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
             ->where('tipe_dokumen', $tipe)
+            ->whereHas('indukDokumen.user.departemen', function ($query) use ($departemen_user) {
+                $query->where('nama_departemen', $departemen_user);
+            })
             ->get();
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
-        $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))->get();
+        $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
+            ->whereHas('user.departemen', function ($query) use ($departemen_user) {
+                $query->where('nama_departemen', $departemen_user);
+            })
+            ->get();
 
         $kodeProses = RuleCode::all();
 
@@ -116,6 +128,9 @@ class DocruleController extends Controller
         $dokumen->rule_id = $request->rule_id; // Atur rule_id
         $dokumen->save();
 
+        // $admin = User::where('role', 'admin')->get(); // Asumsikan ada kolom 'role' untuk menentukan user sebagai admin
+        // Notification::send($admin, new DokumenMasukNotification($dokumen));
+        // $user->notify(new DokumenMasukNotification($dokumen));
         // Redirect or return a response
         return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
     }
@@ -217,16 +232,17 @@ class DocruleController extends Controller
     }
     public function download($jenis, $tipe, $id)
     {
-        // dd($tipe);
         $dokumen = IndukDokumen::findOrFail($id);
         $filePath = $dokumen->file;
+        $fileName = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($filePath, PATHINFO_EXTENSION);
 
         if (Storage::disk('public')->exists($filePath)) {
-            return Storage::disk('public')->download($filePath);
+            return Storage::disk('public')->download($filePath, $fileName);
         } else {
             return redirect()->route('rule.index', ['jenis' => $jenis, 'tipe' => $tipe])->with('error', 'File not found.');
         }
     }
+
     public function validate_index($jenis, $tipe)
     {
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
@@ -239,5 +255,33 @@ class DocruleController extends Controller
         $kodeProses = RuleCode::all();
 
         return view('pages-rule.validasi-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses'));
+    }
+    public function approveDocument(Request $request, $id)
+    {
+        // Temukan dokumen berdasarkan ID
+        $dokumen = IndukDokumen::findOrFail($id);
+
+        // Lakukan perubahan status menjadi "approved"
+        $dokumen->status = 'approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
+
+        // Simpan perubahan
+        $dokumen->save();
+
+        // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->back()->with('success', 'Dokumen berhasil diapprove.');
+    }
+    public function RejectedDocument(Request $request, $id)
+    {
+        // Temukan dokumen berdasarkan ID
+        $dokumen = IndukDokumen::findOrFail($id);
+
+        // Lakukan perubahan status menjadi "approved"
+        $dokumen->status = 'rejected'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
+
+        // Simpan perubahan
+        $dokumen->save();
+
+        // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->back()->with('success', 'Tolong upload kembali dokumen yang benar.');
     }
 }

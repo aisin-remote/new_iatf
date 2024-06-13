@@ -11,12 +11,13 @@
                             href="{{ route('dokumen.download', ['jenis' => $jenis, 'tipe' => $tipe]) }}">
                             Download
                             <i class="fa-solid fa-file-arrow-down"></i>
-                        </a>
-
+                        </a
+                        @role('admin')
                         <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddokumen"
                             style="margin-left: 4px">
                             Upload
                         </button>
+                        @endrole
                         <p class="card-description"></p>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDokumenModal">

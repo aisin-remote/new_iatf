@@ -15,5 +15,9 @@ class Dokumen extends Model
     {
         return $this->hasMany(IndukDokumen::class, 'dokumen_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
 
