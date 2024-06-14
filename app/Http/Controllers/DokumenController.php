@@ -8,17 +8,50 @@ use Illuminate\Support\Facades\Storage;
 
 class DokumenController extends Controller
 {
-    public function upload(Request $request, $jenis, $tipe)
+    public function index()
+    {
+        $dokumen = Dokumen::all();
+        return view('dokumen', compact('dokumen'));
+    }
+
+    public function store(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'jenis_dokumen' => 'required',
+            'tipe_dokumen' => 'required',
+            'file' => 'required|mimes:pdf,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
+        ]);
+
+        // Mendapatkan jenis_dokumen dan tipe_dokumen dari request
+        $jenis = $request->input('jenis_dokumen');
+        $tipe = $request->input('tipe_dokumen');
+
+        // Simpan file yang diunggah ke storage disk
+        $file = $request->file('file');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        Storage::disk('public')->putFileAs('dokumen', $file, $fileName);
+
+        // Perbarui informasi dokumen
+        $dokumen =  new Dokumen();
+        $dokumen->jenis_dokumen = $jenis;
+        $dokumen->tipe_dokumen = $tipe;
+        $dokumen->file = $fileName;
+        // Tambahkan kolom-kolom lain yang sesuai dengan struktur tabel dokumen Anda
+        $dokumen->save();
+
+        return back()->with('success', 'Dokumen have been added.');
+    }
+
+    public function edit(Request $request, $id)
     {
         // Validasi input
         $request->validate([
             'file' => 'required|mimes:pdf,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
         ]);
 
-        // Mencari dokumen berdasarkan jenis_dokumen dan tipe_dokumen
-        $dokumen = Dokumen::where('jenis_dokumen', $jenis)
-            ->where('tipe_dokumen', $tipe)
-            ->first();
+        // Mencari dokumen berdasarkan ID
+        $dokumen = Dokumen::find($id);
 
         if ($dokumen) {
             // Hapus file lama jika ada
@@ -33,7 +66,8 @@ class DokumenController extends Controller
 
             // Perbarui informasi dokumen
             $dokumen->file = $fileName;
-            // Tambahkan kolom-kolom lain yang sesuai dengan struktur tabel dokumen Anda
+
+            // Simpan perubahan ke database
             $dokumen->save();
 
             return back()->with('success', 'Dokumen berhasil diperbarui.');
@@ -42,26 +76,21 @@ class DokumenController extends Controller
         }
     }
 
-    public function download($jenis, $tipe)
+    public function download($id)
     {
         // Temukan dokumen yang sesuai dengan jenis dan tipe dokumen
-        $dokumen = Dokumen::where('jenis_dokumen', $jenis)
-            ->where('tipe_dokumen', $tipe)
-            ->first();
-
-        // Periksa apakah dokumen ditemukan
-        if ($dokumen) {
-            $filePath = 'dokumen/' . $dokumen->file;
-
+        $dokumen = Dokumen::findOrFail($id);
+        $filePath = $dokumen->file;
+        $filePath = 'dokumen/' . $dokumen->file;
+        if (Storage::disk('public')->exists($filePath)) {
+            // Membuat nama file yang diunduh dengan format yang diinginkan
+            $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
+            $fileName = $dokumen->Template . '_' . $dokumen->jenis_dokumen . '_' . $dokumen->tipe_dokumen . '.' . $fileExtension;
             // Jika file ditemukan, kirim file untuk diunduh
-            if (Storage::disk('public')->exists($filePath)) {
-                return Storage::disk('public')->download($filePath, $dokumen->file);
-            } else {
-                return back()->with('error', 'File tidak ditemukan di storage.');
-            }
-        }
-
-        // Jika dokumen tidak ditemukan atau file tidak ada, kembalikan respons dengan pesan kesalahan
-        return back()->with('error', 'Dokumen tidak ditemukan.');
+            return Storage::disk('public')->download($filePath, $fileName);
+    } else {
+        return back()->with('error', 'File tidak ditemukan di storage.');
     }
-}
+        }
+    }
+

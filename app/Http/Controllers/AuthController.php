@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -80,15 +81,27 @@ class AuthController extends Controller
                 ->withInput($request->except('password'));
         }
 
+        // Default role name for guest
+        $defaultRoleName = 'guest';
+
+        // Find the guest role
+        $role = Role::where('name', $defaultRoleName)->first();
+
+        // Create the user
         $user = User::create([
             'npk' => $request->npk,
             'departemen_id' => $request->departemen,
             'password' => Hash::make($request->password),
         ]);
 
+        // Assign the guest role to the user
+        if ($role) {
+            $user->assignRole($role);
+        }
+
+        // Login user after registration
         Auth::login($user);
 
-        // Redirect to the dashboard or desired location
         return redirect()->route('login')->with('success', 'Registration successful! Please Login');
     }
 

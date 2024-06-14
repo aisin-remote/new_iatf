@@ -7,17 +7,6 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Dokumen {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
-                        <a class="btn btn-primary btn-sm"
-                            href="{{ route('dokumen.download', ['jenis' => $jenis, 'tipe' => $tipe]) }}">
-                            Download
-                            <i class="fa-solid fa-file-arrow-down"></i>
-                        </a
-                        @role('admin')
-                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddokumen"
-                            style="margin-left: 4px">
-                            Upload
-                        </button>
-                        @endrole
                         <p class="card-description"></p>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addDokumenModal">
@@ -68,36 +57,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal untuk mengunggah file -->
-    <div class="modal fade" id="uploaddokumen" tabindex="-1" role="dialog" aria-labelledby="uploaddokumenLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="uploaddokumenLabel">Upload Template {{ $tipe }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('dokumen.upload', ['jenis' => $jenis, 'tipe' => $tipe]) }}" method="post"
-                    enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="file">Pilih File</label>
-                            <input type="file" class="form-control-file" id="file" name="file" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

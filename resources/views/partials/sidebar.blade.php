@@ -6,6 +6,12 @@
                 <span class="menu-title"> Dashboard</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('template.index') }}">
+                <i class="fa-solid fa-file-contract" style="margin-right: 14px"></i>
+                <span class="menu-title"> Template Dokumen</span>
+            </a>
+        </li>
         @role('guest')
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#rule" aria-expanded="false" aria-controls="rule">
@@ -84,5 +90,12 @@
                 </div>
             </li>
         @endrole
+        <li class="nav-item">
+            <a class="nav-link" href="">
+                <i class="fa-solid fa-file-contract" style="margin-right: 14px"></i>
+                <span class="menu-title"> Shared Dokumen</span>
+            </a>
+        </li>
+
     </ul>
 </nav>

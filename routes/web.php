@@ -6,6 +6,8 @@ use App\Http\Controllers\DocruleController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,18 +21,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// login register 
 Route::get('/', function () {
     return redirect('/login');
 });
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login-proses', [AuthController::class, 'login_proses'])->name('login.proses');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/register', [AuthController::class, 'register_form'])->name('register');
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register-proses', [AuthController::class, 'register_proses'])->name('register.proses');
 
 Route::middleware(['auth'])->group(function () {
     Route::group(['middleware' => ['role:admin']], function () {
-        Route::put('/dokumen/upload/{jenis}/{tipe}', [DokumenController::class, 'upload'])->name('dokumen.upload');
         Route::get('/admin/validate-dokumen/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])->name('rule.validate');
         Route::post('/dokumen/approve/{id}', [DocruleController::class, 'approveDocument'])
             ->name('dokumen.approve');
@@ -42,14 +44,27 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/guest/dokumen/tambah', [DocruleController::class, 'store'])->name('tambah.rule');
         Route::post('/guest/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])->name('edit.rule');
     });
+
+    // Template Dokumen
+    Route::get('/template-dokumen', [DokumenController::class, 'index'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.index');
+    Route::get('/template-dokumen/add', [DokumenController::class, 'store'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.add');
+    Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'download'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.download');
+    Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.edit');
+
+    // Dashboard rule
+    Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('dashboard.rule');
     Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.rule');
-    Route::get('/dokumen/download/{jenis}/{tipe}', [DokumenController::class, 'download'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('dokumen.download');
-    Route::get('/admin/dashboard-rule', [HomeController::class, 'dashboard_rule'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('dashboard.rule');
 
 });

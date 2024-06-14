@@ -28,7 +28,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h4 class="card-title">{{ $type }}</h4>
-                                    <canvas id="statusPieChart{{ $type }}" width="400" height="400"></canvas>
+                                    <canvas id="statusBarChart{{ $type }}" width="400" height="400"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -148,32 +148,40 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             @foreach ($countByStatusAndType->groupBy('tipe_dokumen') as $type => $typeData)
-                var ctx{{ $type }} = document.getElementById('statusPieChart{{ $type }}')
+                var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
                     .getContext('2d');
+
+                // Menghitung jumlah total dokumen
+                var totalDocuments = {{ $typeData->sum('count') }};
+
                 var chartData{{ $type }} = {
-                    labels: ['Waiting', 'Approved', 'Rejected'],
+                    labels: ['Waiting', 'Approved', 'Rejected', 'Total'],
                     datasets: [{
+                        label: 'Number of Documents',
                         data: [
                             {{ $typeData->where('status', 'waiting')->first()->count ?? 0 }},
                             {{ $typeData->where('status', 'approved')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'rejected')->first()->count ?? 0 }}
+                            {{ $typeData->where('status', 'rejected')->first()->count ?? 0 }},
+                            totalDocuments // Data untuk total dokumen
                         ],
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
                             'rgba(54, 162, 235, 0.2)',
                             'rgba(0, 255, 0, 0.2)',
+                            'rgba(255, 206, 86, 0.2)'
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
-                            'rgba(0, 255, 0, 1)'
+                            'rgba(0, 255, 0, 1)',
+                            'rgba(255, 206, 86, 1)'
                         ],
                         borderWidth: 1
                     }]
                 };
 
-                var statusPieChart{{ $type }} = new Chart(ctx{{ $type }}, {
-                    type: 'pie',
+                var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
+                    type: 'bar', // Mengubah tipe chart menjadi bar
                     data: chartData{{ $type }},
                     options: {
                         responsive: true,
@@ -185,10 +193,23 @@
                                 display: true,
                                 text: 'Documents Status for {{ $type }}'
                             }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true // Memastikan sumbu Y dimulai dari 0
+                            }
+                        },
+                        tooltips: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
+                                }
+                            }
                         }
                     }
                 });
             @endforeach
         });
     </script>
+
 @endsection
