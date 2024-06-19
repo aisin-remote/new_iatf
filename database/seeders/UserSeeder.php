@@ -15,14 +15,14 @@ class UserSeeder extends Seeder
     {
         $admin = User::create([
             'npk' => '000000',
-            'departemen_id' => 14,
+            'departemen_id' => 18,
             'password' => bcrypt('12345678'),
         ]);
         $admin->assignRole('admin');
 
         $admin2 = User::create([
             'npk' => '111111',
-            'departemen_id' => 16,
+            'departemen_id' => 17,
             'password' => bcrypt('12345678'),
         ]);
         $admin2->assignRole('admin');
@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
 
         $guest = User::create([
             'npk' => '002327',
-            'departemen_id' => 16,
+            'departemen_id' => 17,
             'password' => bcrypt('12345678'),
         ]);
         $guest->assignRole('guest');

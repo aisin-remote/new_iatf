@@ -62,6 +62,34 @@
 
         @role('admin')
             <li class="nav-item">
+                <a class="nav-link" data-toggle="collapse" href="#validasi-draft-rule" aria-expanded="false"
+                    aria-controls="validasi-draft-rule">
+                    <i class="fas fa-file" style="margin-right: 14px"></i>
+                    <span class="menu-title"> Validasi Draft Rule</span>
+                    <i class="menu-arrow"></i>
+                </a>
+                <div class="collapse" id="validasi-draft-rule">
+                    <ul class="nav flex-column sub-menu">
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'Prosedur']) }}">Prosedur</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#validasi-rule" aria-expanded="false"
                     aria-controls="validasi-rule">
                     <i class="fas fa-file" style="margin-right: 14px"></i>
@@ -90,12 +118,12 @@
                 </div>
             </li>
         @endrole
+
         <li class="nav-item">
-            <a class="nav-link" href="">
+            <a class="nav-link" href="{{ route('document.share') }}">
                 <i class="fa-solid fa-file-contract" style="margin-right: 14px"></i>
                 <span class="menu-title"> Shared Dokumen</span>
             </a>
         </li>
-
     </ul>
 </nav>

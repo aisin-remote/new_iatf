@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('dokumen', function (Blueprint $table) {
-            $table->text('file')->after('tipe_dokumen')->nullable();
+        Schema::table('induk_dokumen', function (Blueprint $table) {
+            $table->text('command')->after('status')->nullable();
         });
     }
 
@@ -21,10 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('dokumen', function (Blueprint $table) {
-
+        Schema::table('induk_dokumen', function (Blueprint $table) {
             // Drop the departemen_id column
-            $table->dropColumn('dokumen');
+            $table->dropColumn('command');
         });
     }
 };

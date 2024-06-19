@@ -20,4 +20,9 @@ class Departemen extends Model
     {
         return $this->hasManyThrough(IndukDokumen::class, User::class);
     }
+    public function documents()
+{
+    return $this->belongsToMany(IndukDokumen::class, 'document_department');
+}
+
 }

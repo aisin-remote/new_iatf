@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\IndukDokumen;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -13,8 +14,19 @@ class HomeController extends Controller
         $user = auth()->user();
 
         if ($user->hasRole('admin')) {
-            // Admin melihat semua data
-            $dokumenall = IndukDokumen::all();
+            $dokumenall = IndukDokumen::where('status', 'approved')->get();
+        } else {
+            $departemen_user = $user->departemen->nama_departemen;
+
+            $dokumenall = IndukDokumen::where('status', 'approved')
+                ->whereHas('user', function ($query) use ($departemen_user) {
+                    $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                        $query->where('nama_departemen', $departemen_user);
+                    });
+                })->get();
+        }
+
+        if ($user->hasRole('admin')) {
             $countByType = DB::table('induk_dokumen')
                 ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
                 ->select('dokumen.tipe_dokumen', DB::raw('count(*) as count'))
@@ -27,14 +39,7 @@ class HomeController extends Controller
                 ->groupBy('dokumen.tipe_dokumen', 'induk_dokumen.status')
                 ->get();
         } else {
-            // Pengguna biasa melihat data berdasarkan departemen mereka
             $departemen_user = $user->departemen->nama_departemen;
-
-            $dokumenall = IndukDokumen::whereHas('user', function ($query) use ($departemen_user) {
-                $query->whereHas('departemen', function ($query) use ($departemen_user) {
-                    $query->where('nama_departemen', $departemen_user);
-                });
-            })->get();
 
             $countByType = DB::table('induk_dokumen')
                 ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
@@ -60,5 +65,30 @@ class HomeController extends Controller
         $rejectCount = $countByStatusAndType->where('status', 'rejected')->sum('count');
 
         return view('pages-rule.dashboard', compact('countByType', 'waitingCount', 'approveCount', 'countByStatusAndType', 'dokumenall', 'rejectCount'));
+    }
+
+    public function getNotifications()
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login'); // Redirect jika pengguna belum login
+        }
+
+        // Ambil notifikasi dari tabel IndukDokumen
+        if ($user->role === 'admin') {
+            // Jika user adalah admin, ambil semua notifikasi yang memiliki file_draft diisi
+            $notifications = IndukDokumen::whereNotNull('file_draft')
+                ->whereNotNull('command')
+                ->get();
+        } else {
+            // Jika user bukan admin, ambil notifikasi berdasarkan user_id dan file_draft diisi
+            $notifications = IndukDokumen::where('user_id', $user->id)
+                ->whereNotNull('file_draft')
+                ->whereNotNull('command')
+                ->get();
+        }
+
+        return view('partials.notifications', compact('notifications'));
     }
 }

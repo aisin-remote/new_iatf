@@ -181,7 +181,7 @@
                 };
 
                 var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
-                    type: 'bar', // Mengubah tipe chart menjadi bar
+                    type: 'horizontalBar', // Mengubah tipe chart menjadi horizontalBar
                     data: chartData{{ $type }},
                     options: {
                         responsive: true,
@@ -195,8 +195,8 @@
                             }
                         },
                         scales: {
-                            y: {
-                                beginAtZero: true // Memastikan sumbu Y dimulai dari 0
+                            x: {
+                                beginAtZero: true // Memastikan sumbu X dimulai dari 0
                             }
                         },
                         tooltips: {

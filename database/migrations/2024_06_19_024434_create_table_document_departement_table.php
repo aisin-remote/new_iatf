@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('induk_dokumen', function (Blueprint $table) {
+        Schema::create('document_departement', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_dokumen');
-            $table->string('nama_dokumen');
-            $table->dateTime('tgl_upload');
-            $table->text('file_draft');
+            $table->foreignId('induk_dokumen_id')->constrained('induk_dokumen')->onDelete('cascade');
+            $table->foreignId('departemen_id')->constrained('departemen')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('induk_dokumen');
+        Schema::dropIfExists('table_document_departement');
     }
 };

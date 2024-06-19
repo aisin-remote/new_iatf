@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('induk_dokumen', function (Blueprint $table) {
-            $table->string('status')->after('file')->default('waiting');
+            $table->string('file_final')->after('file_draft')->nullable();
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     {
         Schema::table('induk_dokumen', function (Blueprint $table) {
             // Drop the departemen_id column
-            $table->dropColumn('status');
+            $table->dropColumn('file_final');
         });
     }
 };

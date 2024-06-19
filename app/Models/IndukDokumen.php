@@ -33,4 +33,8 @@ class IndukDokumen extends Model
     {
         return $this->belongsTo(Departemen::class, 'user_id', 'departemen_id');
     }
+    public function departments()
+    {
+        return $this->belongsToMany(Departemen::class, 'document_departement', 'induk_dokumen_id', 'departemen_id');
+    }
 }
