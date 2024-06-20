@@ -32,47 +32,64 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'register_form'])->name('register');
 Route::post('/register-proses', [AuthController::class, 'register_proses'])->name('register.proses');
 
-Route::middleware(['auth'])->group(function () {
-    Route::group(['middleware' => ['role:admin']], function () {
-        Route::get('/admin/validate-dokumen/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])->name('rule.validate');
-        Route::post('/dokumen/approve/{id}', [DocruleController::class, 'approveDocument'])
-            ->name('dokumen.approve');
-        Route::post('/dokumen/rejected/{id}', [DocruleController::class, 'RejectedDocument'])
-            ->name('dokumen.rejected');
-        Route::get('/template-dokumen/add', [DokumenController::class, 'store'])
-            ->name('template.add');
-        Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])->name('template.edit');
-    });
-    Route::group(['middleware' => ['role:guest']], function () {
-        Route::get('/dokumen/{jenis}/{tipe}', [DocruleController::class, 'index'])->name('rule.index');
-        Route::post('/dokumen/draft', [DocruleController::class, 'store'])->name('tambah.rule');
-        Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])->name('edit.rule');
-        Route::post('/dokumen/final/{id}', [DocruleController::class, 'final_upload'])->name('final.rule');
-    });
+// Dashboard rule
+Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('dashboard.rule');
+Route::get('/notifications', [HomeController::class, 'getNotifications'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('notifications');
 
-    // Template Dokumen
-    Route::get('/template-dokumen', [DokumenController::class, 'index'])
-        ->middleware(['auth', 'role:admin|guest'])
-        ->name('template.index');
-    Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'download'])
-        ->middleware(['auth', 'role:admin|guest'])
-        ->name('template.download');
+// Template Dokumen
+Route::get('/template-dokumen', [DokumenController::class, 'index'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.index');
+Route::get('/template-dokumen/add', [DokumenController::class, 'store'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.add');
+Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.edit');
+Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'download'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.download');
 
+// Document Draft Rule
+Route::get('/dokumen/{jenis}/{tipe}', [DocruleController::class, 'index'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('rule.index');
+Route::post('/dokumen/draft', [DocruleController::class, 'store'])
+    ->middleware(['auth', 'role:guest'])
+    ->name('tambah.rule');
+Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download_draft'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('download.rule');
+Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])->name('edit.rule');
 
-    // Dashboard rule
-    Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])
-        ->middleware(['auth', 'role:admin|guest'])
-        ->name('dashboard.rule');
-    Route::get('/notifications', [HomeController::class, 'getNotifications'])
-        ->middleware(['auth', 'role:admin|guest'])
-        ->name('notifications');
+// Validate Draft Rule
+Route::get('/admin/validate-draft/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])->name('rule.validate');
+Route::post('/dokumen/validate-draft/approve/{id}', [DocruleController::class, 'approveDocument'])
+    ->name('dokumen.approve');
+Route::post('/dokumen/validate-draft/rejected/{id}', [DocruleController::class, 'RejectedDocument'])
+    ->name('dokumen.rejected');
 
-    // Document Rule
-    Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download'])
-        ->name('download.rule');
+// Document Final Rule
+Route::get('/dokumen/final', [DocruleController::class, 'final_doc'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('document.final');
+Route::post('/dokumen/final/{id}', [DocruleController::class, 'final_upload'])->name('final.rule');
 
-    // Document Share
-    Route::get('/document-shared', [DocruleController::class, 'share_document'])
-        ->middleware(['auth', 'role:admin|guest'])
-        ->name('document.share');
-});
+// Validate Final Rule
+Route::get('/admin/validate-final/{jenis}/{tipe}', [DocruleController::class, 'validate_final'])->name('final.validate');
+Route::post('/dokumen/validate-final/approve/{id}', [DocruleController::class, 'finalapproved'])
+    ->name('final.approve');
+Route::post('/dokumen/validate-final/rejected/{id}', [DocruleController::class, 'finalrejected'])
+    ->name('final.rejected');
+
+// Document Share
+Route::get('/document/share', [DocruleController::class, 'share_document'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('document.share');
+Route::get('/document/share/download/{id}', [DocruleController::class, 'downloadSharedDocument'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('download.share');

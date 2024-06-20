@@ -38,7 +38,7 @@
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="Actions">
                                                     <!-- Tombol Download -->
-                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                    <a href="{{ route('download.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                         class="btn btn-primary btn-sm">
                                                         <i class="fas fa-file-download"></i>
                                                     </a>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                        <form action="{{ route('final.approve', ['id' => $doc->id]) }}" method="POST">
                             @csrf
                             @method('POST')
                             <button type="submit" class="btn btn-success">
@@ -100,7 +100,7 @@
             aria-labelledby="rejectDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('dokumen.rejected', ['id' => $doc->id]) }}" method="POST">
+                    <form action="{{ route('final.rejected', ['id' => $doc->id]) }}" method="POST">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Rejected Dokumen
@@ -127,9 +127,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script>
-        function approveDocument(id) {
+        function finalapproved(id) {
             if (confirm('Are you sure you want to approve this document?')) {
-                fetch(`/document/approve/${id}`, {
+                fetch(`/document/validate-final/approve/${id}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

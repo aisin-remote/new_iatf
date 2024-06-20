@@ -49,7 +49,7 @@
                                                     Download
                                                     <i class="fa-solid fa-file-arrow-down"></i>
                                                 </a>
-                                                @if ($doc->status == 'approved')
+                                                @if ($doc->status == 'draft approved' || $doc->status == 'final rejected')
                                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
                                                         data-target="#uploadfinalModal-{{ $doc->id }}">
                                                         Upload Final
