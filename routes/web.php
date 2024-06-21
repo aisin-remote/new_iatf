@@ -63,27 +63,45 @@ Route::post('/dokumen/draft', [DocruleController::class, 'store'])
     ->name('tambah.rule');
 Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download_draft'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.rule');
-Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])->name('edit.rule');
+    ->name('download.draft');
+Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])
+    ->middleware(['auth', 'role:guest'])
+    ->name('edit.rule');
 
 // Validate Draft Rule
-Route::get('/admin/validate-draft/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])->name('rule.validate');
+Route::get('/admin/validate-draft/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('rule.validate');
 Route::post('/dokumen/validate-draft/approve/{id}', [DocruleController::class, 'approveDocument'])
+    ->middleware(['auth', 'role:admin'])
     ->name('dokumen.approve');
 Route::post('/dokumen/validate-draft/rejected/{id}', [DocruleController::class, 'RejectedDocument'])
+    ->middleware(['auth', 'role:admin'])
     ->name('dokumen.rejected');
 
 // Document Final Rule
+Route::post('/dokumen-final/{id}', [DocruleController::class, 'final_upload'])
+    ->middleware(['auth', 'role:guest'])
+    ->name('final.rule');
+Route::get('/dokumen-final/download/{id}', [DocruleController::class, 'DownloadDocFinal'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('download.doc.final');
 Route::get('/dokumen/final', [DocruleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::post('/dokumen/final/{id}', [DocruleController::class, 'final_upload'])->name('final.rule');
+Route::get('/dokumen/final/download/{id}', [DocruleController::class, 'downloadfinal'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('download.final');
 
 // Validate Final Rule
-Route::get('/admin/validate-final/{jenis}/{tipe}', [DocruleController::class, 'validate_final'])->name('final.validate');
+Route::get('/admin/validate-final/{jenis}/{tipe}', [DocruleController::class, 'validate_final'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('final.validate');
 Route::post('/dokumen/validate-final/approve/{id}', [DocruleController::class, 'finalapproved'])
+    ->middleware(['auth', 'role:admin'])
     ->name('final.approve');
 Route::post('/dokumen/validate-final/rejected/{id}', [DocruleController::class, 'finalrejected'])
+    ->middleware(['auth', 'role:admin'])
     ->name('final.rejected');
 
 // Document Share

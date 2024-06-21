@@ -34,7 +34,7 @@
                                                 </button> --}}
 
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('download.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                <a href="{{ route('download.final', ['id' => $doc->id]) }}"
                                                     class="btn btn-primary btn-sm">
                                                     Download
                                                     <i class="fa-solid fa-file-arrow-down"></i>

@@ -38,7 +38,7 @@
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="Actions">
                                                     <!-- Tombol Download -->
-                                                    <a href="{{ route('download.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                    <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                         class="btn btn-primary btn-sm">
                                                         <i class="fas fa-file-download"></i>
                                                     </a>

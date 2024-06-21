@@ -14,11 +14,11 @@ class HomeController extends Controller
         $user = auth()->user();
 
         if ($user->hasRole('admin')) {
-            $dokumenall = IndukDokumen::where('status', 'approved')->get();
+            $dokumenall = IndukDokumen::where('status', 'final approved')->get();
         } else {
             $departemen_user = $user->departemen->nama_departemen;
 
-            $dokumenall = IndukDokumen::where('status', 'approved')
+            $dokumenall = IndukDokumen::where('status', 'final approved')
                 ->whereHas('user', function ($query) use ($departemen_user) {
                     $query->whereHas('departemen', function ($query) use ($departemen_user) {
                         $query->where('nama_departemen', $departemen_user);
@@ -63,8 +63,17 @@ class HomeController extends Controller
         $waitingCount = $countByStatusAndType->where('status', 'waiting')->sum('count');
         $approveCount = $countByStatusAndType->where('status', 'approved')->sum('count');
         $rejectCount = $countByStatusAndType->where('status', 'rejected')->sum('count');
+        $finalApprovedCount = $countByStatusAndType->where('status', 'final approved')->sum('count');
 
-        return view('pages-rule.dashboard', compact('countByType', 'waitingCount', 'approveCount', 'countByStatusAndType', 'dokumenall', 'rejectCount'));
+        return view('pages-rule.dashboard', compact(
+            'countByType',
+            'waitingCount',
+            'approveCount',
+            'countByStatusAndType',
+            'dokumenall',
+            'rejectCount',
+            'finalApprovedCount'
+        ));
     }
 
     public function getNotifications()

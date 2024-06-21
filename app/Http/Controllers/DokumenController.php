@@ -80,17 +80,24 @@ class DokumenController extends Controller
     {
         // Temukan dokumen yang sesuai dengan jenis dan tipe dokumen
         $dokumen = Dokumen::findOrFail($id);
-        $filePath = $dokumen->file;
         $filePath = 'dokumen/' . $dokumen->file;
+
         if (Storage::disk('public')->exists($filePath)) {
+            // Mendapatkan ukuran file dan memeriksa keberadaan file
+            try {
+                $fileSize = Storage::disk('public')->size($filePath);
+            } catch (\Exception $e) {
+                return back()->with('error', 'Tidak dapat mengambil ukuran file: ' . $e->getMessage());
+            }
+
             // Membuat nama file yang diunduh dengan format yang diinginkan
             $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
-            $fileName = $dokumen->Template . '_' . $dokumen->jenis_dokumen . '_' . $dokumen->tipe_dokumen . '.' . $fileExtension;
+            $fileName = $dokumen->jenis_dokumen . '_' . $dokumen->tipe_dokumen . '.' . $fileExtension;
+
             // Jika file ditemukan, kirim file untuk diunduh
             return Storage::disk('public')->download($filePath, $fileName);
-    } else {
-        return back()->with('error', 'File tidak ditemukan di storage.');
-    }
+        } else {
+            return back()->with('error', 'File tidak ditemukan di storage.');
         }
     }
-
+}

@@ -17,6 +17,7 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
+                                        <th>Nomor Template</th>
                                         <th>Jenis Dokumen</th>
                                         <th>Tipe Dokumen</th>
                                         <th>Action</th>
@@ -26,6 +27,7 @@
                                     @foreach ($dokumen as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
+                                            <td>-----</td>
                                             <td>{{ $doc->jenis_dokumen }}</td>
                                             <td>{{ $doc->tipe_dokumen }}</td>
                                             <td>
@@ -70,6 +72,10 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
+                            <label for="nomor_template">Nomor Template</label>
+                            <input type="text" class="form-control" id="nomor_template" name="nomor_template" required>
+                        </div>
+                        <div class="form-group">
                             <label for="jenis_dokumen">Pilih Jenis Dokumen</label>
                             <select class="form-control" id="jenis_dokumen" name="jenis_dokumen" required>
                                 <option value="" disabled selected>Pilih jenis dokumen</option>
@@ -98,33 +104,33 @@
     </div>
     {{-- edit template dokumen --}}
     @foreach ($dokumen as $doc)
-    <div class="modal fade" id="edittemplate-{{ $doc->id }}" tabindex="-1" role="dialog"
-        aria-labelledby="edittemplateLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="edittemplateLabel">Edit Template</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ route('template.edit', ['id' => $doc->id]) }}" method="post"
-                    enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="file">Pilih File</label>
-                            <input type="file" class="form-control-file" id="file" name="file" required>
+        <div class="modal fade" id="edittemplate-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="edittemplateLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="edittemplateLabel">Edit Template</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form action="{{ route('template.edit', ['id' => $doc->id]) }}" method="post"
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="file">Pilih File</label>
+                                <input type="file" class="form-control-file" id="file" name="file" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
-                    </div>
-                </form>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
     @endforeach
-    
+
 @endsection

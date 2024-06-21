@@ -21,6 +21,7 @@
                                         <th>Nama Dokumen</th>
                                         <th>Revisi</th>
                                         <th>Tanggal Upload</th>
+                                        <th>Upload By</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -33,12 +34,13 @@
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->revisi_log }}</td>
                                             <td>{{ $doc->tgl_upload }}</td>
+                                            <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>{{ $doc->status }}</td>
                                             <!-- Tombol Edit -->
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="Actions">
                                                     <!-- Tombol Download -->
-                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                         class="btn btn-primary btn-sm">
                                                         <i class="fas fa-file-download"></i>
                                                     </a>

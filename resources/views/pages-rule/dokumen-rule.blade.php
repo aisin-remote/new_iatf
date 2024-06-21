@@ -44,7 +44,7 @@
                                                 </button>
 
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                     class="btn btn-primary btn-sm">
                                                     Download
                                                     <i class="fa-solid fa-file-arrow-down"></i>
@@ -105,6 +105,12 @@
                             <label class="col-sm-3 col-form-label">Share Document To:</label>
                             <div class="col-sm-9">
                                 <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="select_all">
+                                            <label class="form-check-label" for="select_all">Select All</label>
+                                        </div>
+                                    </div>
                                     @foreach ($departemens as $dept)
                                         <div class="col-sm-6">
                                             <div class="form-check">
@@ -119,6 +125,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         <div class="form-group">
                             <label for="file">File</label>
@@ -236,4 +243,38 @@
             </div>
         </div>
     @endforeach
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Dapatkan elemen checkbox "Select All"
+            const selectAllCheckbox = document.getElementById('select_all');
+
+            // Dapatkan semua elemen checkbox yang lainnya
+            const checkboxes = document.querySelectorAll('input[name="departemen[]"]');
+
+            // Tambahkan event listener ke checkbox "Select All"
+            selectAllCheckbox.addEventListener('change', function() {
+                // Atur status semua checkbox berdasarkan status checkbox "Select All"
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+
+            // Tambahkan event listener ke setiap checkbox lainnya
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Jika ada satu checkbox yang tidak dipilih, hapus centang dari "Select All"
+                    if (!this.checked) {
+                        selectAllCheckbox.checked = false;
+                    }
+
+                    // Jika semua checkbox lainnya dipilih, beri centang pada "Select All"
+                    if (document.querySelectorAll('input[name="departemen[]"]:checked').length ===
+                        checkboxes.length) {
+                        selectAllCheckbox.checked = true;
+                    }
+                });
+            });
+        });
+    </script>
+
 @endsection
