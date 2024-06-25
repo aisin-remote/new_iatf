@@ -19,5 +19,8 @@ class Dokumen extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function dokumen()
+    {
+        return $this->belongsTo(Dokumen::class, 'dokumen_id');
+    }
 }
-

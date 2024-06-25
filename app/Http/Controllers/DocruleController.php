@@ -45,8 +45,6 @@ class DocruleController extends Controller
 
         return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'departemens'));
     }
-
-
     public function store(Request $request)
     {
         // Validasi request
@@ -592,4 +590,25 @@ class DocruleController extends Controller
         // Lakukan download file dengan nama yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename);
     }
+    public function updateStatusDoc(Request $request, $id)
+    {
+        // Validasi request
+        $request->validate([
+            'statusdoc' => 'required|in:active,obsolate', // Memastikan statusdoc adalah active atau obsolate
+        ]);
+
+        // Cari dokumen berdasarkan ID
+        $dokumen = IndukDokumen::findOrFail($id);
+
+        // Ubah status dokumen berdasarkan nilai statusdoc yang diterima
+        $dokumen->statusdoc = $request->statusdoc;
+        $dokumen->save();
+
+        // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->back()->with('success', 'Status dokumen berhasil diperbarui.');
+    }
+
+    // Metode lain dalam DokumenController
+    // ...
 }
+

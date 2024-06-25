@@ -27,28 +27,26 @@
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
-                                                {{-- <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editDokumen-{{ $doc->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button> --}}
+                                                <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
+                                                    method="POST" style="display: inline;">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="statusdoc" value="active">
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        Active <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                </form>
 
-                                                <!-- Tombol Download -->
-                                                <a href="{{ route('download.final', ['id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    Download
-                                                    <i class="fa-solid fa-file-arrow-down"></i>
-                                                </a>
-                                                {{-- @if ($doc->status == 'approved')
-                                                    <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                        data-target="#uploadfinalModal-{{ $doc->id }}">
-                                                        Upload Final
+                                                <!-- Tombol untuk Mengubah Status menjadi Obsolate -->
+                                                <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
+                                                    method="POST" style="display: inline;">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <input type="hidden" name="statusdoc" value="obsolate">
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        Obsolate <i class="fa-solid fa-times"></i>
                                                     </button>
-                                                @else
-                                                    <button class="btn btn-primary btn-sm" disabled>
-                                                        Upload Final
-                                                    </button>
-                                                @endif --}}
+                                                </form>
                                             </td>
                                         </tr>
                                     @endforeach

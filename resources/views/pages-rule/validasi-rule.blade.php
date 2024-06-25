@@ -44,16 +44,9 @@
                                                         class="btn btn-primary btn-sm">
                                                         <i class="fas fa-file-download"></i>
                                                     </a>
-
-                                                    <!-- Tombol Approval -->
-                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                        data-target="#approveDokumen-{{ $doc->id }}">
-
-                                                        <i class="fa-solid fa-circle-check"></i>
-                                                    </button>
-                                                    <!-- Tombol Reject -->
+                                                    <!-- Tombol approval -->
                                                     <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                        data-target="#rejectDokumen-{{ $doc->id }}">
+                                                        data-target="#approveDokumen-{{ $doc->id }}">
 
                                                         <i class="fa-solid fa-circle-xmark"></i>
                                                     </button>
@@ -71,7 +64,7 @@
         </div>
     </div>
     @foreach ($indukDokumenList as $doc)
-        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+        {{-- <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
             aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -97,15 +90,16 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="modal fade" id="rejectDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="rejectDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+        </div> --}}
+        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form action="{{ route('dokumen.rejected', ['id' => $doc->id]) }}" method="POST">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Rejected Dokumen
+                            <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
+                                Approved
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -115,6 +109,10 @@
                             <div class="form-group">
                                 <label for="dommand">Command</label>
                                 <input type="text" class="form-control" id="command" name="command" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">File</label>
+                                <input type="file" class="form-control" id="file" name="file_draft" required>
                             </div>
                         </div>
                         <div class="modal-footer">

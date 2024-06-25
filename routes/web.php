@@ -1,13 +1,9 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocruleController;
 use App\Http\Controllers\DokumenController;
-use App\Http\Controllers\GuestController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 use League\CommonMark\Node\Block\Document;
 
@@ -39,6 +35,9 @@ Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])
 Route::get('/notifications', [HomeController::class, 'getNotifications'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('notifications');
+Route::get('download-excel', [HomeController::class, 'downloadExcel'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('download.excel');
 
 // Template Dokumen
 Route::get('/template-dokumen', [DokumenController::class, 'index'])
@@ -92,6 +91,9 @@ Route::get('/dokumen/final', [DocruleController::class, 'final_doc'])
 Route::get('/dokumen/final/download/{id}', [DocruleController::class, 'downloadfinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.final');
+Route::put('/dokumen/final/update-status/{id}', [DocruleController::class, 'updateStatusDoc'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.statusdoc');
 
 // Validate Final Rule
 Route::get('/admin/validate-final/{jenis}/{tipe}', [DocruleController::class, 'validate_final'])
@@ -111,3 +113,6 @@ Route::get('/document/share', [DocruleController::class, 'share_document'])
 Route::get('/document/share/download/{id}', [DocruleController::class, 'downloadSharedDocument'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.share');
+
+// Notifikasi
+Route::patch('/mark-as-read/{id}',[Not::class, ''])->name('markAsRead');

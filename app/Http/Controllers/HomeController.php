@@ -2,64 +2,81 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\IndukDokumenExport;
+use App\Models\Departemen;
 use App\Models\IndukDokumen;
+use App\Models\User;
+use App\Notifications\AdminNotification;
+use App\Notifications\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HomeController extends Controller
 {
-    public function dashboard_rule()
+    public function dashboard_rule(Request $request)
     {
         $user = auth()->user();
+        $departemen_user = $user->departemen->nama_departemen;
+        $allDepartemen = Departemen::all();
 
-        if ($user->hasRole('admin')) {
-            $dokumenall = IndukDokumen::where('status', 'final approved')->get();
-        } else {
-            $departemen_user = $user->departemen->nama_departemen;
+        // Filter berdasarkan departemen
+        $departemenFilter = $request->input('departemen');
+        if ($departemenFilter) {
+            $departemen_user = $departemenFilter;
+        }
 
-            $dokumenall = IndukDokumen::where('status', 'final approved')
-                ->whereHas('user', function ($query) use ($departemen_user) {
+        // Query dasar untuk data dokumen
+        $query = IndukDokumen::where('status', 'final approved');
+
+        // Filter berdasarkan status dokumen
+        if (!$user->hasRole('admin')) {
+            $query->where('statusdoc', 'active');
+        }
+
+        // Hanya jika bukan admin, filter berdasarkan departemen user
+        if (!$user->hasRole('admin')) {
+            $query->whereHas('user', function ($query) use ($departemen_user) {
+                $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                    $query->where('nama_departemen', $departemen_user);
+                });
+            });
+        }
+
+        // Ambil data dokumen sesuai dengan query yang sudah difilter
+        $dokumenall = $query->get();
+
+        // Query untuk menghitung berdasarkan tipe dokumen
+        $countByType = IndukDokumen::where('statusdoc', 'active')
+            ->when(!$user->hasRole('admin'), function ($query) use ($departemen_user) {
+                $query->whereHas('user', function ($query) use ($departemen_user) {
                     $query->whereHas('departemen', function ($query) use ($departemen_user) {
                         $query->where('nama_departemen', $departemen_user);
                     });
-                })->get();
-        }
+                });
+            })
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->select('dokumen.tipe_dokumen', DB::raw('count(*) as count'))
+            ->groupBy('dokumen.tipe_dokumen')
+            ->get();
 
-        if ($user->hasRole('admin')) {
-            $countByType = DB::table('induk_dokumen')
-                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-                ->select('dokumen.tipe_dokumen', DB::raw('count(*) as count'))
-                ->groupBy('dokumen.tipe_dokumen')
-                ->get();
+        // Query untuk menghitung berdasarkan status dan tipe dokumen
+        $countByStatusAndType = IndukDokumen::where('status', 'final approved')
+            ->when(!$user->hasRole('admin'), function ($query) use ($departemen_user) {
+                $query->whereHas('user', function ($query) use ($departemen_user) {
+                    $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                        $query->where('nama_departemen', $departemen_user);
+                    });
+                });
+            })
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->select('dokumen.tipe_dokumen', 'induk_dokumen.status', DB::raw('count(*) as count'))
+            ->groupBy('dokumen.tipe_dokumen', 'induk_dokumen.status')
+            ->get();
 
-            $countByStatusAndType = DB::table('induk_dokumen')
-                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-                ->select('dokumen.tipe_dokumen', 'induk_dokumen.status', DB::raw('count(*) as count'))
-                ->groupBy('dokumen.tipe_dokumen', 'induk_dokumen.status')
-                ->get();
-        } else {
-            $departemen_user = $user->departemen->nama_departemen;
-
-            $countByType = DB::table('induk_dokumen')
-                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-                ->join('users', 'induk_dokumen.user_id', '=', 'users.id')
-                ->join('departemen', 'users.departemen_id', '=', 'departemen.id')
-                ->where('departemen.nama_departemen', $departemen_user)
-                ->select('dokumen.tipe_dokumen', DB::raw('count(*) as count'))
-                ->groupBy('dokumen.tipe_dokumen')
-                ->get();
-
-            $countByStatusAndType = DB::table('induk_dokumen')
-                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-                ->join('users', 'induk_dokumen.user_id', '=', 'users.id')
-                ->join('departemen', 'users.departemen_id', '=', 'departemen.id')
-                ->where('departemen.nama_departemen', $departemen_user)
-                ->select('dokumen.tipe_dokumen', 'induk_dokumen.status', DB::raw('count(*) as count'))
-                ->groupBy('dokumen.tipe_dokumen', 'induk_dokumen.status')
-                ->get();
-        }
-
+        // Menghitung jumlah berdasarkan status tertentu
         $waitingCount = $countByStatusAndType->where('status', 'waiting')->sum('count');
         $approveCount = $countByStatusAndType->where('status', 'approved')->sum('count');
         $rejectCount = $countByStatusAndType->where('status', 'rejected')->sum('count');
@@ -72,10 +89,10 @@ class HomeController extends Controller
             'countByStatusAndType',
             'dokumenall',
             'rejectCount',
-            'finalApprovedCount'
+            'finalApprovedCount',
+            'allDepartemen'
         ));
     }
-
     public function getNotifications()
     {
         $user = Auth::user();
@@ -99,5 +116,75 @@ class HomeController extends Controller
         }
 
         return view('partials.notifications', compact('notifications'));
+    }
+    public function downloadExcel(Request $request)
+    {
+        $user = auth()->user();
+        $departemen_user = $user->departemen->nama_departemen;
+
+        // Query dasar untuk data dokumen yang akan diunduh
+        $query = IndukDokumen::where('status', 'final approved');
+
+        // Filter berdasarkan status dokumen
+        if (!$user->hasRole('admin')) {
+            $query->where('statusdoc', 'active');
+        }
+
+        // Hanya jika bukan admin, filter berdasarkan departemen user
+        if (!$user->hasRole('admin')) {
+            $query->whereHas('user', function ($query) use ($departemen_user) {
+                $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                    $query->where('nama_departemen', $departemen_user);
+                });
+            });
+        }
+
+        // Ambil semua data dokumen sesuai dengan query yang sudah difilter
+        $dokumen = $query->get();
+
+        // Ambil kolom yang dipilih oleh pengguna
+        $columns = $request->input('columns', ['id', 'nama_dokumen', 'status', 'statusdoc', 'user_id']); // Default columns if none selected
+
+        // Generate nama file untuk download
+        $fileName = 'dokumen_' . date('Ymd_His') . '.xlsx';
+
+        // Export data ke file Excel dan langsung download
+        return Excel::download(new IndukDokumenExport($dokumen, $columns), $fileName);
+    }
+    public function updateStatus($indukDokumenId, $status)
+    {
+        $indukDokumen = IndukDokumen::find($indukDokumenId);
+        $indukDokumen->status_notifikasi = $status;
+        $indukDokumen->save();
+
+        // Set detail notifikasi
+        if ($status === 'waiting') {
+            $details = [
+                'title' => 'Waiting Approval',
+                'message' => 'Your document is waiting for approval.',
+                'url' => url('/induk_dokumen/' . $indukDokumen->id),
+            ];
+            $indukDokumen->user->notify(new UserNotification($details));
+        } elseif ($status === 'approved') {
+            $details = [
+                'title' => 'Document Approved',
+                'message' => 'Your document has been approved.',
+                'url' => url('/induk_dokumen/' . $indukDokumen->id),
+            ];
+            $indukDokumen->user->notify(new UserNotification($details));
+        }
+
+        // Notify admin about new document
+        if ($indukDokumen->command === 'new_document') {
+            $details = [
+                'title' => 'Dokumen Baru Masuk',
+                'message' => 'There is a new document.',
+                'url' => url('/induk_dokumen/' . $indukDokumen->id),
+            ];
+            $adminUsers = User::role('admin')->get();
+            Notification::send($adminUsers, new AdminNotification($details));
+        }
+
+        return 'Status updated and notifications sent.';
     }
 }

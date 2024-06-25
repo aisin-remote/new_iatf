@@ -13,6 +13,8 @@
                             <div class="justify-content-end d-flex">
                                 <div class="flex-md-grow-1 flex-xl-grow-0">
                                     <span class="btn btn-sm btn-light bg-white" id="currentDateText"></span>
+                                    <!-- Tombol unduh ditambahkan di bawah elemen span -->
+
                                 </div>
                             </div>
                         </div>
@@ -20,6 +22,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Div untuk chart -->
         <div class="row">
             <div class="col-md-12 grid-margin">
                 <div class="row">
@@ -36,6 +40,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Div untuk count -->
         <div class="row">
             <div class="col-md-6 grid-margin transparent">
                 <div class="row">
@@ -83,6 +89,91 @@
                 </div>
             </div>
         </div>
+
+        <!-- Row untuk filter dan pencarian -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between">
+                    <!-- Tombol untuk membuka modal filter -->
+                    <div>
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal">Filter
+                            <i class="fa-solid fa-filter"></i></button>
+                        <a href="{{ route('download.excel') }}" class="btn btn-primary" style="margin-right: 4px">
+                            Download excel
+                            <i class="fa fa-download"></i>
+                        </a>
+                    </div>
+                    <!-- Search Input -->
+                    <div>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal untuk filter -->
+        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row my-2">
+                            <div class="col-4"><label class="col-form-label">Start Date</label></div>
+                            <div class="col">
+                                <input type="text" name="date_from" class="form-control input" value="">
+                            </div>
+                            <label class="col-form-label px-3">to</label>
+                            <div class="col">
+                                <input type="text" name="date_to" class="form-control input" value="">
+                            </div>
+                        </div>
+
+
+                        <!-- <div class> -->
+                        <div class="row my-2">
+                            <div class="col-4"><label class="col-form-label">Departemen</label></div>
+                            <div class="col">
+                                <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                    style="width: 100%;">
+                                    <option value="" selected>Select Departemen</option>
+                                    @foreach ($allDepartemen as $departemen)
+                                        <option value="{{ $departemen->nama_departemen }}"
+                                            {{ request()->input('departemen') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                            {{ $departemen->nama_departemen }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row my-2">
+                            <div class="col-4"><label class="col-form-label">Status Doc</label></div>
+                            <div class="col">
+                                <select name="statusdoc" id="statusdoc" class="form-control select2"
+                                    style="width: 100%;">
+                                    <option value="status" selected>Pilih Status Doc</option>
+                                    <option value="active">active
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="applyFilter">Apply Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian tabel -->
         <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
@@ -103,7 +194,7 @@
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="documentTableBody">
                                             @foreach ($dokumenall as $doc)
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
@@ -112,7 +203,7 @@
                                                     <td>{{ $doc->revisi_log }}</td>
                                                     <td>{{ $doc->tgl_upload }}</td>
                                                     <td>{{ $doc->user->departemen->nama_departemen }}</td>
-                                                    <td>{{ $doc->status }}</td>
+                                                    <td>{{ $doc->statusdoc }}</td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
@@ -124,34 +215,26 @@
                 </div>
             </div>
         </div>
+
+
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Function to update the date and time
         function updateDateTime() {
-            // Get the current date and time
             var currentDate = new Date();
-
-            // Format the date as desired (e.g., "YYYY-MM-DD HH:MM:SS")
             var formattedDate = currentDate.toLocaleString();
-
-            // Update the text of the element with the current date and time
             document.getElementById('currentDateText').textContent = formattedDate;
         }
 
-        // Update the date and time initially when the page loads
         updateDateTime();
-
-        // Update the date and time every second (1000 milliseconds)
         setInterval(updateDateTime, 1000);
-    </script>
-    <script>
+
         document.addEventListener("DOMContentLoaded", function() {
             @foreach ($countByStatusAndType->groupBy('tipe_dokumen') as $type => $typeData)
                 var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
                     .getContext('2d');
-
-                // Menghitung jumlah total dokumen
                 var totalDocuments = {{ $typeData->sum('count') }};
 
                 var chartData{{ $type }} = {
@@ -163,7 +246,7 @@
                             {{ $typeData->where('status', 'approved')->first()->count ?? 0 }},
                             {{ $typeData->where('status', 'rejected')->first()->count ?? 0 }},
                             {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
-                            totalDocuments // Data untuk total dokumen
+                            totalDocuments
                         ],
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
@@ -184,7 +267,7 @@
                 };
 
                 var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
-                    type: 'horizontalBar', // Mengubah tipe chart menjadi horizontalBar
+                    type: 'horizontalBar',
                     data: chartData{{ $type }},
                     options: {
                         responsive: true,
@@ -199,7 +282,7 @@
                         },
                         scales: {
                             x: {
-                                beginAtZero: true // Memastikan sumbu X dimulai dari 0
+                                beginAtZero: true
                             }
                         },
                         tooltips: {
@@ -213,5 +296,31 @@
                 });
             @endforeach
         });
+
+        document.getElementById('applyFilter').addEventListener('click', function() {
+            filterAndSearch();
+            $('#filterModal').modal('hide');
+        });
+
+        document.getElementById('searchInput').addEventListener('input', function() {
+            filterAndSearch();
+        });
+
+        function filterAndSearch() {
+            var filterStatus = document.getElementById('filterStatus').value.toLowerCase();
+            var searchInput = document.getElementById('searchInput').value.toLowerCase();
+            var tableRows = document.querySelectorAll('#documentTableBody tr');
+
+            tableRows.forEach(function(row) {
+                var status = row.children[6].textContent.toLowerCase();
+                var text = row.textContent.toLowerCase();
+
+                if ((filterStatus === '' || status.includes(filterStatus)) && text.includes(searchInput)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
     </script>
 @endsection
