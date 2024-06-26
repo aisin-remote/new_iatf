@@ -15,6 +15,7 @@
                                         <th>Nomor Dokumen</th>
                                         <th>Nama Dokumen</th>
                                         <th>Upload By</th>
+                                        <th>Status Doc</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -25,28 +26,34 @@
                                             <td>{{ $doc->nomor_dokumen }}</td>
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
+                                            <td>{{ $doc->statusdoc }}</td>
                                             <td>
-                                                <!-- Tombol Edit -->
-                                                <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
-                                                    method="POST" style="display: inline;">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <input type="hidden" name="statusdoc" value="active">
-                                                    <button type="submit" class="btn btn-success btn-sm">
-                                                        Active <i class="fa-solid fa-check"></i>
-                                                    </button>
-                                                </form>
+                                                <!-- Jika status dokumen "active", tampilkan tombol untuk mengubah status menjadi "obsolate" -->
+                                                @if ($doc->statusdoc === 'active')
+                                                    <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
+                                                        method="POST" style="display: inline;">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="statusdoc" value="obsolate">
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            Obsolate <i class="fa-solid fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
 
-                                                <!-- Tombol untuk Mengubah Status menjadi Obsolate -->
-                                                <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
-                                                    method="POST" style="display: inline;">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <input type="hidden" name="statusdoc" value="obsolate">
-                                                    <button type="submit" class="btn btn-danger btn-sm">
-                                                        Obsolate <i class="fa-solid fa-times"></i>
-                                                    </button>
-                                                </form>
+                                                <!-- Jika status dokumen "obsolate", tampilkan tombol untuk mengubah status menjadi "active" -->
+                                                @if ($doc->statusdoc === 'obsolate')
+                                                    <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
+                                                        method="POST" style="display: inline;">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <input type="hidden" name="statusdoc" value="active">
+                                                        <button type="submit" class="btn btn-success btn-sm">
+                                                            Active <i class="fa-solid fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+
                                             </td>
                                         </tr>
                                     @endforeach

@@ -18,7 +18,6 @@
                     @include('partials.notifications', ['notifications' => $notifications])
                 </div>
             </li>
-
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
                     <i class="fa-solid fa-circle-user" style="height: 32px"></i>

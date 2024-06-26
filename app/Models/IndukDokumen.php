@@ -56,16 +56,4 @@ class IndukDokumen extends Model
     {
         return $this->departments()->pluck('nama_departemen')->implode(', ');
     }
-    public function updateStatus($status)
-    {
-        // Set detail notifikasi
-        $details = [
-            'title' => ucfirst($status) . ' Document',
-            'message' => 'Your document is now ' . $status . '.',
-            'url' => URL::to('/transaksi/' . $this->id), // Ganti dengan URL yang sesuai
-        ];
-
-        // Kirim notifikasi ke pengguna terkait
-        $this->user->notify(new UserNotification($details));
-    }
 }

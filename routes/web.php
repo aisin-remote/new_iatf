@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DocruleController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use League\CommonMark\Node\Block\Document;
 
@@ -114,5 +115,6 @@ Route::get('/document/share/download/{id}', [DocruleController::class, 'download
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.share');
 
-// Notifikasi
-Route::patch('/mark-as-read/{id}',[Not::class, ''])->name('markAsRead');
+//notifikasi
+Route::get('/notifications', [NotificationController::class, 'showNotifications'])->name('notifications.show');
+Route::get('/notifications/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');

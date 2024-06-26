@@ -26,40 +26,46 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($indukDokumenList as $doc)
+                                    @if ($indukDokumenList->isEmpty())
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $doc->nomor_dokumen }}</td>
-                                            <td>{{ $doc->nama_dokumen }}</td>
-                                            <td>{{ $doc->revisi_log }}</td>
-                                            <td>{{ $doc->tgl_upload }}</td>
-                                            <td>{{ $doc->status }}</td>
-                                            <!-- Tombol Edit -->
-                                            <td>
-                                                <div class="btn-group" role="group" aria-label="Actions">
-                                                    <!-- Tombol Download -->
-                                                    <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-file-download"></i>
-                                                    </a>
-
-                                                    <!-- Tombol Approval -->
-                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                        data-target="#approveDokumen-{{ $doc->id }}">
-
-                                                        <i class="fa-solid fa-circle-check"></i>
-                                                    </button>
-                                                    <!-- Tombol Reject -->
-                                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                        data-target="#rejectDokumen-{{ $doc->id }}">
-
-                                                        <i class="fa-solid fa-circle-xmark"></i>
-                                                    </button>
-                                                    </form>
-                                                </div>
-                                            </td>
+                                            <td colspan="7" class="text-center">No data available</td>
                                         </tr>
-                                    @endforeach
+                                    @else
+                                        @foreach ($indukDokumenList as $doc)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $doc->nomor_dokumen }}</td>
+                                                <td>{{ $doc->nama_dokumen }}</td>
+                                                <td>{{ $doc->revisi_log }}</td>
+                                                <td>{{ $doc->tgl_upload }}</td>
+                                                <td>{{ $doc->status }}</td>
+                                                <!-- Tombol Edit -->
+                                                <td>
+                                                    <div class="btn-group" role="group" aria-label="Actions">
+                                                        <!-- Tombol Download -->
+                                                        <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-file-download"></i>
+                                                        </a>
+
+                                                        <!-- Tombol Approval -->
+                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                            data-target="#approveDokumen-{{ $doc->id }}">
+
+                                                            <i class="fa-solid fa-circle-check"></i>
+                                                        </button>
+                                                        <!-- Tombol Reject -->
+                                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                            data-target="#rejectDokumen-{{ $doc->id }}">
+
+                                                            <i class="fa-solid fa-circle-xmark"></i>
+                                                        </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>

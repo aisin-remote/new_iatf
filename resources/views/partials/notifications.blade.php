@@ -1,24 +1,23 @@
-<!-- resources/views/partials/notifications.blade.php -->
-@if(auth()->check() && auth()->user()->unreadNotifications->count())
-    <div class="alert alert-info">
-        <h4 class="alert-heading">Notifications</h4>
-        <ul class="list-group">
-            @foreach(auth()->user()->unreadNotifications as $notification)
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{{ $notification->data['title'] }}</strong>
-                            <p>{{ $notification->data['message'] }}</p>
-                            <a href="{{ $notification->data['url'] }}" class="btn btn-sm btn-link">View Details</a>
-                        </div>
-                        <form method="POST" action="{{ route('markAsRead', $notification->id) }}">
-                            @csrf
-                            @method('PATCH')
-                            <button type="submit" class="btn btn-sm btn-primary">Mark as Read</button>
-                        </form>
-                    </div>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+@foreach ($notifications as $notification)
+    <a class="dropdown-item preview-item">
+        <div class="preview-thumbnail">
+            <div class="preview-icon bg-info">
+                <i class="ti-bell mx-0"></i>
+            </div>
+        </div>
+        <div class="preview-item-content">
+            <h6 class="preview-subject font-weight-normal">
+                {{ $notification->data['nama_dokumen'] ?? 'Dokumen Tidak Tersedia' }}
+            </h6>
+            <p class="font-weight-light small-text mb-0 text-muted">
+                Status: {{ $notification->data['status'] ?? 'Status Tidak Tersedia' }}
+            </p>
+            <p class="font-weight-light small-text mb-0 text-muted">
+                Komentar: {{ $notification->data['comment'] ?? 'Komentar Tidak Tersedia' }}
+            </p>
+            <p class="font-weight-light small-text mb-0 text-muted">
+                <a href="{{ url('/dokumen/' . ($notification->data['dokumen_id'] ?? '#')) }}">Lihat Dokumen</a>
+            </p>
+        </div>
+    </a>
+@endforeach

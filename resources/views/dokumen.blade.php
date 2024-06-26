@@ -7,11 +7,13 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Template Dokumen</h4>
-                        <div class="d-flex justify-content-end mb-3">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addtemplate">
-                                Add New
-                            </button>
-                        </div>
+                        @role('admin')
+                            <div class="d-flex justify-content-end mb-3">
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addtemplate">
+                                    Add New
+                                </button>
+                            </div>
+                        @endrole
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>

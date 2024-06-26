@@ -7,12 +7,15 @@ use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
 use App\Models\User;
+use App\Notifications\DokumenStatusNotification;
 // use App\Notifications\DokumenMasukNotification;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 // use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Models\Role;
 
 class DocruleController extends Controller
 {
@@ -51,61 +54,39 @@ class DocruleController extends Controller
         $request->validate([
             'nama_dokumen' => 'required',
             'file_draft' => 'required|file',
-            'rule_id' => 'required|exists:rule,id', // Pastikan rule_id ada di tabel rules
-            'jenis_dokumen' => 'required', // Ini mungkin diambil dari form atau logika lain
-            'tipe_dokumen' => 'required', // Ini mungkin diambil dari form atau logika lain
+            'rule_id' => 'required|exists:rules,id',
+            'jenis_dokumen' => 'required',
+            'tipe_dokumen' => 'required',
+            'revisi_ke' => 'nullable|integer',
             'departemen' => 'nullable|array',
-            'departemen.*' => 'exists:departemen,id',
+            'departemen.*' => 'exists:departemens,id',
         ]);
 
-        // Ambil file yang diunggah
+        // Proses penyimpanan dokumen
         $file = $request->file('file_draft');
-
-        // Generate nama file unik dengan timestamp
         $filename = time() . '_' . $file->getClientOriginalName();
-
-        // Tentukan path penyimpanan file
         $path = 'dokumen/' . $filename;
-
-        // Simpan file di penyimpanan publik
         $file->storeAs('dokumen', $filename, 'public');
 
-        // Dapatkan user ID dari pengguna yang sedang login
         $userId = auth()->id();
-
-        // Ambil informasi departemen dari pengguna yang login
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
-        // Tentukan nomor revisi berdasarkan apakah ini dokumen baru atau update
-        $nomor_revisi = 0; // Default for new documents
-        $idDokumen = $request->input('id_dokumen', null);
-        if (!is_null($idDokumen)) {
-            // Saat meng-update dokumen yang ada
-            // Ambil nomor revisi terakhir dari database untuk dokumen yang bersangkutan
-            $lastRevisionNumber = IndukDokumen::where('id_dokumen', $idDokumen)->max('nomor_revisi');
+        $nomor_revisi = $request->filled('revisi_ke') ? $request->revisi_ke : 0;
 
-            // Tambahkan satu untuk mendapatkan nomor revisi baru
-            $nomor_revisi = $lastRevisionNumber + 1;
-        }
-
-        // Ambil kode proses dari input rule_id
         $rule = RuleCode::find($request->rule_id);
         if (!$rule) {
             return redirect()->back()->with('error', 'Rule tidak valid.');
         }
         $kode_proses = $rule->kode_proses;
 
-        // Ambil document_id dari tabel Dokumen berdasarkan jenis dan tipe dokumen
         $documentId = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
             ->where('tipe_dokumen', $request->tipe_dokumen)
             ->value('id');
 
-        // Pastikan documentId ditemukan
         if (!$documentId) {
             return redirect()->back()->with('error', 'Jenis dan tipe dokumen tidak valid.');
         }
 
-        // Mendapatkan nomor list dokumen
         $latestDokumen = IndukDokumen::where('dokumen_id', $documentId)
             ->orderBy('id', 'desc')
             ->first();
@@ -114,38 +95,39 @@ class DocruleController extends Controller
         $newNumber = $currentNumber + 1;
         $number = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
 
-        // Generate nomor dokumen berdasarkan tipe
         $nomorDokumen = sprintf(
             '%s-%s-%s-%s-%02d',
-            strtoupper(substr($request->tipe_dokumen, 0, 3)), // Mengambil tiga karakter pertama dari tipe dokumen
-            strtoupper(substr($departemen_user, 0, 3)), // Mengambil tiga karakter pertama dari departemen
+            strtoupper(substr($request->tipe_dokumen, 0, 3)),
+            strtoupper(substr($departemen_user, 0, 3)),
             strtoupper($kode_proses),
-            $number, // Nomor list dokumen, dengan format tiga angka
+            $number,
             $nomor_revisi
         );
 
-        // Buat instance IndukDokumen dan isi propertinya
         $dokumen = new IndukDokumen();
         $dokumen->nama_dokumen = $request->nama_dokumen;
-        $dokumen->dokumen_id = $documentId; // Atur document_id
+        $dokumen->dokumen_id = $documentId;
         $dokumen->file_draft = $path;
-        $dokumen->revisi_log = 0; // Set revisi_log to 0 for new uploads
+        $dokumen->revisi_log = $nomor_revisi;
         $dokumen->nomor_dokumen = $nomorDokumen;
-        $dokumen->tgl_upload = Carbon::now();
-        $dokumen->user_id = $userId; // Atur user_id
-        $dokumen->rule_id = $request->rule_id; // Atur rule_id
+        $dokumen->tgl_upload = now();
+        $dokumen->user_id = $userId;
+        $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'waiting approval';
-        $dokumen->command = 'Dokumen baru dengan nama "' . $dokumen->nama_dokumen . '" telah diunggah.';
+        $dokumen->comment = 'Dokumen baru dengan nama "' . $dokumen->nama_dokumen . '" telah diunggah.';
         $dokumen->save();
 
         if ($request->has('departemen')) {
             $dokumen->departments()->attach($request->departemen);
         }
 
-        // $admin = User::where('role', 'admin')->get(); // Asumsikan ada kolom 'role' untuk menentukan user sebagai admin
-        // Notification::send($admin, new DokumenMasukNotification($dokumen));
-        // $user->notify(new DokumenMasukNotification($dokumen));
-        // Redirect or return a response
+        // Membuat notifikasi
+        $adminUsers = User::role('admin')->get();
+        $user = User::find($userId);
+
+        Notification::send($adminUsers, new DokumenStatusNotification($dokumen));
+        Notification::send($user, new DokumenStatusNotification($dokumen));
+
         return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
     }
 
@@ -238,7 +220,6 @@ class DocruleController extends Controller
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->route('rule.index', ['jenis' => $jenis, 'tipe' => $tipe])->with('success', 'Dokumen berhasil diperbarui.');
     }
-
     public function final_upload(Request $request, $id)
     {
         // Validasi request
@@ -273,7 +254,6 @@ class DocruleController extends Controller
         // Redirect atau kembalikan respons sukses
         return redirect()->back()->with('success', 'Dokumen final berhasil diunggah. Status dokumen sekarang adalah "pending final approved".');
     }
-
     public function download_draft($jenis, $tipe, $id)
     {
         // Lakukan validasi jika diperlukan
@@ -305,7 +285,6 @@ class DocruleController extends Controller
         // Lakukan download file dengan nama yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename);
     }
-
     public function validate_index($jenis, $tipe)
     {
         // Ambil dokumen yang sesuai dengan jenis dan tipe dokumen
@@ -327,6 +306,11 @@ class DocruleController extends Controller
 
     public function approveDocument(Request $request, $id)
     {
+        $request->validate([
+            'comment' => 'required|string|max:255',
+            'file_draft' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+        ]);
+
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
@@ -338,42 +322,58 @@ class DocruleController extends Controller
         // Lakukan perubahan status menjadi "draft approved"
         $dokumen->status = 'draft approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
-        // Buat command dengan nama dokumen yang di-approve
-        $dokumen->command = 'Your draft "' . $dokumen->nama_dokumen . '" has been approved by MS. Please upload the final document.';
+        // Buat comment dengan nama dokumen yang di-approve
+        $dokumen->comment = 'Your draft "' . $dokumen->nama_dokumen . '" has been approved. ' . $request->input('comment');
+
+        //Code untuk menambahkan file yang salah
+        if ($request->hasFile('file_draft')) {
+            // Hapus file draft lama jika ada
+            if ($dokumen->file_draft) {
+                Storage::delete($dokumen->file_draft);
+            }
+
+            // Upload file draft baru
+            $filePath = $request->file('file_draft')->store('dokumen');
+            $dokumen->file_draft = $filePath;
+        }
 
         // Simpan perubahan
         $dokumen->save();
+
+        // Kirim notifikasi
+        $user = $dokumen->user; // Mengambil user yang terkait dengan dokumen
+        $user->notify(new DokumenStatusNotification($dokumen, 'draft approved', $request->input('comment')));
 
         // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('success', 'Dokumen berhasil diapprove.');
     }
 
-    public function RejectedDocument(Request $request, $id)
-    {
-        // Temukan dokumen berdasarkan ID
-        $dokumen = IndukDokumen::findOrFail($id);
+    // public function RejectedDocument(Request $request, $id)
+    // {
+    //     // Temukan dokumen berdasarkan ID
+    //     $dokumen = IndukDokumen::findOrFail($id);
 
-        // Validasi input command
-        $request->validate([
-            'command' => 'required|string|max:255',
-        ]);
+    //     // Validasi input comment
+    //     $request->validate([
+    //         'comment' => 'required|string|max:255',
+    //     ]);
 
-        if ($dokumen->status != 'waiting approval') {
-            return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
-        }
+    //     if ($dokumen->status != 'waiting approval') {
+    //         return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
+    //     }
 
-        // Lakukan perubahan status menjadi "rejected"
-        $dokumen->status = 'draft rejected'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
+    //     // Lakukan perubahan status menjadi "rejected"
+    //     $dokumen->status = 'draft rejected'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
-        // Simpan command dari input form ke kolom command
-        $dokumen->command = 'Your draft "' . $dokumen->nama_dokumen . '" has been rejected. ' . $request->input('command');
+    //     // Simpan comment dari input form ke kolom comment
+    //     $dokumen->comment = 'Your draft "' . $dokumen->nama_dokumen . '" has been rejected. ' . $request->input('comment');
 
-        // Simpan perubahan
-        $dokumen->save();
+    //     // Simpan perubahan
+    //     $dokumen->save();
 
-        // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back()->with('success', 'Dokumen berhasil direject. Tolong upload kembali dokumen yang benar.');
-    }
+    //     // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
+    //     return redirect()->back()->with('success', 'Dokumen berhasil direject. Tolong upload kembali dokumen yang benar.');
+    // }
     public function share_document()
     {
         // Mendapatkan user yang sedang login
@@ -461,8 +461,8 @@ class DocruleController extends Controller
         // Lakukan perubahan status menjadi "approved"
         $dokumen->status = 'final approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
-        // Buat command dengan nama dokumen yang di-approve
-        $dokumen->command = 'Your "' . $dokumen->nama_dokumen . '" has been approved by MS.';
+        // Buat comment dengan nama dokumen yang di-approve
+        $dokumen->comment = 'Your "' . $dokumen->nama_dokumen . '" has been approved by MS.';
 
         // Simpan perubahan
         $dokumen->save();
@@ -475,9 +475,9 @@ class DocruleController extends Controller
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // Validasi input command
+        // Validasi input comment
         $request->validate([
-            'command' => 'required|string|max:255',
+            'comment' => 'required|string|max:255',
         ]);
 
         // Periksa apakah status dokumen adalah "waiting approval"
@@ -488,11 +488,11 @@ class DocruleController extends Controller
         // Lakukan perubahan status menjadi "final rejected"
         $dokumen->status = 'final rejected'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
-        // Buat pesan command
-        $pesanCommand = 'Your document "' . $dokumen->nama_dokumen . '" has been rejected. ' . $request->input('command') . '. Please upload the correct document.';
+        // Buat pesan comment
+        $pesanCommand = 'Your document "' . $dokumen->nama_dokumen . '" has been rejected. ' . $request->input('comment') . '. Please upload the correct document.';
 
-        // Simpan pesan command ke dalam kolom command
-        $dokumen->command = $pesanCommand;
+        // Simpan pesan comment ke dalam kolom comment
+        $dokumen->comment = $pesanCommand;
 
         // Simpan perubahan
         $dokumen->save();
@@ -611,4 +611,3 @@ class DocruleController extends Controller
     // Metode lain dalam DokumenController
     // ...
 }
-

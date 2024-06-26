@@ -27,41 +27,47 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($indukDokumenList as $doc)
+                                    @if ($indukDokumenList->isEmpty())
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $doc->nomor_dokumen }}</td>
-                                            <td>{{ $doc->nama_dokumen }}</td>
-                                            <td>{{ $doc->revisi_log }}</td>
-                                            <td>{{ $doc->tgl_upload }}</td>
-                                            <td>{{ $doc->status }}</td>
-                                            <td>
-                                                <!-- Tombol Edit -->
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editDokumen-{{ $doc->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button>
-
-                                                <!-- Tombol Download -->
-                                                <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    Download
-                                                    <i class="fa-solid fa-file-arrow-down"></i>
-                                                </a>
-                                                @if ($doc->status == 'draft approved' || $doc->status == 'final rejected')
-                                                    <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                        data-target="#uploadfinalModal-{{ $doc->id }}">
-                                                        Upload Final
-                                                    </button>
-                                                @else
-                                                    <button class="btn btn-primary btn-sm" disabled>
-                                                        Upload Final
-                                                    </button>
-                                                @endif
-                                            </td>
+                                            <td colspan="7" class="text-center">No data available</td>
                                         </tr>
-                                    @endforeach
+                                    @else
+                                        @foreach ($indukDokumenList as $doc)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $doc->nomor_dokumen }}</td>
+                                                <td>{{ $doc->nama_dokumen }}</td>
+                                                <td>{{ $doc->revisi_log }}</td>
+                                                <td>{{ $doc->tgl_upload }}</td>
+                                                <td>{{ $doc->status }}</td>
+                                                <td>
+                                                    <!-- Tombol Edit -->
+                                                    {{-- <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                                        data-target="#editDokumen-{{ $doc->id }}">
+                                                        Edit
+                                                        <i class="fa-solid fa-edit"></i>
+                                                    </button> --}}
+
+                                                    <!-- Tombol Download -->
+                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        Download
+                                                        <i class="fa-solid fa-file-arrow-down"></i>
+                                                    </a>
+                                                    @if ($doc->status == 'draft approved' || $doc->status == 'final rejected')
+                                                        <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                            data-target="#uploadfinalModal-{{ $doc->id }}">
+                                                            Upload Final
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-primary btn-sm" disabled>
+                                                            Upload Final
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
@@ -89,6 +95,18 @@
                         <div class="form-group">
                             <label for="nama_dokumen">Nama Dokumen</label>
                             <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status_dokumen">Status Dokumen</label>
+                            <select class="form-control" id="status_dokumen" name="status_dokumen" required>
+                                <option value="">Pilih Status Dokumen</option>
+                                <option value="baru">Baru</option>
+                                <option value="revisi">Revisi</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="revisi_field" style="display: none;">
+                            <label for="revisi_ke">Revisi Ke</label>
+                            <input type="number" class="form-control" id="revisi_ke" name="revisi_ke">
                         </div>
                         <div class="form-group">
                             <label for="rule_id">Kode Proses</label>
@@ -147,7 +165,7 @@
     @foreach ($indukDokumenList as $doc)
         <div class="modal fade" id="uploadfinalModal-{{ $doc->id }}" tabindex="-1" role="dialog"
             aria-labelledby="uploadfinalModalLabel-{{ $doc->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <form action="{{ route('final.rule', ['id' => $doc->id]) }}" method="POST"
                         enctype="multipart/form-data">
@@ -243,6 +261,17 @@
             </div>
         </div>
     @endforeach
+    <script>
+        // Event listener untuk mengubah tampilan input Revisi Ke
+        document.getElementById('status_dokumen').addEventListener('change', function() {
+            var revisiField = document.getElementById('revisi_field');
+            if (this.value === 'revisi') {
+                revisiField.style.display = 'block'; // menampilkan form Revisi Ke jika Revisi dipilih
+            } else {
+                revisiField.style.display = 'none'; // menyembunyikan form Revisi Ke jika Baru dipilih
+            }
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Dapatkan elemen checkbox "Select All"

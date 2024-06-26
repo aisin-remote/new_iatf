@@ -16,4 +16,9 @@ class NotificationController extends Controller
 
         return redirect()->back();
     }
+    public function showNotifications()
+    {
+        $notifications = auth()->user()->notifications;
+        return view('partials.notifications', compact('notifications'));
+    }
 }

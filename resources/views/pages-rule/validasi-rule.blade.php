@@ -27,34 +27,38 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($indukDokumenList as $doc)
+                                    @if ($indukDokumenList->isEmpty())
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $doc->nomor_dokumen }}</td>
-                                            <td>{{ $doc->nama_dokumen }}</td>
-                                            <td>{{ $doc->revisi_log }}</td>
-                                            <td>{{ $doc->tgl_upload }}</td>
-                                            <td>{{ $doc->user->departemen->nama_departemen }}</td>
-                                            <td>{{ $doc->status }}</td>
-                                            <!-- Tombol Edit -->
-                                            <td>
-                                                <div class="btn-group" role="group" aria-label="Actions">
-                                                    <!-- Tombol Download -->
-                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-file-download"></i>
-                                                    </a>
-                                                    <!-- Tombol approval -->
-                                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                        data-target="#approveDokumen-{{ $doc->id }}">
-
-                                                        <i class="fa-solid fa-circle-xmark"></i>
-                                                    </button>
-                                                    </form>
-                                                </div>
-                                            </td>
+                                            <td colspan="7" class="text-center">No data available</td>
                                         </tr>
-                                    @endforeach
+                                        @foreach ($indukDokumenList as $doc)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $doc->nomor_dokumen }}</td>
+                                                <td>{{ $doc->nama_dokumen }}</td>
+                                                <td>{{ $doc->revisi_log }}</td>
+                                                <td>{{ $doc->tgl_upload }}</td>
+                                                <td>{{ $doc->user->departemen->nama_departemen }}</td>
+                                                <td>{{ $doc->status }}</td>
+                                                <!-- Tombol Edit -->
+                                                <td>
+                                                    <div class="btn-group" role="group" aria-label="Actions">
+                                                        <!-- Tombol Download -->
+                                                        <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-file-download"></i>
+                                                        </a>
+                                                        <!-- Tombol approval -->
+                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                            data-target="#approveDokumen-{{ $doc->id }}">
+                                                            <i class="fa-solid fa-check"></i>
+                                                        </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
@@ -95,7 +99,7 @@
             aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('dokumen.rejected', ['id' => $doc->id]) }}" method="POST">
+                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
@@ -107,12 +111,19 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="dommand">Command</label>
-                                <input type="text" class="form-control" id="command" name="command" required>
+                                <label for="comment">Comment</label>
+                                <textarea name="comment" class="form-control @error('comment') is-invalid @enderror" required>{{ old('comment') }}</textarea>
+                                @error('comment')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="form-group">
-                                <label for="file">File</label>
-                                <input type="file" class="form-control" id="file" name="file_draft" required>
+                                <label for="file_draft">Upload File Draft (Opsional)</label>
+                                <input type="file" name="file_draft"
+                                    class="form-control @error('file_draft') is-invalid @enderror">
+                                @error('file_draft')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                         <div class="modal-footer">

@@ -6,8 +6,6 @@ use App\Exports\IndukDokumenExport;
 use App\Models\Departemen;
 use App\Models\IndukDokumen;
 use App\Models\User;
-use App\Notifications\AdminNotification;
-use App\Notifications\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -150,41 +148,5 @@ class HomeController extends Controller
 
         // Export data ke file Excel dan langsung download
         return Excel::download(new IndukDokumenExport($dokumen, $columns), $fileName);
-    }
-    public function updateStatus($indukDokumenId, $status)
-    {
-        $indukDokumen = IndukDokumen::find($indukDokumenId);
-        $indukDokumen->status_notifikasi = $status;
-        $indukDokumen->save();
-
-        // Set detail notifikasi
-        if ($status === 'waiting') {
-            $details = [
-                'title' => 'Waiting Approval',
-                'message' => 'Your document is waiting for approval.',
-                'url' => url('/induk_dokumen/' . $indukDokumen->id),
-            ];
-            $indukDokumen->user->notify(new UserNotification($details));
-        } elseif ($status === 'approved') {
-            $details = [
-                'title' => 'Document Approved',
-                'message' => 'Your document has been approved.',
-                'url' => url('/induk_dokumen/' . $indukDokumen->id),
-            ];
-            $indukDokumen->user->notify(new UserNotification($details));
-        }
-
-        // Notify admin about new document
-        if ($indukDokumen->command === 'new_document') {
-            $details = [
-                'title' => 'Dokumen Baru Masuk',
-                'message' => 'There is a new document.',
-                'url' => url('/induk_dokumen/' . $indukDokumen->id),
-            ];
-            $adminUsers = User::role('admin')->get();
-            Notification::send($adminUsers, new AdminNotification($details));
-        }
-
-        return 'Status updated and notifications sent.';
     }
 }
