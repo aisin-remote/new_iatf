@@ -3,17 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function markAsRead($id)
+    public function index()
     {
-        $notification = auth()->user()->unreadNotifications->where('id', $id)->first();
-
-        if ($notification) {
-            $notification->markAsRead();
-        }
-
-        return redirect()->back();
+        $user = Auth::user();
+        $notifications = $user->notifications()->paginate(10); // Mengambil notifikasi pengguna
+        return view('notification.', compact('notifications'));
     }
 }

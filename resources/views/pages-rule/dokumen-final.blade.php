@@ -15,41 +15,41 @@
                                         <th>Nomor Dokumen</th>
                                         <th>Nama Dokumen</th>
                                         <th>Upload By</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($dokumenfinal as $doc)
+                                    @forelse ($dokumenfinal as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
+                                            <td>{{ $doc->statusdoc }}</td>
                                             <td>
-                                                <!-- Tombol Edit -->
-                                                <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
-                                                    method="POST" style="display: inline;">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <input type="hidden" name="statusdoc" value="active">
-                                                    <button type="submit" class="btn btn-success btn-sm">
-                                                        Active <i class="fa-solid fa-check"></i>
-                                                    </button>
-                                                </form>
-
-                                                <!-- Tombol untuk Mengubah Status menjadi Obsolate -->
-                                                <form action="{{ route('update.statusdoc', ['id' => $doc->id]) }}"
-                                                    method="POST" style="display: inline;">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <input type="hidden" name="statusdoc" value="obsolate">
-                                                    <button type="submit" class="btn btn-danger btn-sm">
-                                                        Obsolate <i class="fa-solid fa-times"></i>
-                                                    </button>
-                                                </form>
+                                                @if ($doc->statusdoc == 'belum aktif')
+                                                    <!-- Jika status_doc adalah "belum aktif" -->
+                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
+                                                        class="btn btn-primary btn-sm">Activate</a>
+                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
+                                                        class="btn btn-danger btn-sm">Obsolate</a>
+                                                @elseif ($doc->statusdoc == 'active')
+                                                    <!-- Jika statusdoc adalah "active" -->
+                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
+                                                        class="btn btn-danger btn-sm">Obsolate</a>
+                                                @elseif ($doc->statusdoc == 'obsolate')
+                                                    <!-- Jika statusdoc adalah "obsolate" -->
+                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
+                                                        class="btn btn-primary btn-sm">Activate</a>
+                                                @endif
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

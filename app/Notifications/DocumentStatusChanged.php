@@ -7,10 +7,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AdminNotification extends Notification
+class DocumentStatusChanged extends Notification
 {
     use Queueable;
-    private $details;
+    public $details;
 
     /**
      * Create a new notification instance.
@@ -25,7 +25,7 @@ class AdminNotification extends Notification
      *
      * @return array<int, string>
      */
-    public function via($notifiable): array
+    public function via(object $notifiable): array
     {
         return ['database'];
     }
@@ -33,20 +33,7 @@ class AdminNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-    // public function toMail(object $notifiable): MailMessage
-    // {
-    //     return (new MailMessage)
-    //                 ->line('The introduction to the notification.')
-    //                 ->action('Notification Action', url('/'))
-    //                 ->line('Thank you for using our application!');
-    // }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray($notifiable): array
+    public function toDatabase($notifiable)
     {
         return [
             'title' => $this->details['title'],
@@ -54,4 +41,16 @@ class AdminNotification extends Notification
             'url' => $this->details['url'],
         ];
     }
+
+    /**
+     * Get the array representation of the notification.
+     *
+     * @return array<string, mixed>
+     */
+    // public function toArray(object $notifiable): array
+    // {
+    //     return [
+    //         //
+    //     ];
+    // }
 }

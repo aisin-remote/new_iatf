@@ -27,7 +27,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($indukDokumenList as $doc)
+                                    @forelse ($indukDokumenList as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
@@ -37,11 +37,11 @@
                                             <td>{{ $doc->status }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                                {{-- <button class="btn btn-warning btn-sm" data-toggle="modal"
                                                     data-target="#editDokumen-{{ $doc->id }}">
                                                     Edit
                                                     <i class="fa-solid fa-edit"></i>
-                                                </button>
+                                                </button> --}}
 
                                                 <!-- Tombol Download -->
                                                 <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
@@ -61,8 +61,13 @@
                                                 @endif
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
@@ -89,6 +94,18 @@
                         <div class="form-group">
                             <label for="nama_dokumen">Nama Dokumen</label>
                             <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status_dokumen">Status Dokumen</label>
+                            <select class="form-control" id="status_dokumen" name="status_dokumen" required>
+                                <option value="">Pilih Status Dokumen</option>
+                                <option value="baru">Baru</option>
+                                <option value="revisi">Revisi</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="revisi_ke_group" style="display: none;">
+                            <label for="revisi_ke">Revisi ke</label>
+                            <input type="number" class="form-control" id="revisi_ke" name="revisi_ke">
                         </div>
                         <div class="form-group">
                             <label for="rule_id">Kode Proses</label>
@@ -176,7 +193,7 @@
     @endforeach
 
     {{-- edit dokumen modal --}}
-    @foreach ($indukDokumenList as $doc)
+    {{-- @foreach ($indukDokumenList as $doc)
         <div class="modal fade" id="editDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
             aria-labelledby="editDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -242,7 +259,19 @@
                 </div>
             </div>
         </div>
-    @endforeach
+    @endforeach --}}
+    <script>
+        document.getElementById('status_dokumen').addEventListener('change', function() {
+            var revisiGroup = document.getElementById('revisi_ke_group');
+            if (this.value === 'revisi') {
+                revisiGroup.style.display = 'block';
+                document.getElementById('revisi_ke').required = true;
+            } else {
+                revisiGroup.style.display = 'none';
+                document.getElementById('revisi_ke').required = false;
+            }
+        });
+    </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Dapatkan elemen checkbox "Select All"

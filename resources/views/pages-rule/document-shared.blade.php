@@ -19,7 +19,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($sharedDocuments as $doc)
+                                    @forelse ($sharedDocuments as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
@@ -34,8 +34,13 @@
                                                 </a>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
+
                             </table>
                         </div>
                     </div>

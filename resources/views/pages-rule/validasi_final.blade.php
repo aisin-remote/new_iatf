@@ -26,7 +26,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($indukDokumenList as $doc)
+                                    @forelse ($indukDokumenList as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
@@ -59,7 +59,11 @@
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -111,8 +115,8 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="dommand">Command</label>
-                                <input type="text" class="form-control" id="command" name="command" required>
+                                <label for="comment">comment</label>
+                                <input type="text" class="form-control" id="comment" name="comment" required>
                             </div>
                         </div>
                         <div class="modal-footer">

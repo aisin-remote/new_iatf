@@ -27,7 +27,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($indukDokumenList as $doc)
+                                    @forelse ($indukDokumenList as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
@@ -45,16 +45,20 @@
                                                         <i class="fas fa-file-download"></i>
                                                     </a>
                                                     <!-- Tombol approval -->
-                                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
                                                         data-target="#approveDokumen-{{ $doc->id }}">
 
-                                                        <i class="fa-solid fa-circle-xmark"></i>
+                                                        <i class="fa-solid fa-check"></i>
                                                     </button>
                                                     </form>
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -95,7 +99,7 @@
             aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('dokumen.rejected', ['id' => $doc->id]) }}" method="POST">
+                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
@@ -107,12 +111,12 @@
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="dommand">Command</label>
-                                <input type="text" class="form-control" id="command" name="command" required>
+                                <label for="comment">Comment</label>
+                                <input type="text" class="form-control" id="comment" name="comment" required>
                             </div>
                             <div class="form-group">
-                                <label for="file">File</label>
-                                <input type="file" class="form-control" id="file" name="file_draft" required>
+                                <label for="file">File (optional)</label>
+                                <input type="file" class="form-control-file" id="file" name="file_draft">
                             </div>
                         </div>
                         <div class="modal-footer">

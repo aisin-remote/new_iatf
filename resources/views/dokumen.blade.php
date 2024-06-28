@@ -8,9 +8,11 @@
                     <div class="card-body">
                         <h4 class="card-title">Template Dokumen</h4>
                         <div class="d-flex justify-content-end mb-3">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addtemplate">
-                                Add New
-                            </button>
+                            @role('admin')
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addtemplate">
+                                    Add New
+                                </button>
+                            @endrole
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -27,7 +29,7 @@
                                     @foreach ($dokumen as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>-----</td>
+                                            <td>{{ $doc->nomor_template }}</td>
                                             <td>{{ $doc->jenis_dokumen }}</td>
                                             <td>{{ $doc->tipe_dokumen }}</td>
                                             <td>
@@ -119,8 +121,13 @@
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="file">Pilih File</label>
-                                <input type="file" class="form-control-file" id="file" name="file" required>
+                                <label for="nomor_template">Nomor Template</label>
+                                <input type="text" class="form-control" id="nomor_template" name="nomor_template"
+                                    value="{{ $doc->nomor_template }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">Pilih File (Opsional)</label>
+                                <input type="file" class="form-control-file" id="file" name="file">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -132,5 +139,4 @@
             </div>
         </div>
     @endforeach
-
 @endsection

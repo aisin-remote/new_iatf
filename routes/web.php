@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DocruleController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\RuleController;
+use App\Http\Controllers\ValidateRuleController;
 use Illuminate\Support\Facades\Route;
 use League\CommonMark\Node\Block\Document;
 
@@ -54,65 +56,67 @@ Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'downlo
     ->name('template.download');
 
 // Document Draft Rule
-Route::get('/dokumen/{jenis}/{tipe}', [DocruleController::class, 'index'])
+Route::get('/dokumen/{jenis}/{tipe}', [RuleController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('rule.index');
-Route::post('/dokumen/draft', [DocruleController::class, 'store'])
+Route::post('/dokumen/draft', [RuleController::class, 'store'])
     ->middleware(['auth', 'role:guest'])
     ->name('tambah.rule');
-Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [DocruleController::class, 'download_draft'])
+Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [RuleController::class, 'download_draft'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.draft');
-Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [DocruleController::class, 'update'])
+Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [RuleController::class, 'update'])
     ->middleware(['auth', 'role:guest'])
     ->name('edit.rule');
 
 // Validate Draft Rule
-Route::get('/admin/validate-draft/{jenis}/{tipe}', [DocruleController::class, 'validate_index'])
+Route::get('/admin/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])
     ->name('rule.validate');
-Route::post('/dokumen/validate-draft/approve/{id}', [DocruleController::class, 'approveDocument'])
+Route::post('/dokumen/validate-draft/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.approve');
-Route::post('/dokumen/validate-draft/rejected/{id}', [DocruleController::class, 'RejectedDocument'])
+Route::post('/dokumen/validate-draft/rejected/{id}', [ValidateRuleController::class, 'RejectedDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.rejected');
 
 // Document Final Rule
-Route::post('/dokumen-final/{id}', [DocruleController::class, 'final_upload'])
+Route::post('/dokumen-final/{id}', [RuleController::class, 'final_upload'])
     ->middleware(['auth', 'role:guest'])
     ->name('final.rule');
-Route::get('/dokumen-final/download/{id}', [DocruleController::class, 'DownloadDocFinal'])
+Route::get('/dokumen-final/download/{id}', [RuleController::class, 'DownloadDocFinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.doc.final');
-Route::get('/dokumen/final', [DocruleController::class, 'final_doc'])
+Route::get('/dokumen/final', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::get('/dokumen/final/download/{id}', [DocruleController::class, 'downloadfinal'])
+Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadfinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.final');
-Route::put('/dokumen/final/update-status/{id}', [DocruleController::class, 'updateStatusDoc'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('update.statusdoc');
+
 
 // Validate Final Rule
-Route::get('/admin/validate-final/{jenis}/{tipe}', [DocruleController::class, 'validate_final'])
+Route::get('/admin/validate-final/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_final'])
     ->middleware(['auth', 'role:admin'])
     ->name('final.validate');
-Route::post('/dokumen/validate-final/approve/{id}', [DocruleController::class, 'finalapproved'])
+Route::post('/dokumen/validate-final/approve/{id}', [ValidateRuleController::class, 'finalapproved'])
     ->middleware(['auth', 'role:admin'])
     ->name('final.approve');
-Route::post('/dokumen/validate-final/rejected/{id}', [DocruleController::class, 'finalrejected'])
+Route::post('/dokumen/validate-final/rejected/{id}', [ValidateRuleController::class, 'finalrejected'])
     ->middleware(['auth', 'role:admin'])
     ->name('final.rejected');
+Route::get('/dokumen/update/{id}/{action}', 'DokumenController@updateStatusDoc')
+    ->name('dokumen.update');
+
+
 
 // Document Share
-Route::get('/document/share', [DocruleController::class, 'share_document'])
+Route::get('/document/share', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/document/share/download/{id}', [DocruleController::class, 'downloadSharedDocument'])
+Route::get('/document/share/download/{id}', [RuleController::class, 'downloadSharedDocument'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.share');
 
-// Notifikasi
-Route::patch('/mark-as-read/{id}',[Not::class, ''])->name('markAsRead');
+//notifications
+Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

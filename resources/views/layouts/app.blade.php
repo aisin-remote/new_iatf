@@ -28,7 +28,7 @@
 <body>
     <div class="container-scroller">
         <!-- partial:partials/_navbar.html -->
-        @include('partials.navbar')
+        @include('partials.navbar', ['notifications' => $notifications])
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_settings-panel.html -->

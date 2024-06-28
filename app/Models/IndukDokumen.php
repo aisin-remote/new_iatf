@@ -56,8 +56,13 @@ class IndukDokumen extends Model
     {
         return $this->departments()->pluck('nama_departemen')->implode(', ');
     }
+    // Metode untuk memperbarui status dan mengirim notifikasi
     public function updateStatus($status)
     {
+        // Perbarui status dokumen
+        $this->status = $status;
+        $this->save();
+
         // Set detail notifikasi
         $details = [
             'title' => ucfirst($status) . ' Document',
@@ -66,6 +71,6 @@ class IndukDokumen extends Model
         ];
 
         // Kirim notifikasi ke pengguna terkait
-        $this->user->notify(new UserNotification($details));
+        $this->user->notify(new DocumentStatusChanged($details));
     }
 }
