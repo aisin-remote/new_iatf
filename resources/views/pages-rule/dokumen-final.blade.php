@@ -16,7 +16,9 @@
                                         <th>Nama Dokumen</th>
                                         <th>Upload By</th>
                                         <th>Status</th>
-                                        <th>Action</th>
+                                        @role('admin')
+                                            <th>Action</th>
+                                        @endrole
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -28,21 +30,23 @@
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>{{ $doc->statusdoc }}</td>
                                             <td>
-                                                @if ($doc->statusdoc == 'belum aktif')
-                                                    <!-- Jika status_doc adalah "belum aktif" -->
-                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
-                                                        class="btn btn-primary btn-sm">Activate</a>
-                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
-                                                        class="btn btn-danger btn-sm">Obsolate</a>
-                                                @elseif ($doc->statusdoc == 'active')
-                                                    <!-- Jika statusdoc adalah "active" -->
-                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
-                                                        class="btn btn-danger btn-sm">Obsolate</a>
-                                                @elseif ($doc->statusdoc == 'obsolate')
-                                                    <!-- Jika statusdoc adalah "obsolate" -->
-                                                    <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
-                                                        class="btn btn-primary btn-sm">Activate</a>
-                                                @endif
+                                                @role('admin')
+                                                    @if ($doc->statusdoc == 'belum aktif')
+                                                        <!-- Jika status_doc adalah "belum aktif" -->
+                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
+                                                            class="btn btn-primary btn-sm">Activate</a>
+                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
+                                                            class="btn btn-danger btn-sm">Obsolate</a>
+                                                    @elseif ($doc->statusdoc == 'active')
+                                                        <!-- Jika statusdoc adalah "active" -->
+                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
+                                                            class="btn btn-danger btn-sm">Obsolate</a>
+                                                    @elseif ($doc->statusdoc == 'obsolate')
+                                                        <!-- Jika statusdoc adalah "obsolate" -->
+                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
+                                                            class="btn btn-primary btn-sm">Activate</a>
+                                                    @endif
+                                                @endrole
                                             </td>
                                         </tr>
                                     @empty

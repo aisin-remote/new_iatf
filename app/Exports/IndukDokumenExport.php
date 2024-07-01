@@ -6,6 +6,7 @@ use App\Models\IndukDokumen;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class IndukDokumenExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
@@ -47,7 +48,15 @@ class IndukDokumenExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Departemen Tersebar',
         ];
     }
-
+    public function styles(Worksheet $sheet)
+    {
+        // Mengatur gaya format untuk heading menjadi bold
+        $sheet->getStyle('A1:' . $sheet->getHighestColumn() . '1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+            ]
+        ]);
+    }
     protected function getDepartemenTersebar($item)
     {
         if ($item->documentDepartements) {

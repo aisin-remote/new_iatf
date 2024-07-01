@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Dokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use RealRashid\SweetAlert\Facades\Alert;
+
 
 class DokumenController extends Controller
 {
@@ -87,11 +89,11 @@ class DokumenController extends Controller
         $filePath = 'template_dokumen/' . $dokumen->file;
 
         if (Storage::disk('public')->exists($filePath)) {
-            // Mendapatkan ukuran file dan memeriksa keberadaan file
+            // Mendapatkan ukuran file
             try {
                 $fileSize = Storage::disk('public')->size($filePath);
             } catch (\Exception $e) {
-                return back()->with('error', 'Tidak dapat mengambil ukuran file: ' . $e->getMessage());
+                return back()->with('error', 'File Not Found');
             }
 
             // Membuat nama file yang diunduh dengan format yang diinginkan
@@ -101,7 +103,9 @@ class DokumenController extends Controller
             // Jika file ditemukan, kirim file untuk diunduh
             return Storage::disk('public')->download($filePath, $fileName);
         } else {
-            return back()->with('error', 'File tidak ditemukan di storage.');
+            // File tidak ditemukan, kembalikan ke halaman sebelumnya dengan pesan error
+            Alert::error('Error Title', 'file not found');
+            return back();
         }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\DocumentStatusChanged;
 use App\Notifications\UserNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -55,22 +56,5 @@ class IndukDokumen extends Model
     public function getDepartemenTersebar()
     {
         return $this->departments()->pluck('nama_departemen')->implode(', ');
-    }
-    // Metode untuk memperbarui status dan mengirim notifikasi
-    public function updateStatus($status)
-    {
-        // Perbarui status dokumen
-        $this->status = $status;
-        $this->save();
-
-        // Set detail notifikasi
-        $details = [
-            'title' => ucfirst($status) . ' Document',
-            'message' => 'Your document is now ' . $status . '.',
-            'url' => URL::to('/transaksi/' . $this->id), // Ganti dengan URL yang sesuai
-        ];
-
-        // Kirim notifikasi ke pengguna terkait
-        $this->user->notify(new DocumentStatusChanged($details));
     }
 }

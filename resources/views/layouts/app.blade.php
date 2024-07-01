@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title')</title>
     <!-- plugins:css -->
-    <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css/>
+    <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     {{-- <link rel="stylesheet" href="{{ asset('vendors/feather/feather.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('vendors/ti-icons/css/themify-icons.css') }}">
@@ -24,11 +24,83 @@
     <!-- endinject -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}" />
 </head>
+<style>
+    /* Dropdown notifications style */
+    .nav-item.dropdown .dropdown-menu {
+        width: 300px;
+        padding: 10px;
+    }
+
+    .nav-item.dropdown .dropdown-header {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .notification-item {
+        padding: 10px;
+        border-bottom: 1px solid #f1f1f1;
+        transition: background-color 0.3s;
+    }
+
+    .notification-item:last-child {
+        border-bottom: none;
+    }
+
+    .notification-item:hover {
+        background-color: #f9f9f9;
+    }
+
+    .notification-icon {
+        width: 40px;
+        /* Adjust the width according to your icon size */
+        height: 40px;
+        /* Adjust the height according to your icon size */
+        background-color: #007bff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+
+    .notification-icon i {
+        color: #fff;
+        font-size: 1.5em;
+    }
+
+    .notification-content {
+        flex-grow: 1;
+    }
+
+    .notification-title {
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .notification-text {
+        margin: 0;
+        color: #6c757d;
+    }
+
+    .notification-status {
+        font-size: 0.9em;
+        color: #28a745;
+    }
+
+    /* Badge for unread notifications */
+    .count-indicator .badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 0.75em;
+    }
+</style>    
 
 <body>
     <div class="container-scroller">
         <!-- partial:partials/_navbar.html -->
-        @include('partials.navbar', ['notifications' => $notifications])
+        @include('partials.navbar')
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_settings-panel.html -->

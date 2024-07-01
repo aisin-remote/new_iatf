@@ -29,7 +29,7 @@ class HomeController extends Controller
         }
 
         // Query dasar untuk data dokumen
-        $query = IndukDokumen::where('status', 'final approved');
+        $query = IndukDokumen::where('statusdoc', 'active');
 
         // Filter berdasarkan status dokumen
         if (!$user->hasRole('admin')) {

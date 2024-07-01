@@ -47,58 +47,41 @@ class RuleController extends Controller
     }
     public function store(Request $request)
     {
-        // Validasi request
         $request->validate([
             'nama_dokumen' => 'required',
             'file_draft' => 'required|file',
-            'rule_id' => 'required|exists:rule,id', // Pastikan rule_id ada di tabel rules
-            'jenis_dokumen' => 'required', // Ini mungkin diambil dari form atau logika lain
-            'tipe_dokumen' => 'required', // Ini mungkin diambil dari form atau logika lain
+            'rule_id' => 'required|exists:rule,id',
+            'jenis_dokumen' => 'required',
+            'tipe_dokumen' => 'required',
             'departemen' => 'nullable|array',
             'departemen.*' => 'exists:departemen,id',
-            'revisi_ke' => 'nullable|integer', // Menambahkan validasi untuk revisi_ke
+            'revisi_ke' => 'nullable|integer',
         ]);
 
-        // Ambil file yang diunggah
         $file = $request->file('file_draft');
-
-        // Generate nama file unik dengan timestamp
         $filename = time() . '_' . $file->getClientOriginalName();
-
-        // Tentukan path penyimpanan file
         $path = 'dokumen_rule/' . $filename;
-
-        // Simpan file di penyimpanan publik
         $file->storeAs('dokumen_rule', $filename, 'public');
 
-        // Dapatkan user ID dari pengguna yang sedang login
         $userId = auth()->id();
-
-        // Ambil informasi departemen dari pengguna yang login
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
-
-        // Tentukan nomor revisi dan revisi log
         $revisi_log = $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0;
 
-        // Ambil kode proses dari input rule_id
         $rule = RuleCode::find($request->rule_id);
         if (!$rule) {
             return redirect()->back()->with('error', 'Rule tidak valid.');
         }
         $kode_proses = $rule->kode_proses;
 
-        // Ambil document_id dari tabel Dokumen berdasarkan jenis dan tipe dokumen
         $documentId = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
             ->where('tipe_dokumen', $request->tipe_dokumen)
             ->value('id');
 
-        // Pastikan documentId ditemukan
         if (!$documentId) {
             return redirect()->back()->with('error', 'Jenis dan tipe dokumen tidak valid.');
         }
 
-        // Mendapatkan nomor list dokumen
         $latestDokumen = IndukDokumen::where('dokumen_id', $documentId)
             ->orderBy('id', 'desc')
             ->first();
@@ -107,26 +90,24 @@ class RuleController extends Controller
         $newNumber = $currentNumber + 1;
         $number = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
 
-        // Generate nomor dokumen berdasarkan tipe
         $nomorDokumen = sprintf(
             '%s-%s-%s-%s-%02d',
-            strtoupper(substr($request->tipe_dokumen, 0, 3)), // Mengambil tiga karakter pertama dari tipe dokumen
-            strtoupper(substr($departemen_user, 0, 3)), // Mengambil tiga karakter pertama dari departemen
+            strtoupper(substr($request->tipe_dokumen, 0, 3)),
+            strtoupper(substr($departemen_user, 0, 3)),
             strtoupper($kode_proses),
-            $number, // Nomor list dokumen, dengan format tiga angka
-            $revisi_log // Nomor revisi
+            $number,
+            $revisi_log
         );
 
-        // Buat instance IndukDokumen dan isi propertinya
         $dokumen = new IndukDokumen();
         $dokumen->nama_dokumen = $request->nama_dokumen;
-        $dokumen->dokumen_id = $documentId; // Atur document_id
+        $dokumen->dokumen_id = $documentId;
         $dokumen->file_draft = $path;
-        $dokumen->revisi_log = $revisi_log; // Set revisi_log berdasarkan inputan
+        $dokumen->revisi_log = $revisi_log;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
-        $dokumen->user_id = $userId; // Atur user_id
-        $dokumen->rule_id = $request->rule_id; // Atur rule_id
+        $dokumen->user_id = $userId;
+        $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'waiting approval';
         $dokumen->comment = 'Dokumen baru dengan nama "' . $dokumen->nama_dokumen . '" telah diunggah.';
         $dokumen->save();
@@ -134,43 +115,50 @@ class RuleController extends Controller
         if ($request->has('departemen')) {
             $dokumen->departments()->attach($request->departemen);
         }
+
         return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
     }
 
     public function final_upload(Request $request, $id)
     {
-        // Validasi request
-        $request->validate([
-            'file_final' => 'required|file',
-        ]);
+        try {
+            // Validasi request
+            $request->validate([
+                'file_final' => 'required|file|mimes:pdf,doc,docx|max:2048', // Sesuaikan dengan kebutuhan Anda
+            ]);
 
-        // Ambil dokumen berdasarkan ID yang diterima
-        $dokumen = IndukDokumen::findOrFail($id);
+            // Ambil dokumen berdasarkan ID yang diterima
+            $dokumen = IndukDokumen::findOrFail($id);
 
-        // Ambil file yang diunggah
-        $file = $request->file('file_final');
+            // Ambil file yang diunggah
+            $file = $request->file('file_final');
 
-        // Generate nama file unik dengan timestamp
-        $filename = time() . '_' . $file->getClientOriginalName();
+            // Generate nama file unik dengan timestamp
+            $filename = time() . '_' . $file->getClientOriginalName();
 
-        // Tentukan path penyimpanan file
-        $path = 'dokumen_rule/' . $filename;
+            // Tentukan path penyimpanan file
+            $path = 'dokumen_rule/' . $filename;
 
-        // Simpan file di penyimpanan publik
-        $file->storeAs('dokumen_rule', $filename, 'public');
+            // Simpan file di penyimpanan publik
+            $file->storeAs('dokumen_rule', $filename, 'public');
 
-        // Update kolom file_final di database
-        $dokumen->file_final = $path;
+            // Update kolom file_final di database
+            $dokumen->file_final = $path;
 
-        // Update status dokumen menjadi "pending final approved"
-        $dokumen->status = 'waiting final approval';
+            // Update status dokumen menjadi "pending final approved"
+            $dokumen->status = 'waiting final approval';
 
-        // Simpan perubahan
-        $dokumen->save();
+            // Simpan perubahan
+            $dokumen->save();
 
-        // Redirect atau kembalikan respons sukses
-        return redirect()->back()->with('success', 'Dokumen final berhasil diunggah. Status dokumen sekarang adalah "pending final approved".');
+            // Redirect atau kembalikan respons sukses
+            return redirect()->back()->with('success', 'Dokumen final berhasil diunggah. Status dokumen sekarang adalah "pending final approved".');
+        } catch (\Exception $e) {
+            // Tangani pengecualian jika terjadi kesalahan
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
+
 
     public function download_draft($jenis, $tipe, $id)
     {
@@ -215,7 +203,7 @@ class RuleController extends Controller
         $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
             $query->where('nama_departemen', $departemen_user);
         })
-            ->where('status', 'final approved')
+            ->where('statusdoc', 'active')
             ->whereNotNull('file_final')
             ->orderByDesc('created_at')
             ->get();
@@ -234,7 +222,7 @@ class RuleController extends Controller
             ->whereHas('departments', function ($query) use ($departemen_user) {
                 $query->where('nama_departemen', $departemen_user);
             })
-            ->where('status', 'final approved')
+            ->where('statusdoc', 'active')
             ->whereNotNull('file_final')
             ->first();
 

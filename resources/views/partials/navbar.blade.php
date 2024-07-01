@@ -12,7 +12,7 @@
         </button>
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown">
-                @include('partials.notifications', ['notifications' => $notifications])
+                @include('partials.notifications')
             </li>
 
             <li class="nav-item nav-profile dropdown">

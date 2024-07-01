@@ -120,3 +120,5 @@ Route::get('/document/share/download/{id}', [RuleController::class, 'downloadSha
 
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::post('/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+Route::get('/fetch-notifications', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
