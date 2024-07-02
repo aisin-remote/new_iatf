@@ -31,7 +31,7 @@
                                             <td>{{ $doc->statusdoc }}</td>
                                             <td>
                                                 @role('admin')
-                                                    @if ($doc->statusdoc == 'belum aktif')
+                                                    @if ($doc->statusdoc == 'not yet active')
                                                         <!-- Jika status_doc adalah "belum aktif" -->
                                                         <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
                                                             class="btn btn-primary btn-sm">Activate</a>

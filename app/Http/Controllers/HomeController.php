@@ -5,13 +5,9 @@ namespace App\Http\Controllers;
 use App\Exports\IndukDokumenExport;
 use App\Models\Departemen;
 use App\Models\IndukDokumen;
-use App\Models\User;
-use App\Notifications\AdminNotification;
-use App\Notifications\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 
 class HomeController extends Controller
@@ -29,27 +25,25 @@ class HomeController extends Controller
         }
 
         // Query dasar untuk data dokumen
-        $query = IndukDokumen::where('statusdoc', 'active');
+        $query = IndukDokumen::query();
 
-        // Filter berdasarkan status dokumen
-        if (!$user->hasRole('admin')) {
-            $query->where('statusdoc', 'active');
-        }
-
-        // Hanya jika bukan admin, filter berdasarkan departemen user
+        // Hanya jika bukan admin, filter berdasarkan dokumen yang diunggah oleh departemen user
         if (!$user->hasRole('admin')) {
             $query->whereHas('user', function ($query) use ($departemen_user) {
                 $query->whereHas('departemen', function ($query) use ($departemen_user) {
                     $query->where('nama_departemen', $departemen_user);
                 });
-            });
+            })->where('statusdoc', 'active');
+        } else {
+            // Jika admin, tidak perlu filter statusdoc
+            $query->where('statusdoc', 'active');
         }
 
         // Ambil data dokumen sesuai dengan query yang sudah difilter
         $dokumenall = $query->get();
 
         // Query untuk menghitung berdasarkan tipe dokumen
-        $countByType = IndukDokumen::where('statusdoc', 'active')
+        $countByType = IndukDokumen::query()
             ->when(!$user->hasRole('admin'), function ($query) use ($departemen_user) {
                 $query->whereHas('user', function ($query) use ($departemen_user) {
                     $query->whereHas('departemen', function ($query) use ($departemen_user) {
@@ -63,7 +57,7 @@ class HomeController extends Controller
             ->get();
 
         // Query untuk menghitung berdasarkan status dan tipe dokumen
-        $countByStatusAndType = IndukDokumen::where('status', 'final approved')
+        $countByStatusAndType = IndukDokumen::query()
             ->when(!$user->hasRole('admin'), function ($query) use ($departemen_user) {
                 $query->whereHas('user', function ($query) use ($departemen_user) {
                     $query->whereHas('departemen', function ($query) use ($departemen_user) {
@@ -77,22 +71,25 @@ class HomeController extends Controller
             ->get();
 
         // Menghitung jumlah berdasarkan status tertentu
-        $waitingCount = $countByStatusAndType->where('status', 'waiting')->sum('count');
-        $approveCount = $countByStatusAndType->where('status', 'approved')->sum('count');
-        $rejectCount = $countByStatusAndType->where('status', 'rejected')->sum('count');
+        $waitingApproveCount = $countByStatusAndType->where('status', 'waiting approval')->sum('count');
+        $draftApproveCount = $countByStatusAndType->where('status', 'draft approved')->sum('count');
+        $waitingFinalCount = $countByStatusAndType->where('status', 'waiting final approval')->sum('count');
         $finalApprovedCount = $countByStatusAndType->where('status', 'final approved')->sum('count');
 
         return view('pages-rule.dashboard', compact(
             'countByType',
-            'waitingCount',
-            'approveCount',
+            'waitingApproveCount',
+            'draftApproveCount',
             'countByStatusAndType',
             'dokumenall',
-            'rejectCount',
+            'waitingFinalCount',
             'finalApprovedCount',
             'allDepartemen'
         ));
     }
+
+
+
     public function getNotifications()
     {
         $user = Auth::user();

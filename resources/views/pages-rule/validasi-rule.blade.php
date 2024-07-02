@@ -27,7 +27,16 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($indukDokumenList as $doc)
+                                    @php
+                                        $filteredDocs = $indukDokumenList->filter(function ($doc) {
+                                            return in_array($doc->status, [
+                                                'waiting approval',
+                                                'waiting final approval',
+                                            ]);
+                                        });
+                                    @endphp
+
+                                    @forelse ($filteredDocs as $doc)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
@@ -39,24 +48,42 @@
                                             <!-- Tombol Edit -->
                                             <td>
                                                 <div class="btn-group" role="group" aria-label="Actions">
-                                                    <!-- Tombol Download -->
-                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-file-download"></i>
-                                                    </a>
-                                                    <!-- Tombol approval -->
-                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                        data-target="#approveDokumen-{{ $doc->id }}">
-
-                                                        <i class="fa-solid fa-check"></i>
-                                                    </button>
-                                                    </form>
+                                                    @if ($doc->status == 'waiting approval')
+                                                        <!-- Tombol Download Draft -->
+                                                        <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-file-download"></i> Download Draft
+                                                        </a>
+                                                        <!-- Tombol Approve Draft -->
+                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                            data-target="#approveDraftDokumen-{{ $doc->id }}">
+                                                            <i class="fa-solid fa-check"></i> Approve Draft
+                                                        </button>
+                                                    @elseif ($doc->status == 'waiting final approval')
+                                                        <!-- Tombol Download Final Document -->
+                                                        <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-file-download"></i> Download Final Document
+                                                        </a>
+                                                        <!-- Tombol Approve Document -->
+                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                            data-target="#approveDokumen-{{ $doc->id }}">
+                                                            <i class="fa-solid fa-check"></i> Approve Document
+                                                        </button>
+                                                        <!-- Tombol Reject Document -->
+                                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                            data-target="#rejectDokumen-{{ $doc->id }}">
+                                                            <i class="fa-solid fa-circle-xmark"></i> Reject Document
+                                                        </button>
+                                                    @else
+                                                        <p class="text-muted">No data available</p>
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center">No data available</td>
+                                            <td colspan="8" class="text-center">No data available</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -68,7 +95,39 @@
         </div>
     </div>
     @foreach ($indukDokumenList as $doc)
-        {{-- <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+        <div class="modal fade" id="approveDraftDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="approveDraftDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="approveDraftDokumenLabel-{{ $doc->id }}">Document Confirmation
+                                Approved
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="comment">Comment</label>
+                                <input type="text" class="form-control" id="comment" name="comment" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">File (optional)</label>
+                                <input type="file" class="form-control-file" id="file" name="file_draft">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
             aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -94,36 +153,31 @@
                     </div>
                 </div>
             </div>
-        </div> --}}
-        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+        </div>
+        <div class="modal fade" id="rejectDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="rejectDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
-                                Approved
-                            </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Approve Dokumen
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Apakah Anda yakin ingin menyetujui dokumen ini?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                            @csrf
+                            @method('POST')
+                            <button type="submit" class="btn btn-success">
+                                <i class="fa-solid fa-circle-check"></i> Approve
                             </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="comment">Comment</label>
-                                <input type="text" class="form-control" id="comment" name="comment" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="file">File (optional)</label>
-                                <input type="file" class="form-control-file" id="file" name="file_draft">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

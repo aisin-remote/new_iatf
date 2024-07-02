@@ -11,6 +11,14 @@ class Dokumen extends Model
 
     protected $table = 'dokumen';
 
+    protected $fillable = [
+        'nomor_template', // Tambahkan 'nomor_template' ke sini
+        'jenis_dokumen',
+        'tipe_dokumen',
+        'file',
+        // tambahkan kolom lainnya sesuai kebutuhan
+    ];
+
     public function indukDokumen()
     {
         return $this->hasMany(IndukDokumen::class, 'dokumen_id');

@@ -29,13 +29,29 @@ class AppServiceProvider extends ServiceProvider
 
             if ($user->hasRole('admin')) {
                 // Jika user adalah admin, ambil semua data IndukDokumen
-                $documents = IndukDokumen::with('user.departemen')
+                $documents = IndukDokumen::with(['user.departemen', 'distributions.departemen'])
                     ->paginate(10);
             } else {
                 // Jika user bukan admin, ambil data IndukDokumen sesuai dengan departemen user
-                $documents = IndukDokumen::whereHas('user', function ($query) use ($user) {
-                    $query->where('departemen_id', $user->departemen_id);
-                })
+                // $documents = IndukDokumen::where(function ($query) use ($user) {
+                //     $query->whereHas('user', function ($q) use ($user) {
+                //         $q->where('departemen_id', $user->departemen_id);
+                //     })
+                //         ->orWhereHas('distributions', function ($q) use ($user) {
+                //             $q->where('departemen_id', $user->departemen_id);
+                //         })
+                //         ->orWhereHas('departments', function ($q) use ($user) {
+                //             $q->where('departemen_id', $user->departemen_id);
+                //         });
+                // })
+                //     ->where('statusdoc', '!=', 'active')
+                //     ->with(['user.departemen', 'distributions.departemen'])
+                //     ->paginate(10);
+
+                $documents = IndukDokumen::select('induk_dokumen.*')
+                    ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
+                    ->where('document_departement.departemen_id', $user->departemen_id)
+                    ->where('induk_dokumen.statusdoc', 'active')
                     ->paginate(10);
             }
 

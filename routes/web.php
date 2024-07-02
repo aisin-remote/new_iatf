@@ -45,7 +45,7 @@ Route::get('download-excel', [HomeController::class, 'downloadExcel'])
 Route::get('/template-dokumen', [DokumenController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.index');
-Route::get('/template-dokumen/add', [DokumenController::class, 'store'])
+Route::post('/template-dokumen/add', [DokumenController::class, 'store'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.add');
 Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])
@@ -81,9 +81,9 @@ Route::post('/dokumen/validate-draft/rejected/{id}', [ValidateRuleController::cl
     ->name('dokumen.rejected');
 
 // Document Final Rule
-Route::post('/dokumen-final/{id}', [RuleController::class, 'final_upload'])
+Route::post('upload-final/{id}', [RuleController::class, 'uploadFinal'])
     ->middleware(['auth', 'role:guest'])
-    ->name('final.rule');
+    ->name('upload.final');
 Route::get('/dokumen-final/download/{id}', [RuleController::class, 'DownloadDocFinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.doc.final');
@@ -93,6 +93,7 @@ Route::get('/dokumen/final', [RuleController::class, 'final_doc'])
 Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadfinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.final');
+
 
 
 // Validate Final Rule
@@ -105,9 +106,9 @@ Route::post('/dokumen/validate-final/approve/{id}', [ValidateRuleController::cla
 Route::post('/dokumen/validate-final/rejected/{id}', [ValidateRuleController::class, 'finalrejected'])
     ->middleware(['auth', 'role:admin'])
     ->name('final.rejected');
-Route::get('/dokumen/update/{id}/{action}', 'DokumenController@updateStatusDoc')
+Route::get('/dokumen/update/{id}/{action}', [ValidateRuleController::class, 'updateStatusDoc'])
+    ->middleware(['auth', 'role:admin'])
     ->name('dokumen.update');
-
 
 
 // Document Share

@@ -124,10 +124,12 @@
                                 <label for="nomor_template">Nomor Template</label>
                                 <input type="text" class="form-control" id="nomor_template" name="nomor_template"
                                     value="{{ $doc->nomor_template }}" required>
+
+
                             </div>
                             <div class="form-group">
                                 <label for="file">Pilih File (Opsional)</label>
-                                <input type="file" class="form-control-file" id="file" name="file">
+                                <input type="file" class="form-control-file" id="file" name="template">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -139,14 +141,4 @@
             </div>
         </div>
     @endforeach
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-            });
-        </script>
-    @endif
 @endsection

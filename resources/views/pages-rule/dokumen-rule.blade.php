@@ -143,7 +143,6 @@
                             </div>
                         </div>
 
-
                         <div class="form-group">
                             <label for="file">File</label>
                             <input type="file" class="form-control" id="file" name="file_draft" required>
@@ -166,31 +165,32 @@
             aria-labelledby="uploadfinalModalLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('final.rule', ['id' => $doc->id]) }}" method="POST"
+                    <form action="{{ route('upload.final', ['id' => $doc->id]) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="uploadfinalModalLabel-{{ $doc->id }}">Upload Final
-                                {{ ucfirst($tipe) }}</h5>
+                            <h5 class="modal-title" id="uploadfinalModalLabel-{{ $doc->id }}">Upload Final</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="file">File</label>
-                                <input type="file" class="form-control" id="file" name="file_final" required>
+                                <label for="file_final">File</label>
+                                <input type="file" class="form-control-file" id="file_final" name="file_final"
+                                    required>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" class="btn btn-primary">Upload</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     @endforeach
+
 
     {{-- edit dokumen modal --}}
     {{-- @foreach ($indukDokumenList as $doc)

@@ -60,8 +60,8 @@ class RuleController extends Controller
 
         $file = $request->file('file_draft');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = 'dokumen_rule/' . $filename;
-        $file->storeAs('dokumen_rule', $filename, 'public');
+        $path = 'draft_rule/' . $filename;
+        $file->storeAs('draft_rule', $filename, 'public');
 
         $userId = auth()->id();
         $user = auth()->user();
@@ -109,7 +109,7 @@ class RuleController extends Controller
         $dokumen->user_id = $userId;
         $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'waiting approval';
-        $dokumen->comment = 'Dokumen baru dengan nama "' . $dokumen->nama_dokumen . '" telah diunggah.';
+        $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
         $dokumen->save();
 
         if ($request->has('departemen')) {
@@ -119,7 +119,7 @@ class RuleController extends Controller
         return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
     }
 
-    public function final_upload(Request $request, $id)
+    public function uploadFinal(Request $request, $id)
     {
         try {
             // Validasi request
@@ -137,28 +137,25 @@ class RuleController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
 
             // Tentukan path penyimpanan file
-            $path = 'dokumen_rule/' . $filename;
+            $path = 'final_rule/' . $filename;
 
             // Simpan file di penyimpanan publik
-            $file->storeAs('dokumen_rule', $filename, 'public');
+            $file->storeAs('final_rule', $filename, 'public');
 
             // Update kolom file_final di database
             $dokumen->file_final = $path;
 
             // Update status dokumen menjadi "pending final approved"
             $dokumen->status = 'waiting final approval';
-
             // Simpan perubahan
             $dokumen->save();
 
             // Redirect atau kembalikan respons sukses
-            return redirect()->back()->with('success', 'Dokumen final berhasil diunggah. Status dokumen sekarang adalah "pending final approved".');
+            return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
         } catch (\Exception $e) {
-            // Tangani pengecualian jika terjadi kesalahan
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengunggah dokumen: ' . $e->getMessage());
         }
     }
-
 
     public function download_draft($jenis, $tipe, $id)
     {
@@ -195,18 +192,24 @@ class RuleController extends Controller
     {
         // Mendapatkan user yang sedang login
         $user = auth()->user();
-
         // Mendapatkan nama departemen dari user
         $departemen_user = $user->departemen->nama_departemen;
 
-        // Mengambil dokumen yang dibagikan berdasarkan departemen user dan memiliki status final approved
-        $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
-            $query->where('nama_departemen', $departemen_user);
-        })
-            ->where('statusdoc', 'active')
-            ->whereNotNull('file_final')
-            ->orderByDesc('created_at')
+        // $sharedDocuments = IndukDokumen::first()->with('distributions')->where('statusdoc', 'active')->get();
+        $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
+            ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
+            ->where('document_departement.departemen_id', $user->departemen_id)
+            ->where('induk_dokumen.statusdoc', 'active')
             ->get();
+        // $test = $sharedDocuments->departments;
+        // Mengambil dokumen yang dibagikan berdasarkan departemen user dan memiliki status final approved
+        // $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
+        //     $query->where('nama_departemen', $departemen_user);
+        // })
+        //     ->where('statusdoc', 'active')
+        //     ->whereNotNull('file_final')
+        //     ->orderByDesc('created_at')
+        //     ->get();
 
         return view('pages-rule.document-shared', compact('sharedDocuments'));
     }

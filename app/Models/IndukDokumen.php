@@ -18,14 +18,15 @@ class IndukDokumen extends Model
     protected $fillable = [
         'nama_dokumen',
         'nomor_dokumen',
-        'file',
         'user_id',
         'dokumen_id',
         'rule_id',
         'tgl_upload',
         'revisi_log',
         'status',
-        'statusdoc'
+        'statusdoc',
+        'file_draft',
+        'file_final'
     ];
 
     // Relasi dengan pengguna (user)
@@ -56,5 +57,9 @@ class IndukDokumen extends Model
     public function getDepartemenTersebar()
     {
         return $this->departments()->pluck('nama_departemen')->implode(', ');
+    }
+    public function distributions()
+    {
+        return $this->hasMany(DocumentDepartement::class, 'induk_dokumen_id', 'id');
     }
 }

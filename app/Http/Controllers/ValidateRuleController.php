@@ -21,7 +21,6 @@ class ValidateRuleController extends Controller
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih dan memiliki status "waiting approval"
         $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
-            ->where('status', 'waiting approval')
             ->get();
 
         // Ambil semua kode proses
@@ -30,7 +29,6 @@ class ValidateRuleController extends Controller
         // Return view dengan data yang sudah difilter
         return view('pages-rule.validasi-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses'));
     }
-
     public function approveDocument(Request $request, $id)
     {
         // Validasi input
@@ -52,10 +50,10 @@ class ValidateRuleController extends Controller
             if ($request->hasFile('file_draft')) {
                 $file = $request->file('file_draft');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                Storage::disk('public')->putFileAs('dokumen_rule', $file, $filename);
+                Storage::disk('public')->putFileAs('draft_rule', $file, $filename);
 
                 // Simpan path file draft ke dalam database
-                $dokumen->file_draft = 'dokumen_rule/' . $filename;
+                $dokumen->file_draft = 'draft_rule/' . $filename;
             }
 
             // Lakukan perubahan status menjadi "draft approved"
@@ -74,49 +72,6 @@ class ValidateRuleController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
-    // public function RejectedDocument(Request $request, $id)
-    // {
-    //     // Temukan dokumen berdasarkan ID
-    //     $dokumen = IndukDokumen::findOrFail($id);
-
-    //     // Validasi input comment
-    //     $request->validate([
-    //         'comment' => 'required|string|max:255',
-    //     ]);
-
-    //     if ($dokumen->status != 'waiting approval') {
-    //         return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
-    //     }
-
-    //     // Lakukan perubahan status menjadi "rejected"
-    //     $dokumen->status = 'draft rejected'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
-
-    //     // Simpan comment dari input form ke kolom comment
-    //     $dokumen->comment = 'Your draft "' . $dokumen->nama_dokumen . '" has been rejected. ' . $request->input('comment');
-
-    //     // Simpan perubahan
-    //     $dokumen->save();
-
-    //     // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-    //     return redirect()->back()->with('success', 'Dokumen berhasil direject. Tolong upload kembali dokumen yang benar.');
-    // }
-
-    public function Validate_final($jenis, $tipe)
-    {
-        $dokumen = Dokumen::where('jenis_dokumen', $jenis)
-            ->where('tipe_dokumen', $tipe)
-            ->get();
-
-        // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
-        $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
-            ->where('status', ['waiting final approval'])
-            ->get();
-
-        $kodeProses = RuleCode::all();
-
-        return view('pages-rule.validasi_final', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses'));
-    }
     public function finalapproved(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID
@@ -134,7 +89,7 @@ class ValidateRuleController extends Controller
         $dokumen->comment = 'Your "' . $dokumen->nama_dokumen . '" has been approved. ';
 
         // Set status dokumen menjadi "belum aktif"
-        $dokumen->statusdoc = 'belum aktif'; // Sesuaikan dengan kolom status_doc di tabel IndukDokumen Anda
+        $dokumen->statusdoc = 'not yet active'; // Sesuaikan dengan kolom status_doc di tabel IndukDokumen Anda
 
         // Simpan perubahan
         $dokumen->save();
@@ -167,32 +122,38 @@ class ValidateRuleController extends Controller
         $dokumen->save();
 
         // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back()->with('success', 'Dokumen berhasil direject. Tolong upload kembali dokumen yang benar.');
+        return redirect()->back()->with('success', 'Document rejected. Please Upload the correct document.');
     }
     public function updateStatusDoc(Request $request, $id, $action)
     {
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
+        // dd($action);
+        // if ($action == 'activate_not_yet') {
+        //     $dokumen->statusdoc = 'active';
+        //     $dokumen->comment = 'Dokumen berhasil diaktifkan.';
+        // }
+
         // Lakukan pengecekan berdasarkan aksi yang diterima
         switch ($action) {
             case 'activate':
                 // Jika status belum aktif, set menjadi aktif
-                if ($dokumen->statusdoc == 'belum aktif') {
+                if ($dokumen->statusdoc == 'not yet active') {
                     $dokumen->statusdoc = 'active';
-                    $message = 'Dokumen berhasil diaktifkan.';
+                    $dokumen->comment = 'Dokumen berhasil diaktifkan.';
                 }
                 break;
             case 'obsolate':
                 // Jika status aktif, set menjadi obsolate
                 if ($dokumen->statusdoc == 'active') {
                     $dokumen->statusdoc = 'obsolate';
-                    $message = 'Dokumen berhasil diobsolatkan.';
+                    $dokumen->comment = 'Dokumen berhasil diobsolatkan.';
                 }
                 // Jika status obsolate, set menjadi aktif kembali
                 elseif ($dokumen->statusdoc == 'obsolate') {
                     $dokumen->statusdoc = 'active';
-                    $message = 'Dokumen berhasil diaktifkan kembali.';
+                    $dokumen->dokumen_id = 'Dokumen berhasil diaktifkan kembali.';
                 }
                 break;
             default:
@@ -204,6 +165,6 @@ class ValidateRuleController extends Controller
         $dokumen->save();
 
         // Redirect kembali dengan pesan sukses
-        return redirect()->back()->with('success', $message);
+        return redirect()->back()->with('success');
     }
 }

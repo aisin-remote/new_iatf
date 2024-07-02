@@ -20,39 +20,34 @@ class DokumenController extends Controller
     {
         // Validasi input
         $request->validate([
-            'jenis_dokumen' => 'required',
-            'tipe_dokumen' => 'required',
+            'nomor_template' => 'required|string|max:255',
+            'jenis_dokumen' => 'required|string|in:Rule,Process', // Sesuaikan dengan jenis dokumen yang tersedia
+            'tipe_dokumen' => 'required|string|max:255',
             'file' => 'required|mimes:pdf,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
-            'nomor_template' => 'required|string|max:255', // Validasi untuk nomor_template
         ]);
-
-        // Mendapatkan data dari request
-        $jenis = $request->input('jenis_dokumen');
-        $tipe = $request->input('tipe_dokumen');
-        $nomorTemplate = $request->input('nomor_template');
 
         // Simpan file yang diunggah ke storage disk
         $file = $request->file('file');
         $fileName = time() . '_' . $file->getClientOriginalName();
-        Storage::disk('public')->putFileAs('template_dokumen', $file, $fileName);
+        $file->storeAs('template_dokumen', $fileName, 'public');
 
-        // Perbarui informasi dokumen
-        $dokumen = new Dokumen();
-        $dokumen->jenis_dokumen = $jenis;
-        $dokumen->tipe_dokumen = $tipe;
-        $dokumen->file = $fileName;
-        $dokumen->nomor_template = $nomorTemplate; // Tambahkan nomor_template
-        // Tambahkan kolom-kolom lain yang sesuai dengan struktur tabel dokumen Anda
-        $dokumen->save();
+        // Buat entry baru dalam database untuk template dokumen
+        Dokumen::create([
+            'nomor_template' => $request->input('nomor_template'),
+            'jenis_dokumen' => $request->input('jenis_dokumen'),
+            'tipe_dokumen' => $request->input('tipe_dokumen'),
+            'file' => $fileName,
+        ]);
 
-        return back()->with('success', 'Dokumen have been added.');
+        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
+        return back()->with('success', 'Template berhasil ditambahkan.');
     }
 
     public function edit(Request $request, $id)
     {
         // Validasi input
         $request->validate([
-            'file' => 'required|mimes:pdf,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
+            'template' => 'required|mimes:pdf,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
             'nomor_template' => 'required|string|max:255', // Validasi untuk nomor_template
         ]);
 
@@ -66,7 +61,7 @@ class DokumenController extends Controller
             }
 
             // Simpan file yang diunggah ke storage disk
-            $file = $request->file('file');
+            $file = $request->file('template');
             $fileName = time() . '_' . $file->getClientOriginalName();
             Storage::disk('public')->putFileAs('template_dokumen', $file, $fileName);
 
@@ -82,6 +77,7 @@ class DokumenController extends Controller
             return back()->with('error', 'Dokumen tidak ditemukan.');
         }
     }
+
     public function download($id)
     {
         // Temukan dokumen yang sesuai dengan jenis dan tipe dokumen
@@ -104,8 +100,7 @@ class DokumenController extends Controller
             return Storage::disk('public')->download($filePath, $fileName);
         } else {
             // File tidak ditemukan, kembalikan ke halaman sebelumnya dengan pesan error
-            Alert::error('Error Title', 'file not found');
-            return back();
+            return back()->with('error', 'File not found');
         }
     }
 }
