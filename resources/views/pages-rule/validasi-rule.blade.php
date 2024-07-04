@@ -47,38 +47,38 @@
                                             <td>{{ $doc->status }}</td>
                                             <!-- Tombol Edit -->
                                             <td>
-                                                <div class="btn-group" role="group" aria-label="Actions">
-                                                    @if ($doc->status == 'waiting approval')
-                                                        <!-- Tombol Download Draft -->
-                                                        <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                            class="btn btn-primary btn-sm">
-                                                            <i class="fas fa-file-download"></i> Download Draft
-                                                        </a>
-                                                        <!-- Tombol Approve Draft -->
-                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                            data-target="#approveDraftDokumen-{{ $doc->id }}">
-                                                            <i class="fa-solid fa-check"></i> Approve Draft
-                                                        </button>
-                                                    @elseif ($doc->status == 'waiting final approval')
-                                                        <!-- Tombol Download Final Document -->
-                                                        <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                            class="btn btn-primary btn-sm">
-                                                            <i class="fas fa-file-download"></i> Download Final Document
-                                                        </a>
-                                                        <!-- Tombol Approve Document -->
-                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                            data-target="#approveDokumen-{{ $doc->id }}">
-                                                            <i class="fa-solid fa-check"></i> Approve Document
-                                                        </button>
-                                                        <!-- Tombol Reject Document -->
-                                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                            data-target="#rejectDokumen-{{ $doc->id }}">
-                                                            <i class="fa-solid fa-circle-xmark"></i> Reject Document
-                                                        </button>
-                                                    @else
-                                                        <p class="text-muted">No data available</p>
-                                                    @endif
-                                                </div>
+
+                                                @if ($doc->status == 'waiting approval')
+                                                    <!-- Tombol Download Draft -->
+                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-file-download"></i> Download
+                                                    </a>
+                                                    <!-- Tombol Approve Draft -->
+                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                        data-target="#approveDraftDokumen-{{ $doc->id }}">
+                                                        <i class="fa-solid fa-check"></i> Approve
+                                                    </button>
+                                                @elseif ($doc->status == 'waiting final approval')
+                                                    <!-- Tombol Download Final Document -->
+                                                    <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-file-download"></i> Download
+                                                    </a>
+                                                    <!-- Tombol Approve Document -->
+                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                        data-target="#approveDokumen-{{ $doc->id }}">
+                                                        <i class="fa-solid fa-check"></i> Approve
+                                                    </button>
+                                                    <!-- Tombol Reject Document -->
+                                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                        data-target="#rejectDokumen-{{ $doc->id }}">
+                                                        <i class="fa-solid fa-circle-xmark"></i> Reject
+                                                    </button>
+                                                @else
+                                                    <p class="text-muted">No data available</p>
+                                                @endif
+
                                             </td>
                                         </tr>
                                     @empty
@@ -143,7 +143,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                        <form action="{{ route('final.approve', ['id' => $doc->id]) }}" method="POST">
                             @csrf
                             @method('POST')
                             <button type="submit" class="btn btn-success">
@@ -166,11 +166,14 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Apakah Anda yakin ingin menyetujui dokumen ini?
+                        <div class="form-group">
+                            <label for="comment">Comment</label>
+                            <input type="text" class="form-control" id="comment" name="comment" required>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                        <form action="{{ route('final.reject', ['id' => $doc->id]) }}" method="POST">
                             @csrf
                             @method('POST')
                             <button type="submit" class="btn btn-success">

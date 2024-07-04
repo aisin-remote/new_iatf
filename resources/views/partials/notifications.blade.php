@@ -3,7 +3,7 @@
         <i class="fa-solid fa-bell"></i>
     </a>
     <div class="dropdown-menu dropdown-menu-right navbar-dropdown preview-list" aria-labelledby="notificationDropdown"
-        style="width: 400px; height: auto;">
+        style="width: 500px; height: auto;">
         <div class="dropdown-header">
             <h4 class="mb-0 font-weight-normal float-left">Notifications</h4>
         </div>
@@ -11,7 +11,7 @@
             <div class="notification-list">
                 @forelse ($documents as $document)
                     <div class="notification-item d-flex align-items-start justify-content-between mb-3 p-3 border"
-                        onclick="markAsRead('{{ $document->id }}')" style="cursor: pointer;">
+                        style="cursor: pointer;">
                         <div class="notification-content flex-grow-1">
                             <p class="notification-title mb-1">{{ $document->nomor_dokumen }}</p>
                             <p class="notification-text mb-1">{{ $document->nama_dokumen }}</p>

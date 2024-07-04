@@ -238,13 +238,13 @@
                 var totalDocuments = {{ $typeData->sum('count') }};
 
                 var chartData{{ $type }} = {
-                    labels: ['Waiting', 'Approved', 'Rejected', 'Final Approved', 'Total'],
+                    labels: ['Waiting Approval', 'Draft Approved', 'Waiting Final', 'Final Approved', 'Total'],
                     datasets: [{
                         label: 'Number of Documents',
                         data: [
-                            {{ $typeData->where('status', 'waiting')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'approved')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'rejected')->first()->count ?? 0 }},
+                            {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
+                            {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
+                            {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
                             {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
                             totalDocuments
                         ],

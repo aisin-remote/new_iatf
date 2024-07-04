@@ -69,7 +69,7 @@ Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [RuleController::class, 'update
     ->middleware(['auth', 'role:guest'])
     ->name('edit.rule');
 
-// Validate Draft Rule
+// Validate Rule
 Route::get('/admin/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])
     ->name('rule.validate');
@@ -79,6 +79,15 @@ Route::post('/dokumen/validate-draft/approve/{id}', [ValidateRuleController::cla
 Route::post('/dokumen/validate-draft/rejected/{id}', [ValidateRuleController::class, 'RejectedDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.rejected');
+Route::post('/dokumen/validate-final/approve/{id}', [ValidateRuleController::class, 'finalapproved'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('final.approve');
+Route::post('/dokumen/validate-final/rejected/{id}', [ValidateRuleController::class, 'finalrejected'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('final.reject');
+Route::get('/dokumen/update/{id}/{action}', [ValidateRuleController::class, 'updateStatusDoc'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('dokumen.update');
 
 // Document Final Rule
 Route::post('upload-final/{id}', [RuleController::class, 'uploadFinal'])
@@ -94,21 +103,6 @@ Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadfina
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.final');
 
-
-
-// Validate Final Rule
-Route::get('/admin/validate-final/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_final'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('final.validate');
-Route::post('/dokumen/validate-final/approve/{id}', [ValidateRuleController::class, 'finalapproved'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('final.approve');
-Route::post('/dokumen/validate-final/rejected/{id}', [ValidateRuleController::class, 'finalrejected'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('final.rejected');
-Route::get('/dokumen/update/{id}/{action}', [ValidateRuleController::class, 'updateStatusDoc'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('dokumen.update');
 
 
 // Document Share

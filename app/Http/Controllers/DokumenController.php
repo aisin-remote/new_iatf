@@ -45,43 +45,52 @@ class DokumenController extends Controller
 
     public function edit(Request $request, $id)
     {
-        // Validasi input
-        $request->validate([
-            'template' => 'required|mimes:pdf,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
-            'nomor_template' => 'required|string|max:255', // Validasi untuk nomor_template
-        ]);
+        // dd($request);
+        // Validasi data input
+        // $request->validate([
+        //     'nomor_template' => 'required|string|max:255',
+        //     'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // Sesuaikan dengan kebutuhan
+        // ]);
 
-        // Mencari dokumen berdasarkan ID
-        $dokumen = Dokumen::find($id);
+        // Cari template berdasarkan id
+        $template = Dokumen::findOrFail($id);
 
-        if ($dokumen) {
+        // Update nomor template
+        $template->nomor_template = $request->nomor_template;
+
+        // Jika ada file yang diupload
+        if ($request->hasFile('file')) {
+            // Simpan file yang diunggah ke storage disk
+            $file = $request->file('file');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('template_dokumen', $fileName, 'public');
+
             // Hapus file lama jika ada
-            if (Storage::disk('public')->exists('template_dokumen/' . $dokumen->file)) {
-                Storage::disk('public')->delete('template_dokumen/' . $dokumen->file);
+            if ($template->file) {
+                Storage::disk('public')->delete('template_dokumen/' . $template->file);
             }
 
-            // Simpan file yang diunggah ke storage disk
-            $file = $request->file('template');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            Storage::disk('public')->putFileAs('template_dokumen', $file, $fileName);
-
-            // Perbarui informasi dokumen
-            $dokumen->file = $fileName;
-            $dokumen->nomor_template = $request->input('nomor_template'); // Perbarui nomor_template
-
-            // Simpan perubahan ke database
-            $dokumen->save();
-
-            return back()->with('success', 'Dokumen berhasil diperbarui.');
-        } else {
-            return back()->with('error', 'Dokumen tidak ditemukan.');
+            // Update path file pada template
+            $template->file = $fileName;
         }
+
+        // Simpan perubahan
+        $template->save();
+
+        // Redirect kembali dengan pesan sukses
+        return redirect()->back()->with('success', 'Template berhasil diupdate!');
     }
 
     public function download($id)
     {
-        // Temukan dokumen yang sesuai dengan jenis dan tipe dokumen
+        // Temukan dokumen yang sesuai dengan id
         $dokumen = Dokumen::findOrFail($id);
+
+        // Periksa apakah file ada dalam database
+        if (!$dokumen->file) {
+            return back()->with('error', 'File tidak ada dalam database.');
+        }
+
         $filePath = 'template_dokumen/' . $dokumen->file;
 
         if (Storage::disk('public')->exists($filePath)) {
@@ -89,7 +98,7 @@ class DokumenController extends Controller
             try {
                 $fileSize = Storage::disk('public')->size($filePath);
             } catch (\Exception $e) {
-                return back()->with('error', 'File Not Found');
+                return back()->with('error', 'File tidak ditemukan di storage.');
             }
 
             // Membuat nama file yang diunduh dengan format yang diinginkan
@@ -100,7 +109,7 @@ class DokumenController extends Controller
             return Storage::disk('public')->download($filePath, $fileName);
         } else {
             // File tidak ditemukan, kembalikan ke halaman sebelumnya dengan pesan error
-            return back()->with('error', 'File not found');
+            return back()->with('error', 'File tidak ditemukan di storage.');
         }
     }
 }

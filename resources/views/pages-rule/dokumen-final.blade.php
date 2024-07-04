@@ -39,7 +39,7 @@
                                                             class="btn btn-danger btn-sm">Obsolate</a>
                                                     @elseif ($doc->statusdoc == 'active')
                                                         <!-- Jika statusdoc adalah "active" -->
-                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
+                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate    ']) }}"
                                                             class="btn btn-danger btn-sm">Obsolate</a>
                                                     @elseif ($doc->statusdoc == 'obsolate')
                                                         <!-- Jika statusdoc adalah "obsolate" -->

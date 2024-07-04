@@ -32,27 +32,18 @@ class AppServiceProvider extends ServiceProvider
                 $documents = IndukDokumen::with(['user.departemen', 'distributions.departemen'])
                     ->paginate(10);
             } else {
-                // Jika user bukan admin, ambil data IndukDokumen sesuai dengan departemen user
-                // $documents = IndukDokumen::where(function ($query) use ($user) {
-                //     $query->whereHas('user', function ($q) use ($user) {
-                //         $q->where('departemen_id', $user->departemen_id);
-                //     })
-                //         ->orWhereHas('distributions', function ($q) use ($user) {
-                //             $q->where('departemen_id', $user->departemen_id);
-                //         })
-                //         ->orWhereHas('departments', function ($q) use ($user) {
-                //             $q->where('departemen_id', $user->departemen_id);
-                //         });
-                // })
-                //     ->where('statusdoc', '!=', 'active')
-                //     ->with(['user.departemen', 'distributions.departemen'])
-                //     ->paginate(10);
-
-                $documents = IndukDokumen::select('induk_dokumen.*')
-                    ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
-                    ->where('document_departement.departemen_id', $user->departemen_id)
-                    ->where('induk_dokumen.statusdoc', 'active')
-                    ->paginate(10);
+                if ($user->hasRole('guest')) {
+                    // Jika user adalah pengguna biasa, ambil data IndukDokumen yang diunggah oleh mereka
+                    $documents = IndukDokumen::where('user_id', $user->id)
+                        ->paginate(10);
+                } else {
+                    // Jika user bukan admin atau pengguna biasa, ambil data IndukDokumen yang didistribusikan ke departemen mereka
+                    $documents = IndukDokumen::select('induk_dokumen.*')
+                        ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
+                        ->where('document_departement.departemen_id', $user->departemen_id)
+                        ->where('induk_dokumen.statusdoc', 'active')
+                        ->paginate(10);
+                }
             }
 
             $view->with('documents', $documents);

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\DocumentStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -254,14 +255,28 @@ class RuleController extends Controller
     }
     public function final_doc()
     {
-        // Mengambil semua dokumen yang memiliki status final approved
-        $dokumenfinal = IndukDokumen::where('status', 'final approved')
-            ->whereNotNull('file_final')
-            ->orderByDesc('created_at')
-            ->get();
+        $user = Auth::user(); // Mendapatkan user yang sedang login
+
+        // Jika user adalah admin, mengambil semua dokumen final approved
+        if ($user->role == 'admin') {
+            $dokumenfinal = IndukDokumen::where('status', 'final approved')
+                ->whereNotNull('file_final')
+                ->orderByDesc('created_at')
+                ->get();
+        } else {
+            // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
+            $dokumenfinal = IndukDokumen::where('status', 'final approved')
+                ->whereNotNull('file_final')
+                ->whereHas('user', function ($query) use ($user) {
+                    $query->where('departemen_id', $user->departemen_id);
+                })
+                ->orderByDesc('created_at')
+                ->get();
+        }
 
         return view('pages-rule.dokumen-final', compact('dokumenfinal'));
     }
+
     public function downloadfinal($id)
     {
         // Lakukan validasi jika diperlukan

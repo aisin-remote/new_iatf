@@ -153,7 +153,7 @@ class ValidateRuleController extends Controller
                 // Jika status obsolate, set menjadi aktif kembali
                 elseif ($dokumen->statusdoc == 'obsolate') {
                     $dokumen->statusdoc = 'active';
-                    $dokumen->dokumen_id = 'Dokumen berhasil diaktifkan kembali.';
+                    $dokumen->comment = 'Dokumen berhasil diaktifkan kembali.';
                 }
                 break;
             default:

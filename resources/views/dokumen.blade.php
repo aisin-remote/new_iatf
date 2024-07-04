@@ -1,5 +1,7 @@
 @extends('layouts.app')
+
 @section('title', 'Template Dokumen')
+
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -43,11 +45,18 @@
                                                 @endrole
 
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('template.download', ['id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    Download
-                                                    <i class="fa-solid fa-file-arrow-down"></i>
-                                                </a>
+                                                @if ($doc->file)
+                                                    <a href="{{ route('template.download', ['id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        Download
+                                                        <i class="fa-solid fa-file-arrow-down"></i>
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-primary btn-sm" disabled>
+                                                        Download
+                                                        <i class="fa-solid fa-file-arrow-down"></i>
+                                                    </button>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -59,7 +68,8 @@
             </div>
         </div>
     </div>
-    {{-- add template dokumen --}}
+
+    {{-- Modal Add Template --}}
     <div class="modal fade" id="addtemplate" tabindex="-1" role="dialog" aria-labelledby="addtemplateLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -95,7 +105,6 @@
                             <input type="file" class="form-control-file" id="file" name="file" required>
                         </div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Upload</button>
@@ -104,7 +113,8 @@
             </div>
         </div>
     </div>
-    {{-- edit template dokumen --}}
+
+    {{-- Modal Edit Template --}}
     @foreach ($dokumen as $doc)
         <div class="modal fade" id="edittemplate-{{ $doc->id }}" tabindex="-1" role="dialog"
             aria-labelledby="edittemplateLabel" aria-hidden="true">
@@ -124,12 +134,10 @@
                                 <label for="nomor_template">Nomor Template</label>
                                 <input type="text" class="form-control" id="nomor_template" name="nomor_template"
                                     value="{{ $doc->nomor_template }}" required>
-
-
                             </div>
                             <div class="form-group">
                                 <label for="file">Pilih File (Opsional)</label>
-                                <input type="file" class="form-control-file" id="file" name="template">
+                                <input type="file" class="form-control-file" id="file" name="file">
                             </div>
                         </div>
                         <div class="modal-footer">
