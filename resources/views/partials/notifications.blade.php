@@ -15,8 +15,12 @@
                         <div class="notification-content flex-grow-1">
                             <p class="notification-title mb-1">{{ $document->nomor_dokumen }}</p>
                             <p class="notification-text mb-1">{{ $document->nama_dokumen }}</p>
-                            <p class="notification-status mb-1">{{ $document->status }}</p>
-                            <p class="notification-comment mb-0">{{ $document->comment }}</p>
+                            <p class="notification-status mb-1">{{ $document->statusdoc }}</p>
+                            @if ($document->distributions->contains('departemen_id', Auth::user()->departemen_id))
+                                <p class="notification-comment mb-0">Anda mendapatkan dokumen baru</p>
+                            @else
+                                <p class="notification-comment mb-0">{{ $document->comment }}</p>
+                            @endif
                         </div>
                         <i class="fa-solid fa-info-circle notification-info-icon ml-2"
                             style="width: 36px; height:auto;"></i>

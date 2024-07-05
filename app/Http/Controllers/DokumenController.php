@@ -81,35 +81,28 @@ class DokumenController extends Controller
         return redirect()->back()->with('success', 'Template berhasil diupdate!');
     }
 
-    public function download($id)
+    public function previewAndDownload($id)
     {
-        // Temukan dokumen yang sesuai dengan id
-        $dokumen = Dokumen::findOrFail($id);
+        // Cari dokumen berdasarkan ID
+        $document = Dokumen::findOrFail($id);
 
-        // Periksa apakah file ada dalam database
-        if (!$dokumen->file) {
-            return back()->with('error', 'File tidak ada dalam database.');
+        // Lakukan validasi atau pengecekan apakah dokumen tersedia
+        if (!$document->file) {
+            abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
         }
 
-        $filePath = 'template_dokumen/' . $dokumen->file;
+        // Path ke file PDF
+        $filePath = storage_path('app/' . $document->file_path);
 
-        if (Storage::disk('public')->exists($filePath)) {
-            // Mendapatkan ukuran file
-            try {
-                $fileSize = Storage::disk('public')->size($filePath);
-            } catch (\Exception $e) {
-                return back()->with('error', 'File tidak ditemukan di storage.');
-            }
+        // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
+        $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.pdf';
 
-            // Membuat nama file yang diunduh dengan format yang diinginkan
-            $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
-            $fileName = $dokumen->jenis_dokumen . '_' . $dokumen->tipe_dokumen . '.' . $fileExtension;
-
-            // Jika file ditemukan, kirim file untuk diunduh
-            return Storage::disk('public')->download($filePath, $fileName);
-        } else {
-            // File tidak ditemukan, kembalikan ke halaman sebelumnya dengan pesan error
-            return back()->with('error', 'File tidak ditemukan di storage.');
+        // Jika request adalah untuk pratinjau, tampilkan file PDF di browser
+        if (request()->has('preview')) {
+            return response()->file($filePath, ['Content-Disposition' => 'inline; filename="' . $fileName . '"']);
         }
+
+        // Jika request adalah untuk mengunduh, kembalikan file untuk diunduh
+        return response()->download($filePath, $fileName);
     }
 }

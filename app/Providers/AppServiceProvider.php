@@ -32,18 +32,18 @@ class AppServiceProvider extends ServiceProvider
                 $documents = IndukDokumen::with(['user.departemen', 'distributions.departemen'])
                     ->paginate(10);
             } else {
-                if ($user->hasRole('guest')) {
-                    // Jika user adalah pengguna biasa, ambil data IndukDokumen yang diunggah oleh mereka
-                    $documents = IndukDokumen::where('user_id', $user->id)
-                        ->paginate(10);
-                } else {
-                    // Jika user bukan admin atau pengguna biasa, ambil data IndukDokumen yang didistribusikan ke departemen mereka
-                    $documents = IndukDokumen::select('induk_dokumen.*')
-                        ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
-                        ->where('document_departement.departemen_id', $user->departemen_id)
-                        ->where('induk_dokumen.statusdoc', 'active')
-                        ->paginate(10);
-                }
+                // Ambil dokumen yang diunggah oleh mereka
+                $userUploadedDocuments = IndukDokumen::where('user_id', $user->id);
+
+                // Ambil dokumen yang didistribusikan ke departemen mereka
+                $distributedDocuments = IndukDokumen::select('induk_dokumen.*')
+                    ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
+                    ->where('document_departement.departemen_id', $user->departemen_id)
+                    ->where('induk_dokumen.statusdoc', 'active');
+
+                // Gabungkan dua query tersebut menggunakan union
+                $documents = $userUploadedDocuments->union($distributedDocuments)
+                    ->paginate(10);
             }
 
             $view->with('documents', $documents);

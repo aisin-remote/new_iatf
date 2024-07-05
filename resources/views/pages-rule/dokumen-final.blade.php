@@ -1,5 +1,7 @@
 @extends('layouts.app')
+
 @section('title', 'Dokumen-Iatf')
+
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -16,9 +18,7 @@
                                         <th>Nama Dokumen</th>
                                         <th>Upload By</th>
                                         <th>Status</th>
-                                        @role('admin')
-                                            <th>Action</th>
-                                        @endrole
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -29,7 +29,13 @@
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>{{ $doc->statusdoc }}</td>
+
                                             <td>
+                                                <a href="{{ route('preview-download.final', ['id' => $doc->id, 'preview' => true]) }}"
+                                                    class="btn btn-info btn-sm" target="_blank">
+
+                                                    <i class="fa-solid fa-eye"></i>
+                                                </a>
                                                 @role('admin')
                                                     @if ($doc->statusdoc == 'not yet active')
                                                         <!-- Jika status_doc adalah "belum aktif" -->
@@ -39,7 +45,7 @@
                                                             class="btn btn-danger btn-sm">Obsolate</a>
                                                     @elseif ($doc->statusdoc == 'active')
                                                         <!-- Jika statusdoc adalah "active" -->
-                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate    ']) }}"
+                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
                                                             class="btn btn-danger btn-sm">Obsolate</a>
                                                     @elseif ($doc->statusdoc == 'obsolate')
                                                         <!-- Jika statusdoc adalah "obsolate" -->
@@ -48,6 +54,7 @@
                                                     @endif
                                                 @endrole
                                             </td>
+
                                         </tr>
                                     @empty
                                         <tr>

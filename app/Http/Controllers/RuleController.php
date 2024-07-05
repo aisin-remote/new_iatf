@@ -160,9 +160,6 @@ class RuleController extends Controller
 
     public function download_draft($jenis, $tipe, $id)
     {
-        // Lakukan validasi jika diperlukan
-        // Misalnya, pastikan jenis dan tipe sesuai dengan kebutuhan bisnis Anda.
-
         // Ambil dokumen berdasarkan ID
         $dokumen = IndukDokumen::find($id);
 
@@ -170,7 +167,7 @@ class RuleController extends Controller
             return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
         }
 
-        // Ambil path file dari database
+        // Tentukan path file draft
         $path = $dokumen->file_draft;
 
         // Periksa apakah path tidak null dan merupakan string
@@ -183,34 +180,36 @@ class RuleController extends Controller
             return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
         }
 
-        // Tentukan nama file yang akan diunduh
+        // Tentukan nama file untuk download atau preview
         $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
 
-        // Lakukan download file dengan nama yang ditentukan
+        // Jika request untuk preview, tampilkan file PDF di browser
+        if (request()->has('preview')) {
+            return response()->file(storage_path('app/public/' . $path), ['Content-Disposition' => 'inline; filename="' . $downloadFilename . '"']);
+        }
+
+        // Jika request untuk download, lakukan download dengan nama file yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename);
     }
+
+
     public function share_document()
     {
         // Mendapatkan user yang sedang login
         $user = auth()->user();
-        // Mendapatkan nama departemen dari user
-        $departemen_user = $user->departemen->nama_departemen;
 
-        // $sharedDocuments = IndukDokumen::first()->with('distributions')->where('statusdoc', 'active')->get();
-        $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
-            ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
-            ->where('document_departement.departemen_id', $user->departemen_id)
-            ->where('induk_dokumen.statusdoc', 'active')
-            ->get();
-        // $test = $sharedDocuments->departments;
-        // Mengambil dokumen yang dibagikan berdasarkan departemen user dan memiliki status final approved
-        // $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
-        //     $query->where('nama_departemen', $departemen_user);
-        // })
-        //     ->where('statusdoc', 'active')
-        //     ->whereNotNull('file_final')
-        //     ->orderByDesc('created_at')
-        //     ->get();
+        if ($user->hasRole('admin')) {
+            // Jika user adalah admin, mengambil semua dokumen dengan status 'active'
+            $sharedDocuments = IndukDokumen::where('statusdoc', 'active')
+                ->get();
+        } else {
+            // Jika user bukan admin, mengambil dokumen yang terkait dengan departemen user dan memiliki status 'active'
+            $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
+                ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
+                ->where('document_departement.departemen_id', $user->departemen_id)
+                ->where('induk_dokumen.statusdoc', 'active')
+                ->get();
+        }
 
         return view('pages-rule.document-shared', compact('sharedDocuments'));
     }
@@ -258,7 +257,7 @@ class RuleController extends Controller
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Jika user adalah admin, mengambil semua dokumen final approved
-        if ($user->role == 'admin') {
+        if ($user->hasRole('admin')) {
             $dokumenfinal = IndukDokumen::where('status', 'final approved')
                 ->whereNotNull('file_final')
                 ->orderByDesc('created_at')
@@ -274,9 +273,9 @@ class RuleController extends Controller
                 ->get();
         }
 
+        // dd($dokumenfinal); // Tambahkan ini untuk debug
         return view('pages-rule.dokumen-final', compact('dokumenfinal'));
     }
-
     public function downloadfinal($id)
     {
         // Lakukan validasi jika diperlukan

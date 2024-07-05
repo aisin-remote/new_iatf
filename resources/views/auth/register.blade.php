@@ -41,6 +41,13 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
+                                    <input type="text" class="form-control form-control-lg" id="exampleInputName"
+                                        placeholder="Name" name="name" value="{{ old('name') }}">
+                                    @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
                                     <select class="form-control form-control-lg" id="exampleFormControlSelect2"
                                         style="padding-left: 28px" name="departemen">
                                         <option value="">Departemen</option>

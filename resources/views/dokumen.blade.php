@@ -46,15 +46,15 @@
 
                                                 <!-- Tombol Download -->
                                                 @if ($doc->file)
-                                                    <a href="{{ route('template.download', ['id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        Download
-                                                        <i class="fa-solid fa-file-arrow-down"></i>
+                                                    <a href="{{ route('template.preview-download', ['id' => $doc->id, 'preview' => true]) }}"
+                                                        class="btn btn-info btn-sm" target="_blank">
+                                                        
+                                                        <i class="fa-solid fa-eye"></i>
                                                     </a>
                                                 @else
-                                                    <button class="btn btn-primary btn-sm" disabled>
-                                                        Download
-                                                        <i class="fa-solid fa-file-arrow-down"></i>
+                                                    <button class="btn btn-info btn-sm" disabled>
+                                                        
+                                                        <i class="fa-solid fa-eye"></i>
                                                     </button>
                                                 @endif
                                             </td>

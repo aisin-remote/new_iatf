@@ -27,16 +27,96 @@
         <div class="row">
             <div class="col-md-12 grid-margin">
                 <div class="row">
+                    <!-- Bagian untuk menampilkan chart -->
                     @foreach ($countByStatusAndType->groupBy('tipe_dokumen') as $type => $typeData)
-                        <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h4 class="card-title">{{ $type }}</h4>
-                                    <canvas id="statusBarChart{{ $type }}" width="400" height="400"></canvas>
+                        @php
+                            $totalDocuments = $typeData->sum('count');
+                            // DD($countByStatusAndType);
+                        @endphp
+
+                        @if ($totalDocuments > 0)
+                            <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">{{ $type }}</h4>
+                                        <canvas id="statusBarChart{{ $type }}" width="400"
+                                            height="400"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <script>
+                                // Inisialisasi chart di sini
+                                var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}').getContext('2d');
+                                var chartData{{ $type }} = {
+                                    labels: ['Waiting Approval', 'Draft Approved', 'Waiting Final', 'Final Approved', 'Total'],
+                                    datasets: [{
+                                        label: 'Number of Documents',
+                                        data: [
+                                            {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
+                                            {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
+                                            {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
+                                            {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
+                                            {{ $totalDocuments }}
+                                        ],
+                                        backgroundColor: [
+                                            'rgba(255, 99, 132, 0.2)',
+                                            'rgba(54, 162, 235, 0.2)',
+                                            'rgba(0, 255, 0, 0.2)',
+                                            'rgba(75, 192, 192, 0.2)',
+                                            'rgba(255, 206, 86, 0.2)'
+                                        ],
+                                        borderColor: [
+                                            'rgba(255, 99, 132, 1)',
+                                            'rgba(54, 162, 235, 1)',
+                                            'rgba(0, 255, 0, 1)',
+                                            'rgba(75, 192, 192, 1)',
+                                            'rgba(255, 206, 86, 1)'
+                                        ],
+                                        borderWidth: 1
+                                    }]
+                                };
+
+                                var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
+                                    type: 'horizontalBar',
+                                    data: chartData{{ $type }},
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                position: 'top',
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Documents Status for {{ $type }}'
+                                            }
+                                        },
+                                        scales: {
+                                            x: {
+                                                beginAtZero: true
+                                            }
+                                        },
+                                        tooltips: {
+                                            callbacks: {
+                                                label: function(tooltipItem) {
+                                                    return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            </script>
+                        @else
+                            <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">{{ $type }}</h4>
+                                        <p>No data available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @endforeach
+
                 </div>
             </div>
         </div>
@@ -233,67 +313,71 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             @foreach ($countByStatusAndType->groupBy('tipe_dokumen') as $type => $typeData)
-                var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
-                    .getContext('2d');
                 var totalDocuments = {{ $typeData->sum('count') }};
+                if (totalDocuments > 0) {
+                    var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
+                        .getContext('2d');
+                    var chartData{{ $type }} = {
+                        labels: ['Waiting Approval', 'Draft Approved', 'Waiting Final', 'Final Approved',
+                            'Total'
+                        ],
+                        datasets: [{
+                            label: 'Number of Documents',
+                            data: [
+                                {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
+                                {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
+                                {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
+                                {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
+                                totalDocuments
+                            ],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(0, 255, 0, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(255, 206, 86, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(0, 255, 0, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 206, 86, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    };
 
-                var chartData{{ $type }} = {
-                    labels: ['Waiting Approval', 'Draft Approved', 'Waiting Final', 'Final Approved', 'Total'],
-                    datasets: [{
-                        label: 'Number of Documents',
-                        data: [
-                            {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
-                            {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
-                            totalDocuments
-                        ],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(0, 255, 0, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(255, 206, 86, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(0, 255, 0, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 206, 86, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                };
-
-                var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
-                    type: 'horizontalBar',
-                    data: chartData{{ $type }},
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'top',
+                    var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
+                        type: 'horizontalBar',
+                        data: chartData{{ $type }},
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Documents Status for {{ $type }}'
+                                }
                             },
-                            title: {
-                                display: true,
-                                text: 'Documents Status for {{ $type }}'
-                            }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true
-                            }
-                        },
-                        tooltips: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
+                            scales: {
+                                x: {
+                                    beginAtZero: true
+                                }
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw
+                                            .toLocaleString();
+                                    }
                                 }
                             }
                         }
-                    }
-                });
+                    });
+                }
             @endforeach
         });
 

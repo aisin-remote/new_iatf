@@ -14,6 +14,7 @@ class HomeController extends Controller
 {
     public function dashboard_rule(Request $request)
     {
+        
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
         $allDepartemen = Departemen::all();
@@ -23,7 +24,7 @@ class HomeController extends Controller
         if ($departemenFilter) {
             $departemen_user = $departemenFilter;
         }
-
+        
         // Query dasar untuk data dokumen
         $query = IndukDokumen::query();
 
@@ -36,9 +37,9 @@ class HomeController extends Controller
             })->where('statusdoc', 'active');
         } else {
             // Jika admin, tidak perlu filter statusdoc
-            $query->where('statusdoc', 'active');
+            $query->where('status', 'final approved');
         }
-
+        
         // Ambil data dokumen sesuai dengan query yang sudah difilter
         $dokumenall = $query->get();
 
@@ -87,9 +88,6 @@ class HomeController extends Controller
             'allDepartemen'
         ));
     }
-
-
-
     public function getNotifications()
     {
         $user = Auth::user();

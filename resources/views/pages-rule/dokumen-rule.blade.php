@@ -19,7 +19,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nomor Dokumen</th>
-                                        <th>Nama Dokumen</th>
+                                        <th>Judul Dokumen</th>
                                         <th>Revisi</th>
                                         <th>Tanggal Upload</th>
                                         <th>status</th>
@@ -44,11 +44,12 @@
                                                 </button> --}}
 
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    Download
-                                                    <i class="fa-solid fa-file-arrow-down"></i>
+                                                <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}?preview=true"
+                                                    class="btn btn-primary btn-sm" target="_blank">
+                                                    Preview
+                                                    <i class="fa-solid fa-eye"></i>
                                                 </a>
+
                                                 @if ($doc->status == 'draft approved' || $doc->status == 'final rejected')
                                                     <button class="btn btn-primary btn-sm" data-toggle="modal"
                                                         data-target="#uploadfinalModal-{{ $doc->id }}">
@@ -92,7 +93,7 @@
                     <div class="modal-body">
                         <!-- Form untuk Upload Draft -->
                         <div class="form-group">
-                            <label for="nama_dokumen">Nama Dokumen</label>
+                            <label for="nama_dokumen">Judul Dokumen</label>
                             <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
                         </div>
                         <div class="form-group">

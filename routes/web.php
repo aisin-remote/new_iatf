@@ -21,6 +21,10 @@ use League\CommonMark\Node\Block\Document;
 */
 
 // login register 
+
+Route::get('/select-dashboard', function () {
+    return view('select-dashboard');
+});
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -51,9 +55,9 @@ Route::post('/template-dokumen/add', [DokumenController::class, 'store'])
 Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.edit');
-Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'download'])
+Route::get('/template-dokumen/preview-download/{id}', [DokumenController::class, 'previewAndDownload'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('template.download');
+    ->name('template.preview-download');
 
 // Document Draft Rule
 Route::get('/dokumen/{jenis}/{tipe}', [RuleController::class, 'index'])
@@ -99,9 +103,9 @@ Route::get('/dokumen-final/download/{id}', [RuleController::class, 'DownloadDocF
 Route::get('/dokumen/final', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadfinal'])
+Route::get('/dokumen/final/preview-download/{id}', [RuleController::class, 'previewAndDownloadFinal'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.final');
+    ->name('preview-download.final');
 
 
 
@@ -109,11 +113,12 @@ Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadfina
 Route::get('/document/share', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/document/share/download/{id}', [RuleController::class, 'downloadSharedDocument'])
+Route::get('/document/share/preview-download/{id}', [RuleController::class, 'previewAndDownloadSharedDocument'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.share');
+    ->name('preview-download.share');
 
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 Route::get('/fetch-notifications', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
+

@@ -42,11 +42,8 @@ class AuthController extends Controller
 
         // Attempt to authenticate the user with the provided credentials
         if (Auth::attempt($credentials)) {
-            // Regenerate the session to prevent fixation attacks
-            $request->session()->regenerate();
-
             // Menampilkan SweetAlert modal
-            return view('select-dashboard');
+            return view('pages-rule.dashboard');
         }
 
         // If authentication fails, redirect back to the login page with an error message
@@ -65,6 +62,7 @@ class AuthController extends Controller
             'npk.required' => 'NPK tidak boleh kosong.',
             'npk.unique' => 'NPK sudah terdaftar.',
             'departemen.required' => 'Departemen tidak boleh kosong.',
+            'name.required' => 'Nama tidak boleh kosong.',
             'password.required' => 'Password tidak boleh kosong.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ];
@@ -72,6 +70,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'npk' => 'required|string|max:255|unique:users',
             'departemen' => 'required|exists:departemen,id',
+            'name' => 'required|string|max:255',
             'password' => 'required|string|min:6|confirmed',
         ], $message);
 
@@ -91,6 +90,7 @@ class AuthController extends Controller
         $user = User::create([
             'npk' => $request->npk,
             'departemen_id' => $request->departemen,
+            'name' => $request->name,
             'password' => Hash::make($request->password),
         ]);
 
@@ -104,6 +104,7 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Registration successful! Please Login');
     }
+
 
     public function logout()
     {
