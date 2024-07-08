@@ -27,11 +27,10 @@
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('preview-download.share', ['id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
+                                                <a href="{{ route('preview-download.share', ['id' => $doc->id, 'preview' => true]) }}"
+                                                    target="_blank" class="btn btn-primary btn-sm">
                                                     <i class="fa-solid fa-eye"></i> Preview & Download
                                                 </a>
-
                                             </td>
                                         </tr>
                                     @empty
@@ -40,7 +39,6 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-
                             </table>
                         </div>
                     </div>

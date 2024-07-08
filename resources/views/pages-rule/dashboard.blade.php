@@ -14,7 +14,6 @@
                                 <div class="flex-md-grow-1 flex-xl-grow-0">
                                     <span class="btn btn-sm btn-light bg-white" id="currentDateText"></span>
                                     <!-- Tombol unduh ditambahkan di bawah elemen span -->
-
                                 </div>
                             </div>
                         </div>
@@ -27,100 +26,41 @@
         <div class="row">
             <div class="col-md-12 grid-margin">
                 <div class="row">
-                    <!-- Bagian untuk menampilkan chart -->
-                    @foreach ($countByStatusAndType->groupBy('tipe_dokumen') as $type => $typeData)
-                        @php
-                            $totalDocuments = $typeData->sum('count');
-                            // DD($countByStatusAndType);
-                        @endphp
-
-                        @if ($totalDocuments > 0)
-                            <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h4 class="card-title">{{ $type }}</h4>
-                                        <canvas id="statusBarChart{{ $type }}" width="400"
-                                            height="400"></canvas>
-                                    </div>
-                                </div>
+                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">WI</h4>
+                                <canvas id="statusBarChartWI" width="400" height="400"></canvas>
                             </div>
-                            <script>
-                                // Inisialisasi chart di sini
-                                var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}').getContext('2d');
-                                var chartData{{ $type }} = {
-                                    labels: ['Waiting Approval', 'Draft Approved', 'Waiting Final', 'Final Approved', 'Total'],
-                                    datasets: [{
-                                        label: 'Number of Documents',
-                                        data: [
-                                            {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
-                                            {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
-                                            {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
-                                            {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
-                                            {{ $totalDocuments }}
-                                        ],
-                                        backgroundColor: [
-                                            'rgba(255, 99, 132, 0.2)',
-                                            'rgba(54, 162, 235, 0.2)',
-                                            'rgba(0, 255, 0, 0.2)',
-                                            'rgba(75, 192, 192, 0.2)',
-                                            'rgba(255, 206, 86, 0.2)'
-                                        ],
-                                        borderColor: [
-                                            'rgba(255, 99, 132, 1)',
-                                            'rgba(54, 162, 235, 1)',
-                                            'rgba(0, 255, 0, 1)',
-                                            'rgba(75, 192, 192, 1)',
-                                            'rgba(255, 206, 86, 1)'
-                                        ],
-                                        borderWidth: 1
-                                    }]
-                                };
-
-                                var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
-                                    type: 'horizontalBar',
-                                    data: chartData{{ $type }},
-                                    options: {
-                                        responsive: true,
-                                        plugins: {
-                                            legend: {
-                                                position: 'top',
-                                            },
-                                            title: {
-                                                display: true,
-                                                text: 'Documents Status for {{ $type }}'
-                                            }
-                                        },
-                                        scales: {
-                                            x: {
-                                                beginAtZero: true
-                                            }
-                                        },
-                                        tooltips: {
-                                            callbacks: {
-                                                label: function(tooltipItem) {
-                                                    return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-                            </script>
-                        @else
-                            <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h4 class="card-title">{{ $type }}</h4>
-                                        <p>No data available</p>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">WIS</h4>
+                                <canvas id="statusBarChartWIS" width="400" height="400"></canvas>
                             </div>
-                        @endif
-                    @endforeach
-
+                        </div>
+                    </div>
+                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Standar</h4>
+                                <canvas id="statusBarChartSTANDAR" width="400" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Prosedur</h4>
+                                <canvas id="statusBarChartPROSEDUR" width="400" height="400"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
         <!-- Div untuk count -->
         <div class="row">
             <div class="col-md-6 grid-margin transparent">
@@ -295,10 +235,7 @@
                 </div>
             </div>
         </div>
-
-
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Function to update the date and time
@@ -312,99 +249,111 @@
         setInterval(updateDateTime, 1000);
 
         document.addEventListener("DOMContentLoaded", function() {
-            @foreach ($countByStatusAndType->groupBy('tipe_dokumen') as $type => $typeData)
-                var totalDocuments = {{ $typeData->sum('count') }};
-                if (totalDocuments > 0) {
-                    var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
-                        .getContext('2d');
-                    var chartData{{ $type }} = {
-                        labels: ['Waiting Approval', 'Draft Approved', 'Waiting Final', 'Final Approved',
-                            'Total'
-                        ],
-                        datasets: [{
-                            label: 'Number of Documents',
-                            data: [
-                                {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
-                                {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
-                                {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
-                                {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
-                                totalDocuments
-                            ],
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(0, 255, 0, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(255, 206, 86, 0.2)'
-                            ],
-                            borderColor: [
-                                'rgba(255, 99, 132, 1)',
-                                'rgba(54, 162, 235, 1)',
-                                'rgba(0, 255, 0, 1)',
-                                'rgba(75, 192, 192, 1)',
-                                'rgba(255, 206, 86, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    };
+            @foreach (['WI', 'WIS', 'STANDAR', 'PROSEDUR'] as $type)
+                @php
+                    $typeData = $countByStatusAndType->where('tipe_dokumen', $type);
+                    $totalDocuments = $typeData->sum('count');
+                @endphp
 
-                    var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
-                        type: 'horizontalBar',
-                        data: chartData{{ $type }},
-                        options: {
-                            responsive: true,
-                            plugins: {
-                                legend: {
-                                    position: 'top',
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Documents Status for {{ $type }}'
-                                }
+                var totalDocuments{{ $type }} = {{ $totalDocuments }};
+                var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
+                    .getContext('2d');
+                var data{{ $type }} = [
+                    {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
+                    {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
+                    {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
+                    {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
+                    totalDocuments{{ $type }}
+                ];
+                var labels{{ $type }} = ['Waiting Approval', 'Draft Approved', 'Waiting Final',
+                    'Final Approved', 'Total'
+                ];
+
+                // Check if all data values are zero
+                if (data{{ $type }}.every(value => value === 0)) {
+                    labels{{ $type }} = ['No data available'];
+                    data{{ $type }} = [0];
+                }
+
+                var chartData{{ $type }} = {
+                    labels: labels{{ $type }},
+                    datasets: [{
+                        label: 'Number of Documents',
+                        data: data{{ $type }},
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(0, 255, 0, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(255, 206, 86, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(0, 255, 0, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+
+                var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
+                    type: 'bar',
+                    data: chartData{{ $type }},
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
                             },
-                            scales: {
-                                x: {
-                                    beginAtZero: true
-                                }
-                            },
-                            tooltips: {
-                                callbacks: {
-                                    label: function(tooltipItem) {
-                                        return tooltipItem.label + ': ' + tooltipItem.raw
-                                            .toLocaleString();
-                                    }
+                            title: {
+                                display: true,
+                                text: 'Documents Status for {{ $type }}'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        },
+                        tooltips: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
                                 }
                             }
                         }
-                    });
-                }
+                    }
+                });
             @endforeach
-        });
 
-        document.getElementById('applyFilter').addEventListener('click', function() {
-            filterAndSearch();
-            $('#filterModal').modal('hide');
-        });
-
-        document.getElementById('searchInput').addEventListener('input', function() {
-            filterAndSearch();
-        });
-
-        function filterAndSearch() {
-            var filterStatus = document.getElementById('filterStatus').value.toLowerCase();
-            var searchInput = document.getElementById('searchInput').value.toLowerCase();
-            var tableRows = document.querySelectorAll('#documentTableBody tr');
-
-            tableRows.forEach(function(row) {
-                var status = row.children[6].textContent.toLowerCase();
-                var text = row.textContent.toLowerCase();
-
-                if ((filterStatus === '' || status.includes(filterStatus)) && text.includes(searchInput)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+            document.getElementById('applyFilter').addEventListener('click', function() {
+                filterAndSearch();
+                $('#filterModal').modal('hide');
             });
-        }
+
+            document.getElementById('searchInput').addEventListener('input', function() {
+                filterAndSearch();
+            });
+
+            function filterAndSearch() {
+                var filterStatus = document.getElementById('filterStatus').value.toLowerCase();
+                var searchInput = document.getElementById('searchInput').value.toLowerCase();
+                var tableRows = document.querySelectorAll('#documentTableBody tr');
+
+                tableRows.forEach(function(row) {
+                    var status = row.children[6].textContent.toLowerCase();
+                    var text = row.textContent.toLowerCase();
+
+                    if ((filterStatus === '' || status.includes(filterStatus)) && text.includes(
+                            searchInput)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        });
     </script>
 @endsection

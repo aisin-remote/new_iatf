@@ -22,12 +22,11 @@ use League\CommonMark\Node\Block\Document;
 
 // login register 
 
-Route::get('/select-dashboard', function () {
-    return view('select-dashboard');
-});
+
 Route::get('/', function () {
     return redirect('/login');
 });
+Route::get('/select-dashboard', [AuthController::class, 'select_dashboard'])->name('select.dashboard');
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login-proses', [AuthController::class, 'login_proses'])->name('login.proses');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

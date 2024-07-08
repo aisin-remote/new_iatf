@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../../vendors/feather/feather.css">
     <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
     <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -31,6 +32,7 @@
                             </div>
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
+
                             <form action="{{ route('register.proses') }}" class="pt-3" method="POST">
                                 @csrf
                                 <div class="form-group">
@@ -85,6 +87,7 @@
                                     Already have an account? <a href="{{ route('login') }}"
                                         class="text-primary">Login</a>
                                 </div>
+
                             </form>
                         </div>
                     </div>
@@ -107,18 +110,27 @@
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+    <<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('success'))
                 Swal.fire({
                     icon: 'success',
-                    title: 'Success!',
-                    text: "{{ session('success') }}"
+                    title: 'Success',
+                    text: '{{ session('success') }}',
                 });
-            });
-        </script>
-    @endif
-    <!-- endinject -->
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: '{{ session('error') }}',
+                });
+            @endif
+        });
+    </script>
+</body>
+<!-- endinject -->
 </body>
 
 </html>

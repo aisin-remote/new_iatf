@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class RuleController extends Controller
 {
@@ -31,6 +32,7 @@ class RuleController extends Controller
             ->whereHas('indukDokumen', function ($query) {
                 $query->where('status', '!=', 'final approved');
             })
+            ->orderBy('created_at', 'desc') // Menambahkan pengurutan berdasarkan tanggal upload
             ->get();
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
@@ -39,6 +41,7 @@ class RuleController extends Controller
                 $query->where('nama_departemen', $departemen_user);
             })
             ->where('status', '!=', 'final approved')
+            ->orderBy('tgl_upload', 'desc') // Menambahkan pengurutan berdasarkan tanggal upload
             ->get();
 
         $kodeProses = RuleCode::all();
@@ -117,9 +120,9 @@ class RuleController extends Controller
             $dokumen->departments()->attach($request->departemen);
         }
 
-        return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
+        Alert::success('Success', 'Dokumen berhasil diunggah.');
+        return redirect()->back();
     }
-
     public function uploadFinal(Request $request, $id)
     {
         try {
@@ -151,13 +154,18 @@ class RuleController extends Controller
             // Simpan perubahan
             $dokumen->save();
 
+            // Tampilkan SweetAlert sukses
+            Alert::success('Sukses', 'Dokumen berhasil diunggah.');
+
             // Redirect atau kembalikan respons sukses
-            return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
+            return redirect()->back();
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengunggah dokumen: ' . $e->getMessage());
+            // Tampilkan SweetAlert error
+            Alert::error('Error', 'Gagal mengunggah dokumen: ' . $e->getMessage());
+
+            return redirect()->back();
         }
     }
-
     public function download_draft($jenis, $tipe, $id)
     {
         // Ambil dokumen berdasarkan ID
@@ -191,8 +199,6 @@ class RuleController extends Controller
         // Jika request untuk download, lakukan download dengan nama file yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename);
     }
-
-
     public function share_document()
     {
         // Mendapatkan user yang sedang login
@@ -213,8 +219,7 @@ class RuleController extends Controller
 
         return view('pages-rule.document-shared', compact('sharedDocuments'));
     }
-
-    public function downloadSharedDocument($id)
+    public function previewAndDownloadSharedDocument($id)
     {
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
@@ -249,8 +254,18 @@ class RuleController extends Controller
         // Tentukan nama file yang akan diunduh
         $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
 
+        // Tentukan header untuk pratinjau
+        $headers = [
+            'Content-Type' => 'application/pdf',
+        ];
+
+        // Jika request adalah untuk pratinjau, tampilkan file PDF di browser
+        if (request()->has('preview')) {
+            return response()->file(storage_path('public/' . $path), $headers);
+        }
+
         // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
+        return Storage::disk('public')->download($path, $downloadFilename, $headers);
     }
     public function final_doc()
     {
@@ -276,14 +291,12 @@ class RuleController extends Controller
         // dd($dokumenfinal); // Tambahkan ini untuk debug
         return view('pages-rule.dokumen-final', compact('dokumenfinal'));
     }
-    public function downloadfinal($id)
+    public function previewAndDownloadFinal($id)
     {
-        // Lakukan validasi jika diperlukan
-        // Misalnya, pastikan jenis dan tipe sesuai dengan kebutuhan bisnis Anda.
-
-        // Ambil dokumen berdasarkan ID
+        // Ambil induk dokumen berdasarkan ID
         $dokumen = IndukDokumen::find($id);
 
+        // Lakukan validasi jika dokumen tidak ditemukan
         if (!$dokumen) {
             return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
         }
@@ -311,11 +324,11 @@ class RuleController extends Controller
             return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
         }
 
-        // Tentukan nama file yang akan diunduh
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
+        // Tentukan nama file untuk pratinjau
+        $previewFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
 
-        // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
+        // Lakukan pratinjau file di browser
+        return response()->file(Storage::disk('public')->path($path), ['Content-Disposition' => 'inline; filename="' . $previewFilename . '"']);
     }
     public function DownloadDocFinal($id)
     {

@@ -5,76 +5,158 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Select Dashboard</title>
+    <title>Skydash Admin</title>
     <!-- plugins:css -->
-    <link rel="stylesheet" href="../../vendors/feather/feather.css">
-    <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
-    <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" href="vendors/css/vendor.bundle.base.css">
     <!-- endinject -->
     <!-- Plugin css for this page -->
+    <link rel="stylesheet" href="vendors/datatables.net-bs4/dataTables.bootstrap4.css">
+    <link rel="stylesheet" href="vendors/ti-icons/css/themify-icons.css">
+    <link rel="stylesheet" type="text/css" href="js/select.dataTables.min.css">
     <!-- End plugin css for this page -->
     <!-- inject:css -->
-    <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
+    <link rel="stylesheet" href="css/vertical-layout-light/style.css">
     <!-- endinject -->
-    <link rel="shortcut icon" href="../../images/favicon.png" />
+    <link rel="shortcut icon" href="images/favicon.png" />
 </head>
 
 <body>
     <div class="container-scroller">
-        <div class="container-fluid page-body-wrapper full-page-wrapper">
-            <div class="content-wrapper d-flex align-items-center auth px-0">
-                <div class="row w-100 mx-0">
-                    <div class="col-lg-4 mx-auto">
-                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                            <div class="brand-logo">
-                                <img src="../../images/logo-iatf.png" alt="logo">
-                            </div>
-                            <h4>Hello! let's get started</h4>
-                            <h6 class="font-weight-light">Sign in to continue.</h6>
-                            <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
-                                @csrf
-                                <div class="form-group">
-                                    <input type="text" class="form-control form-control-lg" id="exampleInputnpk"
-                                        placeholder="NPK" style="padding-left: 16px" name="npk">
+        <!-- partial:partials/_navbar.html -->
+        <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+            <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+                <a class="navbar-brand brand-logo mr-5" href="index.html"><img src="images/logo-iatf.png" class="mr-2"
+                        alt="logo" /></a>
+                <a class="navbar-brand brand-logo-mini" href="index.html"><img src="images/logo-iatf-mini.png"
+                        alt="logo" /></a>
+            </div>
+            <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+                <ul class="navbar-nav navbar-nav-right">
+                    <li class="nav-item nav-profile dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+                            {{ Auth::User()->departemen->nama_departemen }} <i class="fa-solid fa-sort-down"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                            aria-labelledby="profileDropdown">
+                            <a class="dropdown-item" href="{{ route('logout') }}">
+                                <i class="ti-power-off text-primary"></i>
+                                Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!-- partial -->
+        <div class="container-fluid page-body-wrapper">
+            <!-- main panel without sidebar -->
+            <div class="main-panel" style="width: 100%;">
+                <div class="content-wrapper">
+                    <div class="row">
+                        <div class="col-md-12 grid-margin">
+                            <div class="row">
+                                <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                                    <h3 class="font-weight-bold">Welcome To Control Document AIIA</h3>
+                                    <h6 class="font-weight-normal mb-0">Select your dashboard</h6>
                                 </div>
-                                <div class="form-group">
-                                    <input type="password" class="form-control form-control-lg"
-                                        id="exampleInputPassword1" placeholder="Password" style="padding-left: 16px"
-                                        name="password">
+                                <div class="col-12 col-xl-4">
+                                    <div class="justify-content-end d-flex">
+                                        <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
+                                            <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button"
+                                                id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true"
+                                                aria-expanded="true">
+                                                <i class="mdi mdi-calendar"></i> Today (10 Jan 2021)
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right"
+                                                aria-labelledby="dropdownMenuDate2">
+                                                <a class="dropdown-item" href="#">January - March</a>
+                                                <a class="dropdown-item" href="#">March - June</a>
+                                                <a class="dropdown-item" href="#">June - August</a>
+                                                <a class="dropdown-item" href="#">August - November</a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="mt-3">
-                                    <button type="submit"
-                                        class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
-                                        IN</button>
-                                </div>
-                            </form>
-                            <div class="text-center mt-4 font-weight-light">
-                                Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
                             </div>
                         </div>
-
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ route('dashboard.rule') }}">
+                                <div class="card tale-bg">
+                                    <div class="card-people mt-auto"
+                                        style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
+                                        <img src="{{ asset('images/select-dashboard-3.jpeg') }}" alt="process"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <h2 class="mb-0 font-weight-bold text-white"><i
+                                                        class="icon-sun mr-2"></i>Dashboard Rule</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card tale-bg">
+                                <div class="card-people mt-auto"
+                                    style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
+                                    <img src="{{ asset('images/select-dashboard-2.jpg') }}" alt="rule"
+                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                    <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <h2 class="mb-0 font-weight-bold text-white"><i
+                                                    class="icon-sun mr-2"></i>Dashboard Process</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+                <!-- content-wrapper ends -->
+                <!-- partial:partials/_footer.html -->
+                <footer class="footer">
+                    <div class="d-sm-flex justify-content-center justify-content-sm-between">
+                        <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">2024 © <a
+                                href="https://aiia.co.id/" target="_blank">PT. Aisin Indonesia Automotive</a></span>
+                    </div>
+                </footer>
+                <!-- partial -->
             </div>
-            <!-- content-wrapper ends -->
+            <!-- main-panel ends -->
         </div>
         <!-- page-body-wrapper ends -->
     </div>
     <!-- container-scroller -->
+
     <!-- plugins:js -->
-    <script src="../../vendors/js/vendor.bundle.base.js"></script>
+    <script src="vendors/js/vendor.bundle.base.js"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
+    <script src="vendors/chart.js/Chart.min.js"></script>
+    <script src="vendors/datatables.net/jquery.dataTables.js"></script>
+    <script src="vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
+    <script src="js/dataTables.select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
+
     <!-- End plugin js for this page -->
     <!-- inject:js -->
-    <script src="../../js/off-canvas.js"></script>
-    <script src="../../js/hoverable-collapse.js"></script>
-    <script src="../../js/template.js"></script>
-    <script src="../../js/settings.js"></script>
-    <script src="../../js/todolist.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script src="js/off-canvas.js"></script>
+    <script src="js/hoverable-collapse.js"></script>
+    <script src="js/template.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/todolist.js"></script>
     <!-- endinject -->
+    <!-- Custom js for this page-->
+    <script src="js/dashboard.js"></script>
+    <script src="js/Chart.roundedBarCharts.js"></script>
+    <!-- End custom js for this page-->
 </body>
 
 </html>

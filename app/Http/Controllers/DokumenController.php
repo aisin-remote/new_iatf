@@ -92,7 +92,12 @@ class DokumenController extends Controller
         }
 
         // Path ke file PDF
-        $filePath = storage_path('app/' . $document->file_path);
+        $filePath = storage_path('app/public/template_dokumen/' . $document->file);
+
+        // Verifikasi apakah file ada di path yang diharapkan
+        if (!file_exists($filePath)) {
+            abort(404, 'File dokumen tidak ditemukan.');
+        }
 
         // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
         $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.pdf';

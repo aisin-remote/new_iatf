@@ -17,6 +17,10 @@ class AuthController extends Controller
         // Mengirim data user ke tampilan 'auth.login'
         return view('auth.login');
     }
+    public function select_dashboard()
+    {
+        return view('select-dashboard');
+    }
     public function login_proses(Request $request)
     {
         $message = [
@@ -43,7 +47,7 @@ class AuthController extends Controller
         // Attempt to authenticate the user with the provided credentials
         if (Auth::attempt($credentials)) {
             // Menampilkan SweetAlert modal
-            return view('pages-rule.dashboard');
+            return redirect()->route('select.dashboard');
         }
 
         // If authentication fails, redirect back to the login page with an error message
@@ -80,13 +84,9 @@ class AuthController extends Controller
                 ->withInput($request->except('password'));
         }
 
-        // Default role name for guest
         $defaultRoleName = 'guest';
-
-        // Find the guest role
         $role = Role::where('name', $defaultRoleName)->first();
 
-        // Create the user
         $user = User::create([
             'npk' => $request->npk,
             'departemen_id' => $request->departemen,
@@ -94,15 +94,13 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign the guest role to the user
         if ($role) {
             $user->assignRole($role);
         }
 
-        // Login user after registration
         Auth::login($user);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please Login');
+        return redirect()->route('login')->with('success', 'Registration successful! Please login.');
     }
 
 
