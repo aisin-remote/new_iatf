@@ -27,23 +27,28 @@ class AppServiceProvider extends ServiceProvider
         View::composer('partials.notifications', function ($view) {
             $user = Auth::user();
 
+            // Ambil dokumen yang sesuai berdasarkan peran pengguna
             if ($user->hasRole('admin')) {
-                // Jika user adalah admin, ambil semua data IndukDokumen
-                $documents = IndukDokumen::with(['user.departemen', 'distributions.departemen'])
-                    ->paginate(10);
+                $documents = IndukDokumen::with(['user.departemen'])
+                    ->where(function ($query) {
+                        $query->whereNotIn('status', ['final approved'])
+                            ->orWhereNotIn('statusdoc', ['active']);
+                    })
+                    ->orderByDesc('created_at')
+                    ->paginate(10); // Gunakan paginate untuk membuat objek LengthAwarePaginator
             } else {
-                // Ambil dokumen yang diunggah oleh mereka
-                $userUploadedDocuments = IndukDokumen::where('user_id', $user->id);
-
-                // Ambil dokumen yang didistribusikan ke departemen mereka
-                $distributedDocuments = IndukDokumen::select('induk_dokumen.*')
-                    ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
-                    ->where('document_departement.departemen_id', $user->departemen_id)
-                    ->where('induk_dokumen.statusdoc', 'active');
-
-                // Gabungkan dua query tersebut menggunakan union
-                $documents = $userUploadedDocuments->union($distributedDocuments)
-                    ->paginate(10);
+                $documents = IndukDokumen::where(function ($query) use ($user) {
+                    $query->where(function ($q) use ($user) {
+                        $q->where('user_id', $user->id)
+                            ->whereNotIn('status', ['final approved']);
+                    })->orWhere(function ($q) use ($user) {
+                        $q->whereHas('user', function ($q2) use ($user) {
+                            $q2->where('departemen_id', $user->departemen_id);
+                        })->whereNotIn('statusdoc', ['active']);
+                    });
+                })
+                    ->orderByDesc('created_at')
+                    ->paginate(10); // Gunakan paginate untuk membuat objek LengthAwarePaginator
             }
 
             $view->with('documents', $documents);

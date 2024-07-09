@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
@@ -58,7 +59,6 @@ class AuthController extends Controller
         $departemens = Departemen::all();
         return view('auth.register', compact('departemens'));
     }
-
     // Fungsi untuk memproses registrasi
     public function register_proses(Request $request)
     {
@@ -100,10 +100,9 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please login.');
+        Alert::success('Success', 'Registration successful! Please login.');
+        return redirect()->route('login');
     }
-
-
     public function logout()
     {
         Auth::logout();

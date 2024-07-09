@@ -12,7 +12,8 @@ class DokumenController extends Controller
 {
     public function index()
     {
-        $dokumen = Dokumen::all();
+        $dokumen = Dokumen::orderBy('updated_at', 'desc')->get();
+
         return view('dokumen', compact('dokumen'));
     }
 
@@ -39,8 +40,9 @@ class DokumenController extends Controller
             'file' => $fileName,
         ]);
 
+        Alert::success('Success', 'Template berhasil ditambahkan.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
-        return back()->with('success', 'Template berhasil ditambahkan.');
+        return redirect()->route('template.index');
     }
 
     public function edit(Request $request, $id)
@@ -77,8 +79,10 @@ class DokumenController extends Controller
         // Simpan perubahan
         $template->save();
 
+        Alert::success('Success', 'Template berhasil diubah.');
+
         // Redirect kembali dengan pesan sukses
-        return redirect()->back()->with('success', 'Template berhasil diupdate!');
+        return redirect()->back();
     }
 
     public function previewAndDownload($id)

@@ -7,20 +7,23 @@ use App\Models\IndukDokumen;
 use App\Models\RuleCode;
 use App\Models\User;
 use App\Notifications\DocumentStatusChanged;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class ValidateRuleController extends Controller
 {
     public function validate_index($jenis, $tipe)
     {
-        // Ambil dokumen yang sesuai dengan jenis dan tipe dokumen
+        // Ambil dokumen yang sesuai dengan jenis dan tipe dokumen dan urutkan berdasarkan tanggal upload
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
-            ->where('tipe_dokumen', $tipe)
+            ->where('tipe_dokumen', $tipe) // Urutkan berdasarkan tanggal upload secara menurun
             ->get();
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih dan memiliki status "waiting approval"
         $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
+            ->orderBy('tgl_upload', 'desc') // Pastikan ini juga diurutkan jika perlu
             ->get();
 
         // Ambil semua kode proses
@@ -48,6 +51,11 @@ class ValidateRuleController extends Controller
 
             // Jika pengguna mengirimkan file draft, proses file tersebut
             if ($request->hasFile('file_draft')) {
+                // Hapus file draft lama jika ada
+                if ($dokumen->file_draft) {
+                    Storage::disk('public')->delete($dokumen->file_draft);
+                }
+
                 $file = $request->file('file_draft');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 Storage::disk('public')->putFileAs('draft_rule', $file, $filename);
@@ -65,8 +73,10 @@ class ValidateRuleController extends Controller
             // Simpan perubahan
             $dokumen->save();
 
+            Alert::success('Success', 'Dokumen berhasil diapprove.');
+
             // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-            return redirect()->back()->with('success', 'Dokumen berhasil diapprove.');
+            return redirect()->back();
         } catch (\Exception $e) {
             // Tangani pengecualian jika terjadi kesalahan
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -82,7 +92,7 @@ class ValidateRuleController extends Controller
             return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
         }
 
-        // Lakukan perubahan status menjadi "approved"
+        // Lakukan perubahan status menjadi "final approved"
         $dokumen->status = 'final approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
         // Simpan komentar yang diambil dari inputan form
@@ -94,8 +104,17 @@ class ValidateRuleController extends Controller
         // Simpan perubahan
         $dokumen->save();
 
+        // Tambahkan stempel pada PDF
+        $pdf = Pdf::loadView('pdf.stampel', compact('dokumen')); // Memuat view 'pdf.stampel' untuk menampilkan stempel
+
+        // Simpan PDF dengan stempel ke storage atau lokasi yang diinginkan
+        $filename = 'stamped_' . $dokumen->nomor_dokumen . '.pdf';
+        Storage::disk('public')->put($filename, $pdf->output());
+
+        Alert::success('Success', 'Dokumen berhasil diapprove.');
+
         // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back()->with('success', 'Dokumen berhasil diapprove.');
+        return redirect()->back();
     }
     public function finalrejected(Request $request, $id)
     {
@@ -121,8 +140,10 @@ class ValidateRuleController extends Controller
         // Simpan perubahan
         $dokumen->save();
 
+        Alert::success('Success', 'Dokumen berhasil direject.');
+
         // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back()->with('success', 'Document rejected. Please Upload the correct document.');
+        return redirect()->back();
     }
     public function updateStatusDoc(Request $request, $id, $action)
     {

@@ -7,11 +7,9 @@ use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
 use App\Models\User;
-use App\Notifications\DocumentStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -128,7 +126,7 @@ class RuleController extends Controller
         try {
             // Validasi request
             $request->validate([
-                'file_final' => 'required|file|mimes:pdf,doc,docx|max:2048', // Sesuaikan dengan kebutuhan Anda
+                'file_final' => 'required|file|mimes:pdf,doc,docx', // Sesuaikan dengan kebutuhan Anda
             ]);
 
             // Ambil dokumen berdasarkan ID yang diterima
@@ -248,7 +246,7 @@ class RuleController extends Controller
 
         // Periksa apakah file ada di storage
         if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
+            return redirect()->back()->with('error', 'File tidak ditemukan di storage: ' . $path);
         }
 
         // Tentukan nama file yang akan diunduh
@@ -261,7 +259,7 @@ class RuleController extends Controller
 
         // Jika request adalah untuk pratinjau, tampilkan file PDF di browser
         if (request()->has('preview')) {
-            return response()->file(storage_path('public/' . $path), $headers);
+            return response()->file(storage_path('app/public/' . $path), $headers);
         }
 
         // Lakukan download file dengan nama yang ditentukan

@@ -99,7 +99,8 @@
             aria-labelledby="approveDraftDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="approveDraftDokumenLabel-{{ $doc->id }}">Document Confirmation
@@ -159,26 +160,26 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Approve Dokumen
+                        <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Reject Dokumen
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
-                            <label for="comment">Comment</label>
-                            <input type="text" class="form-control" id="comment" name="comment" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         <form action="{{ route('final.reject', ['id' => $doc->id]) }}" method="POST">
                             @csrf
                             @method('POST')
-                            <button type="submit" class="btn btn-success">
-                                <i class="fa-solid fa-circle-check"></i> Approve
-                            </button>
+                            <div class="form-group">
+                                <label for="comment">Comment</label>
+                                <input type="text" class="form-control" id="comment" name="comment" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa-solid fa-circle-xmark"></i> Reject
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
