@@ -6,13 +6,24 @@
         style="width: 400px;">
         <style>
             .notification-list {
-                max-height: 400px; /* Atur tinggi maksimum */
-                overflow-y: auto; /* Aktifkan overflow vertikal jika diperlukan */
+                max-height: 400px;
+                /* Atur tinggi maksimum */
+                overflow-y: auto;
+                /* Aktifkan overflow vertikal jika diperlukan */
             }
 
             .notification-comment {
-                word-wrap: break-word; /* Mengatur teks untuk mematahkan kata jika melebihi lebar */
-                white-space: normal; /* Memastikan teks komentar tidak mengalir di luar batas div */
+                word-wrap: break-word;
+                /* Mengatur teks untuk mematahkan kata jika melebihi lebar */
+                white-space: normal;
+                /* Memastikan teks komentar tidak mengalir di luar batas div */
+            }
+
+            .notification-text {
+                word-wrap: break-word;
+                /* Mengatur teks untuk mematahkan kata jika melebihi lebar */
+                white-space: normal;
+                /* Memastikan teks komentar tidak mengalir di luar batas div */
             }
         </style>
         <div class="dropdown-header">

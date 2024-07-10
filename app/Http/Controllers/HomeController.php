@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\IndukDokumenExport;
 use App\Models\Departemen;
+use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,6 +19,9 @@ class HomeController extends Controller
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
         $allDepartemen = Departemen::all();
+
+        //tampilan form filter tipe dokumen
+        $tipeDokumen = Dokumen::where('jenis_dokumen', 'rule')->get();
 
         // Filter berdasarkan departemen
         $departemenFilter = $request->input('departemen');
@@ -85,7 +89,8 @@ class HomeController extends Controller
             'dokumenall',
             'waitingFinalCount',
             'finalApprovedCount',
-            'allDepartemen'
+            'allDepartemen',
+            'tipeDokumen',
         ));
     }
     public function getNotifications()
@@ -145,5 +150,45 @@ class HomeController extends Controller
 
         // Export data ke file Excel dan langsung download
         return Excel::download(new IndukDokumenExport($dokumen, $columns), $fileName);
+    }
+    public function filterDocuments(Request $request)
+    {
+        // Ambil data dari request
+        $date_from = $request->input('date_from');
+        $date_to = $request->input('date_to');
+        $tipe_dokumen_id = $request->input('tipe_dokumen_id');
+        $departemen_id = $request->input('departemen_id');
+        $statusdoc = $request->input('statusdoc');
+
+        // Query berdasarkan filter yang diterima
+        $query = IndukDokumen::query();
+
+        // Filter berdasarkan range tanggal upload jika ada
+        if ($date_from && $date_to) {
+            $query->whereBetween('tgl_upload', [$date_from, $date_to]);
+        }
+
+        // Filter berdasarkan tipe dokumen jika dipilih
+        if ($tipe_dokumen_id) {
+            $query->where('tipe_dokumen_id', $tipe_dokumen_id);
+        }
+
+        // Filter berdasarkan departemen jika dipilih
+        if ($departemen_id) {
+            $query->whereHas('user.departemen', function ($query) use ($departemen_id) {
+                $query->where('nama_departemen', $departemen_id);
+            });
+        }
+
+        // Filter berdasarkan status dokumen jika dipilih
+        if ($statusdoc) {
+            $query->where('statusdoc', $statusdoc);
+        }
+
+        // Eksekusi query untuk mendapatkan hasil filter
+        $filteredDocuments = $query->get();
+
+        // Anda bisa mengembalikan response dalam bentuk JSON atau redirect ke halaman dengan data filter
+        return response()->json($filteredDocuments);
     }
 }

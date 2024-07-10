@@ -5,7 +5,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Skydash Admin</title>
+    <title>Select Dashboard</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="vendors/ti-icons/css/themify-icons.css">
@@ -63,18 +63,10 @@
                                 </div>
                                 <div class="col-12 col-xl-4">
                                     <div class="justify-content-end d-flex">
-                                        <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
-                                            <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button"
-                                                id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="true">
-                                                <i class="mdi mdi-calendar"></i> Today (10 Jan 2021)
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-right"
-                                                aria-labelledby="dropdownMenuDate2">
-                                                <a class="dropdown-item" href="#">January - March</a>
-                                                <a class="dropdown-item" href="#">March - June</a>
-                                                <a class="dropdown-item" href="#">June - August</a>
-                                                <a class="dropdown-item" href="#">August - November</a>
+                                        <div class="justify-content-end d-flex">
+                                            <div class="flex-md-grow-1 flex-xl-grow-0">
+                                                <span class="btn btn-sm btn-light bg-white" id="currentDateText"></span>
+                                                <!-- Tombol unduh ditambahkan di bawah elemen span -->
                                             </div>
                                         </div>
                                     </div>
@@ -156,6 +148,16 @@
     <!-- Custom js for this page-->
     <script src="js/dashboard.js"></script>
     <script src="js/Chart.roundedBarCharts.js"></script>
+    <script>
+        function updateDateTime() {
+            var currentDate = new Date();
+            var formattedDate = currentDate.toLocaleString();
+            document.getElementById('currentDateText').textContent = formattedDate;
+        }
+
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+    </script>
     <!-- End custom js for this page-->
 </body>
 

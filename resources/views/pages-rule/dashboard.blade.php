@@ -68,19 +68,20 @@
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
-                                <h4 class="mb-4">Prosedur</h4>
+                                <h4 class="mb-4">WI</h4>
                                 <p class="fs-30 mb-2">
-                                    {{ $countByType->where('tipe_dokumen', 'PROSEDUR')->first()->count ?? 0 }}
+                                    {{ $countByType->where('tipe_dokumen', 'WI')->first()->count ?? 0 }}
                                 </p>
+
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-dark-blue">
                             <div class="card-body">
-                                <h4 class="mb-4">Standar</h4>
+                                <h4 class="mb-4">WIS</h4>
                                 <p class="fs-30 mb-2">
-                                    {{ $countByType->where('tipe_dokumen', 'STANDAR')->first()->count ?? 0 }}</p>
+                                    {{ $countByType->where('tipe_dokumen', 'WIS')->first()->count ?? 0 }}</p>
                             </div>
                         </div>
                     </div>
@@ -91,17 +92,19 @@
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
-                                <h4 class="mb-4">WI</h4>
+                                <h4 class="mb-4">Standar</h4>
                                 <p class="fs-30 mb-2">
-                                    {{ $countByType->where('tipe_dokumen', 'WI')->first()->count ?? 0 }}</p>
+                                    {{ $countByType->where('tipe_dokumen', 'STANDAR')->first()->count ?? 0 }}
+                                </p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-dark-blue">
                             <div class="card-body">
-                                <h4 class="mb-4">WIS</h4>
-                                <p class="fs-30 mb-2">{{ $countByType->where('tipe_dokumen', 'WIS')->first()->count ?? 0 }}
+                                <h4 class="mb-4">Prosedur</h4>
+                                <p class="fs-30 mb-2">
+                                    {{ $countByType->where('tipe_dokumen', 'PROSEDUR')->first()->count ?? 0 }}
                                 </p>
                             </div>
                         </div>
@@ -136,62 +139,78 @@
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="filterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row my-2">
-                            <div class="col-4"><label class="col-form-label">Start Date</label></div>
-                            <div class="col">
-                                <input type="text" name="date_from" class="form-control input" value="">
-                            </div>
-                            <label class="col-form-label px-3">to</label>
-                            <div class="col">
-                                <input type="text" name="date_to" class="form-control input" value="">
-                            </div>
+                    <form action="{{ route('filter.documents') }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
                         </div>
-
-
-                        <!-- <div class> -->
-                        <div class="row my-2">
-                            <div class="col-4"><label class="col-form-label">Departemen</label></div>
-                            <div class="col">
-                                <select name="departemen_id" id="departemen_id" class="form-control select2"
-                                    style="width: 100%;">
-                                    <option value="" selected>Select Departemen</option>
-                                    @foreach ($allDepartemen as $departemen)
-                                        <option value="{{ $departemen->nama_departemen }}"
-                                            {{ request()->input('departemen') == $departemen->nama_departemen ? 'selected' : '' }}>
-                                            {{ $departemen->nama_departemen }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                        <div class="modal-body">
+                            <div class="row my-2">
+                                <div class="col-4"><label class="col-form-label">Start Date / Upload Date</label></div>
+                                <div class="col">
+                                    <input type="text" name="date_from" class="form-control input" value="">
+                                </div>
+                                <label class="col-form-label px-3">to</label>
+                                <div class="col">
+                                    <input type="text" name="date_to" class="form-control input" value="">
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="row my-2">
-                            <div class="col-4"><label class="col-form-label">Status Doc</label></div>
-                            <div class="col">
-                                <select name="statusdoc" id="statusdoc" class="form-control select2"
-                                    style="width: 100%;">
-                                    <option value="status" selected>Pilih Status Doc</option>
-                                    <option value="active">active
-                                    </option>
-                                </select>
+                            <div class="row my-2">
+                                <div class="col-4"><label class="col-form-label">Tipe Dokumen</label></div>
+                                <div class="col">
+                                    <select name="tipe_dokumen_id" id="tipe_dokumen_id" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="" selected>Select Tipe Dokumen</option>
+                                        @foreach ($tipeDokumen as $dokumen)
+                                            <option value="{{ $dokumen->id }}">
+                                                {{ $dokumen->tipe_dokumen }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" id="applyFilter">Apply Filter</button>
-                    </div>
+                            @role('admin')
+                                <div class="row my-2">
+                                    <div class="col-4"><label class="col-form-label">Departemen</label></div>
+                                    <div class="col">
+                                        <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                            style="width: 100%;">
+                                            <option value="" selected>Select Departemen</option>
+                                            @foreach ($allDepartemen as $departemen)
+                                                <option value="{{ $departemen->nama_departemen }}"
+                                                    {{ request()->input('departemen') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                                    {{ $departemen->nama_departemen }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col-4"><label class="col-form-label">Status Doc</label></div>
+                                    <div class="col">
+                                        <select name="statusdoc" id="statusdoc" class="form-control select2"
+                                            style="width: 100%;">
+                                            <option value="status" selected>Pilih Status Doc</option>
+                                            <option value="active">active
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            @endrole
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+
 
         <!-- Bagian tabel -->
         <div class="row">
@@ -356,4 +375,43 @@
             }
         });
     </script>
+    <script>
+        $(document).ready(function() {
+            // Tangkap event saat tombol Apply Filter diklik
+            $('#applyFilter').click(function() {
+                // Ambil nilai input dari modal
+                var date_from = $('input[name="date_from"]').val();
+                var date_to = $('input[name="date_to"]').val();
+                var tipe_dokumen_id = $('#tipe_dokumen_id').val();
+                var departemen_id = $('#departemen_id').val();
+                var statusdoc = $('#statusdoc').val();
+
+                // Kirim data filter ke controller menggunakan Ajax
+                $.ajax({
+                    url: '{{ route('filter.documents') }}', // Ganti dengan route yang sesuai
+                    type: 'GET',
+                    data: {
+                        date_from: date_from,
+                        date_to: date_to,
+                        tipe_dokumen_id: tipe_dokumen_id,
+                        departemen_id: departemen_id,
+                        statusdoc: statusdoc
+                    },
+                    success: function(response) {
+                        // Handle response dari server (misalnya, refresh halaman atau update konten)
+                        console.log(response); // Cetak response ke console untuk debugging
+                        // Anda bisa menambahkan logika untuk meng-update halaman atau bagian tertentu
+                    },
+                    error: function(xhr, status, error) {
+                        // Handle jika terjadi error saat mengirim data
+                        console.error(error); // Cetak error ke console untuk debugging
+                    }
+                });
+
+                // Tutup modal setelah Apply Filter diklik
+                $('#filterModal').modal('hide');
+            });
+        });
+    </script>
+
 @endsection

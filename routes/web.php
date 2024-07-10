@@ -21,8 +21,6 @@ use League\CommonMark\Node\Block\Document;
 */
 
 // login register 
-
-
 Route::get('/', function () {
     return redirect('/login');
 });
@@ -43,6 +41,9 @@ Route::get('/notifications', [HomeController::class, 'getNotifications'])
 Route::get('download-excel', [HomeController::class, 'downloadExcel'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.excel');
+Route::post('/filter/documents', [HomeController::class, 'filterDocuments'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('filter.documents');
 
 // Template Dokumen
 Route::get('/template-dokumen', [DokumenController::class, 'index'])
@@ -96,17 +97,15 @@ Route::get('/dokumen/update/{id}/{action}', [ValidateRuleController::class, 'upd
 Route::post('upload-final/{id}', [RuleController::class, 'uploadFinal'])
     ->middleware(['auth', 'role:guest'])
     ->name('upload.final');
-Route::get('/dokumen-final/download/{id}', [RuleController::class, 'DownloadDocFinal'])
+Route::get('/dokumen-final/download/{id}', [RuleController::class, 'previewAndDownloadDocFinal'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.doc.final');
+    ->name('preview.doc.final');
 Route::get('/dokumen/final', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
 Route::get('/dokumen/final/preview-download/{id}', [RuleController::class, 'previewAndDownloadFinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('preview-download.final');
-
-
 
 // Document Share
 Route::get('/document/share', [RuleController::class, 'share_document'])
@@ -120,4 +119,3 @@ Route::get('/document/share/preview-download/{id}', [RuleController::class, 'pre
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 Route::post('/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 Route::get('/fetch-notifications', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');
-

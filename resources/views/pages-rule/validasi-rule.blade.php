@@ -50,9 +50,10 @@
 
                                                 @if ($doc->status == 'waiting approval')
                                                     <!-- Tombol Download Draft -->
-                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-file-download"></i> Download
+                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}?preview=true"
+                                                        class="btn btn-primary btn-sm" target="_blank">
+                                                        Preview
+                                                        <i class="fa-solid fa-eye"></i>
                                                     </a>
                                                     <!-- Tombol Approve Draft -->
                                                     <button class="btn btn-success btn-sm" data-toggle="modal"
@@ -61,10 +62,11 @@
                                                     </button>
                                                 @elseif ($doc->status == 'waiting final approval')
                                                     <!-- Tombol Download Final Document -->
-                                                    <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fas fa-file-download"></i> Download
+                                                    <a href="{{ route('preview.doc.final', ['id' => $doc->id, 'preview' => true]) }}"
+                                                        class="btn btn-info btn-sm" target="_blank">
+                                                        <i class="fa-solid fa-eye"></i>
                                                     </a>
+
                                                     <!-- Tombol Approve Document -->
                                                     <button class="btn btn-success btn-sm" data-toggle="modal"
                                                         data-target="#approveDokumen-{{ $doc->id }}">

@@ -104,13 +104,6 @@ class ValidateRuleController extends Controller
         // Simpan perubahan
         $dokumen->save();
 
-        // Tambahkan stempel pada PDF
-        $pdf = Pdf::loadView('pdf.stampel', compact('dokumen')); // Memuat view 'pdf.stampel' untuk menampilkan stempel
-
-        // Simpan PDF dengan stempel ke storage atau lokasi yang diinginkan
-        $filename = 'stamped_' . $dokumen->nomor_dokumen . '.pdf';
-        Storage::disk('public')->put($filename, $pdf->output());
-
         Alert::success('Success', 'Dokumen berhasil diapprove.');
 
         // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses

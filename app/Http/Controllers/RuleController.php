@@ -328,23 +328,24 @@ class RuleController extends Controller
         // Lakukan pratinjau file di browser
         return response()->file(Storage::disk('public')->path($path), ['Content-Disposition' => 'inline; filename="' . $previewFilename . '"']);
     }
-    public function DownloadDocFinal($id)
+    public function previewAndDownloadDocFinal($id)
     {
-        // Ambil dokumen berdasarkan ID
+        // Ambil induk dokumen berdasarkan ID
         $dokumen = IndukDokumen::find($id);
 
+        // Lakukan validasi jika dokumen tidak ditemukan
         if (!$dokumen) {
             return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
-        }
-
-        // Periksa apakah dokumen memiliki status final approved
-        if ($dokumen->status != 'waiting final approved') {
-            return redirect()->back()->with('error', 'Dokumen belum disetujui final atau tidak diizinkan untuk diunduh.');
         }
 
         // Periksa apakah dokumen memiliki file final
         if (is_null($dokumen->file_final)) {
             return redirect()->back()->with('error', 'Dokumen belum memiliki file final atau tidak diizinkan untuk diunduh.');
+        }
+
+        // Periksa apakah dokumen memiliki status final approved
+        if ($dokumen->status != 'waiting final approved') {
+            return redirect()->back()->with('error', 'Dokumen belum disetujui final atau tidak diizinkan untuk diunduh.');
         }
 
         // Ambil path file dari database
@@ -360,10 +361,10 @@ class RuleController extends Controller
             return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
         }
 
-        // Tentukan nama file yang akan diunduh
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
+        // Tentukan nama file untuk pratinjau
+        $previewFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
 
-        // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
+        // Lakukan pratinjau file di browser
+        return response()->file(Storage::disk('public')->path($path), ['Content-Disposition' => 'inline; filename="' . $previewFilename . '"']);
     }
 }
