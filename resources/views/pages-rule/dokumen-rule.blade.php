@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Dokumen-Iatf')
+@section('title', 'Validasi Rule')
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -68,7 +68,6 @@
                                         </tr>
                                     @endforelse
                                 </tbody>
-
                             </table>
                         </div>
                     </div>

@@ -51,12 +51,11 @@
                                 </div>
                                 <div class="form-group">
                                     <select class="form-control form-control-lg" id="exampleFormControlSelect2"
-                                        style="padding-left: 28px" name="departemen">
-                                        <option value="">Departemen</option>
+                                        style="padding-left: 28px; color:black " name="departemen">
+                                        <option value="" style="color:gray !important">Departemen</option>
                                         @foreach ($departemens as $departemen)
-                                            <option value="{{ $departemen->id }}"
-                                                {{ old('departemen') == $departemen->id ? 'selected' : '' }}>
-                                                {{ $departemen->nama_departemen }}</option>
+                                            <option value="{{ $departemen->id }}" style="color:black">
+                                                {{ $departemen->nama_departemen }} </option>
                                         @endforeach
                                     </select>
                                     @error('departemen')

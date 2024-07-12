@@ -205,6 +205,7 @@ class RuleController extends Controller
         if ($user->hasRole('admin')) {
             // Jika user adalah admin, mengambil semua dokumen dengan status 'active'
             $sharedDocuments = IndukDokumen::where('statusdoc', 'active')
+                ->orderBy('updated_at', 'desc')
                 ->get();
         } else {
             // Jika user bukan admin, mengambil dokumen yang terkait dengan departemen user dan memiliki status 'active'
@@ -212,9 +213,9 @@ class RuleController extends Controller
                 ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
                 ->where('document_departement.departemen_id', $user->departemen_id)
                 ->where('induk_dokumen.statusdoc', 'active')
+                ->orderBy('induk_dokumen.updated_at', 'desc')
                 ->get();
         }
-
         return view('pages-rule.document-shared', compact('sharedDocuments'));
     }
     public function previewAndDownloadSharedDocument($id)
@@ -273,7 +274,7 @@ class RuleController extends Controller
         if ($user->hasRole('admin')) {
             $dokumenfinal = IndukDokumen::where('status', 'final approved')
                 ->whereNotNull('file_final')
-                ->orderByDesc('created_at')
+                ->orderByDesc('updated_at')
                 ->get();
         } else {
             // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
@@ -282,7 +283,7 @@ class RuleController extends Controller
                 ->whereHas('user', function ($query) use ($user) {
                     $query->where('departemen_id', $user->departemen_id);
                 })
-                ->orderByDesc('created_at')
+                ->orderByDesc('updated_at')
                 ->get();
         }
 

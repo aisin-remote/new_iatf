@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Dashboard-admin')
+@section('title', 'Dashboard')
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -217,7 +217,29 @@
             <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <p class="card-title">Advanced Table</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="card-title">Dokumen Final</p>
+                            </div>
+                            <div class="col-md-6 text-md-right mb-3">
+                                <form method="GET" action="{{ route('dashboard.rule') }}">
+                                    <label class="mb-0">Show
+                                        <select name="per_page" aria-controls="data-table-x"
+                                            class="custom-select custom-select-sm form-control form-control-sm"
+                                            onchange="this.form.submit()">
+                                            <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10
+                                            </option>
+                                            <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25
+                                            </option>
+                                            <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50
+                                            </option>
+                                            <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100
+                                            </option>
+                                        </select> entries
+                                    </label>
+                                </form>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
@@ -236,7 +258,8 @@
                                         <tbody id="documentTableBody">
                                             @foreach ($dokumenall as $doc)
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ ($dokumenall->currentPage() - 1) * $dokumenall->perPage() + $loop->iteration }}
+                                                    </td>
                                                     <td>{{ $doc->nomor_dokumen }}</td>
                                                     <td>{{ $doc->nama_dokumen }}</td>
                                                     <td>{{ $doc->revisi_log }}</td>
@@ -247,6 +270,7 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                    {{ $dokumenall->appends(['per_page' => $perPage])->links() }}
                                 </div>
                             </div>
                         </div>
@@ -254,6 +278,8 @@
                 </div>
             </div>
         </div>
+
+
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>

@@ -26,6 +26,9 @@
             <div class="content-wrapper d-flex align-items-center auth px-0">
                 <div class="row w-100 mx-0">
                     <div class="col-lg-4 mx-auto">
+                        @if ($errors->has('lockout'))
+                            <div class="alert alert-danger mt-3">{{ $errors->first('lockout') }}</div>
+                        @endif
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo">
                                 <img src="../../images/logo-iatf.png" alt="logo">
@@ -35,20 +38,31 @@
                             <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
                                 @csrf
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-lg" id="exampleInputnpk"
-                                        placeholder="NPK" style="padding-left: 16px" name="npk">
+                                    <input type="text"
+                                        class="form-control form-control-lg @error('npk') is-invalid @enderror"
+                                        id="exampleInputnpk" placeholder="NPK" style="padding-left: 16px" name="npk"
+                                        value="{{ old('npk') }}">
+                                    @error('npk')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="form-group">
-                                    <input type="password" class="form-control form-control-lg"
+                                    <input type="password"
+                                        class="form-control form-control-lg @error('password') is-invalid @enderror"
                                         id="exampleInputPassword1" placeholder="Password" style="padding-left: 16px"
                                         name="password">
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="mt-3">
                                     <button type="submit"
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
                                         IN</button>
                                 </div>
+
                             </form>
+
                             <div class="text-center mt-4 font-weight-light">
                                 Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
                             </div>
@@ -73,16 +87,6 @@
     <script src="../../js/template.js"></script>
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        @if (session('error'))
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: '{{ session('error') }}',
-            });
-        @endif
-    </script>
     <!-- endinject -->
 </body>
 

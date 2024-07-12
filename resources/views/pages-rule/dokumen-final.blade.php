@@ -1,7 +1,5 @@
 @extends('layouts.app')
-
-@section('title', 'Dokumen-Iatf')
-
+@section('title', 'Dokumen Final')
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -29,32 +27,34 @@
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>{{ $doc->statusdoc }}</td>
-
                                             <td>
                                                 <a href="{{ route('preview-download.final', ['id' => $doc->id, 'preview' => true]) }}"
                                                     class="btn btn-info btn-sm" target="_blank">
-
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                                 @role('admin')
-                                                    @if ($doc->statusdoc == 'not yet active')
-                                                        <!-- Jika status_doc adalah "belum aktif" -->
-                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
-                                                            class="btn btn-primary btn-sm">Activate</a>
-                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
-                                                            class="btn btn-danger btn-sm">Obsolate</a>
-                                                    @elseif ($doc->statusdoc == 'active')
-                                                        <!-- Jika statusdoc adalah "active" -->
-                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'obsolate']) }}"
-                                                            class="btn btn-danger btn-sm">Obsolate</a>
-                                                    @elseif ($doc->statusdoc == 'obsolate')
-                                                        <!-- Jika statusdoc adalah "obsolate" -->
-                                                        <a href="{{ route('dokumen.update', ['id' => $doc->id, 'action' => 'activate']) }}"
-                                                            class="btn btn-primary btn-sm">Activate</a>
+                                                    <!-- Tombol untuk mengaktifkan dokumen -->
+                                                    @if ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolate')
+                                                        <form action="{{ route('activate.document', ['id' => $doc->id]) }}"
+                                                            method="POST" style="display: inline;">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit"
+                                                                class="btn btn-primary btn-sm">Activate</button>
+                                                        </form>
+                                                    @endif
+                                                    <!-- Tombol untuk mengobsoletkan dokumen -->
+                                                    @if ($doc->statusdoc == 'active' || $doc->statusdoc == 'not yet active')
+                                                        <form action="{{ route('obsolete.document', ['id' => $doc->id]) }}"
+                                                            method="POST" style="display: inline;">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit"
+                                                                class="btn btn-danger btn-sm">Obsolate</button>
+                                                        </form>
                                                     @endif
                                                 @endrole
                                             </td>
-
                                         </tr>
                                     @empty
                                         <tr>

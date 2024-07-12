@@ -89,9 +89,10 @@ Route::post('/dokumen/validate-final/approve/{id}', [ValidateRuleController::cla
 Route::post('/dokumen/validate-final/rejected/{id}', [ValidateRuleController::class, 'finalrejected'])
     ->middleware(['auth', 'role:admin'])
     ->name('final.reject');
-Route::get('/dokumen/update/{id}/{action}', [ValidateRuleController::class, 'updateStatusDoc'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('dokumen.update');
+Route::put('/dokumen/{id}/activate',[ValidateRuleController::class, 'activateDocument'])->name('activate.document');
+Route::put('/dokumen/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])->name('obsolete.document');
+
+
 
 // Document Final Rule
 Route::post('upload-final/{id}', [RuleController::class, 'uploadFinal'])

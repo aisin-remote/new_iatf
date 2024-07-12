@@ -15,12 +15,11 @@ class HomeController extends Controller
 {
     public function dashboard_rule(Request $request)
     {
-
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
         $allDepartemen = Departemen::all();
 
-        //tampilan form filter tipe dokumen
+        // tampilan form filter tipe dokumen
         $tipeDokumen = Dokumen::where('jenis_dokumen', 'rule')->get();
 
         // Filter berdasarkan departemen
@@ -28,6 +27,9 @@ class HomeController extends Controller
         if ($departemenFilter) {
             $departemen_user = $departemenFilter;
         }
+
+        // Jumlah item per halaman
+        $perPage = $request->input('per_page', 10); // Default to 10 items per page
 
         // Query dasar untuk data dokumen
         $query = IndukDokumen::query();
@@ -44,8 +46,8 @@ class HomeController extends Controller
             $query->where('status', 'final approved');
         }
 
-        // Ambil data dokumen sesuai dengan query yang sudah difilter
-        $dokumenall = $query->get();
+        // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
+        $dokumenall = $query->paginate($perPage);
 
         // Query untuk menghitung berdasarkan tipe dokumen
         $countByType = IndukDokumen::query()
@@ -91,8 +93,10 @@ class HomeController extends Controller
             'finalApprovedCount',
             'allDepartemen',
             'tipeDokumen',
+            'perPage'
         ));
     }
+
     public function getNotifications()
     {
         $user = Auth::user();

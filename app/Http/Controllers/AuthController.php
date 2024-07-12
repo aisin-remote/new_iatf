@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Role;
@@ -24,35 +25,36 @@ class AuthController extends Controller
     }
     public function login_proses(Request $request)
     {
-        $message = [
-            'npk.required' => 'NPK tidak boleh kosong.',
-            'password.required' => 'Password tidak boleh kosong.',
-        ];
-
-        // Validate the request data with custom messages
-        $validator = Validator::make($request->all(), [
+        // Validasi input
+        $request->validate([
             'npk' => 'required|string',
             'password' => 'required|string',
-        ], $message);
+        ]);
 
-        // Check if validation fails
-        if ($validator->fails()) {
-            return redirect()->route('login')
-                ->withErrors($validator)
-                ->withInput($request->except('password'));
-        }
-
-        // Retrieve only the 'npk' and 'password' from the request
         $credentials = $request->only('npk', 'password');
 
-        // Attempt to authenticate the user with the provided credentials
+        // Rate Limiting
+        $attemptsKey = 'login_attempts_' . $request->ip();
+        $lockoutKey = 'login_lockout_' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($attemptsKey, 3)) {
+            $seconds = RateLimiter::availableIn($attemptsKey);
+            return back()->withErrors(['lockout' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.']);
+        }
+
         if (Auth::attempt($credentials)) {
-            // Menampilkan SweetAlert modal
+            // Reset the rate limiter on successful login
+            RateLimiter::clear($attemptsKey);
             return redirect()->route('select.dashboard');
         }
 
-        // If authentication fails, redirect back to the login page with an error message
-        return redirect()->route('login')->with('error', 'NPK atau password salah.');
+        // Increment login attempts
+        RateLimiter::hit($attemptsKey, 60); // Set 1-minute expiration for attempts
+
+        return back()->withErrors([
+            'npk' => 'NPK atau Password salah.',
+            'password' => 'NPK atau Password salah.',
+        ])->withInput();
     }
     public function register_form()
     {

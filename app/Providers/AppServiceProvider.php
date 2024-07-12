@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
                 $documents = IndukDokumen::with(['user.departemen'])
                     ->where(function ($query) {
                         $query->whereNotIn('status', ['final approved'])
-                            ->orWhereNotIn('statusdoc', ['active']);
+                            ->orWhereNotIn('statusdoc', ['active', 'obsolate']);
                     })
                     ->orderByDesc('created_at')
                     ->paginate(10); // Gunakan paginate untuk membuat objek LengthAwarePaginator
@@ -44,7 +44,7 @@ class AppServiceProvider extends ServiceProvider
                     })->orWhere(function ($q) use ($user) {
                         $q->whereHas('user', function ($q2) use ($user) {
                             $q2->where('departemen_id', $user->departemen_id);
-                        })->whereNotIn('statusdoc', ['active']);
+                        })->whereNotIn('statusdoc', ['active', 'obsolate']);
                     });
                 })
                     ->orderByDesc('created_at')

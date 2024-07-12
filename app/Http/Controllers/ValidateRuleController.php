@@ -138,47 +138,44 @@ class ValidateRuleController extends Controller
         // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back();
     }
-    public function updateStatusDoc(Request $request, $id, $action)
+    public function activateDocument($id)
     {
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // dd($action);
-        // if ($action == 'activate_not_yet') {
-        //     $dokumen->statusdoc = 'active';
-        //     $dokumen->comment = 'Dokumen berhasil diaktifkan.';
-        // }
+        // Periksa apakah dokumen belum aktif atau sudah obsolate
+        if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolate') {
+            $dokumen->statusdoc = 'active';
+            $dokumen->comment = 'Dokumen berhasil diaktifkan.';
+            $dokumen->save();
 
-        // Lakukan pengecekan berdasarkan aksi yang diterima
-        switch ($action) {
-            case 'activate':
-                // Jika status belum aktif, set menjadi aktif
-                if ($dokumen->statusdoc == 'not yet active') {
-                    $dokumen->statusdoc = 'active';
-                    $dokumen->comment = 'Dokumen berhasil diaktifkan.';
-                }
-                break;
-            case 'obsolate':
-                // Jika status aktif, set menjadi obsolate
-                if ($dokumen->statusdoc == 'active') {
-                    $dokumen->statusdoc = 'obsolate';
-                    $dokumen->comment = 'Dokumen berhasil diobsolatkan.';
-                }
-                // Jika status obsolate, set menjadi aktif kembali
-                elseif ($dokumen->statusdoc == 'obsolate') {
-                    $dokumen->statusdoc = 'active';
-                    $dokumen->comment = 'Dokumen berhasil diaktifkan kembali.';
-                }
-                break;
-            default:
-                // Aksi tidak valid
-                return redirect()->back()->with('error', 'Aksi tidak valid.');
+            alert::success('Dokumen berhasil diaktifkan.');
+
+            return redirect()->back();
         }
+        alert::error('Dokumen tidak dapat diaktifkan.');
+        return redirect()->back();
+    }
 
-        // Simpan perubahan status
-        $dokumen->save();
+    public function obsoleteDocument($id)
+    {
+        // Temukan dokumen berdasarkan ID
+        $dokumen = IndukDokumen::findOrFail($id);
 
-        // Redirect kembali dengan pesan sukses
-        return redirect()->back()->with('success');
+        // Periksa apakah dokumen aktif
+        if ($dokumen->statusdoc == 'active' || $dokumen->statusdoc == 'not yet active') {
+            $dokumen->statusdoc = 'obsolate';
+            $dokumen->comment = 'Dokumen berhasil diobsoletkan.';
+            $dokumen->save();
+
+            alert::success('Dokumen berhasil diobsoletkan.');
+            return redirect()->back();
+        } elseif ($dokumen->statusdoc == 'obsolate') {
+            // Jika sudah obsolate, maka tidak bisa diobsoletkan kembali
+            alert::error('Dokumen sudah dalam status obsolate.');
+            return redirect()->back();
+        }
+        alert::error('Dokumen tidak dapat diobsoletkan.');
+        return redirect()->back();
     }
 }
