@@ -29,10 +29,7 @@
                                 <tbody>
                                     @php
                                         $filteredDocs = $indukDokumenList->filter(function ($doc) {
-                                            return in_array($doc->status, [
-                                                'waiting approval',
-                                                'waiting final approval',
-                                            ]);
+                                            return in_array($doc->status, ['waiting approval']);
                                         });
                                     @endphp
 
@@ -50,32 +47,15 @@
 
                                                 @if ($doc->status == 'waiting approval')
                                                     <!-- Tombol Download Draft -->
-                                                    <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}?preview=true"
+                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}?preview=true"
                                                         class="btn btn-primary btn-sm" target="_blank">
                                                         Preview
                                                         <i class="fa-solid fa-eye"></i>
                                                     </a>
                                                     <!-- Tombol Approve Draft -->
                                                     <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                        data-target="#approveDraftDokumen-{{ $doc->id }}">
-                                                        <i class="fa-solid fa-check"></i> Approve
-                                                    </button>
-                                                @elseif ($doc->status == 'waiting final approval')
-                                                    <!-- Tombol Download Final Document -->
-                                                    <a href="{{ route('preview.doc.final', ['id' => $doc->id, 'preview' => true]) }}"
-                                                        class="btn btn-info btn-sm" target="_blank">
-                                                        <i class="fa-solid fa-eye"></i>
-                                                    </a>
-
-                                                    <!-- Tombol Approve Document -->
-                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
                                                         data-target="#approveDokumen-{{ $doc->id }}">
                                                         <i class="fa-solid fa-check"></i> Approve
-                                                    </button>
-                                                    <!-- Tombol Reject Document -->
-                                                    <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                        data-target="#rejectDokumen-{{ $doc->id }}">
-                                                        <i class="fa-solid fa-circle-xmark"></i> Reject
                                                     </button>
                                                 @else
                                                     <p class="text-muted">No data available</p>
@@ -97,15 +77,15 @@
         </div>
     </div>
     @foreach ($indukDokumenList as $doc)
-        <div class="modal fade" id="approveDraftDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="approveDraftDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="approveDraftDokumenLabel-{{ $doc->id }}">Document Confirmation
+                            <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
                                 Approved
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -130,90 +110,5 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Konfirmasi Approve Dokumen
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Apakah Anda yakin ingin menyetujui dokumen ini?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <form action="{{ route('final.approve', ['id' => $doc->id]) }}" method="POST">
-                            @csrf
-                            @method('POST')
-                            <button type="submit" class="btn btn-success">
-                                <i class="fa-solid fa-circle-check"></i> Approve
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="rejectDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="rejectDokumenLabel-{{ $doc->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Reject Dokumen
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('final.reject', ['id' => $doc->id]) }}" method="POST">
-                            @csrf
-                            @method('POST')
-                            <div class="form-group">
-                                <label for="comment">Comment</label>
-                                <input type="text" class="form-control" id="comment" name="comment" required>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                <button type="submit" class="btn btn-danger">
-                                    <i class="fa-solid fa-circle-xmark"></i> Reject
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
     @endforeach
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script>
-        function approveDocument(id) {
-            if (confirm('Are you sure you want to approve this document?')) {
-                fetch(`/document/approve/${id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        _method: 'POST'
-                    })
-                }).then(response => {
-                    if (response.ok) {
-                        document.getElementById(`document-${id}`).remove();
-                        alert('Dokumen berhasil diapprove.');
-                    } else {
-                        alert('Gagal mengapprove dokumen.');
-                    }
-                }).catch(error => {
-                    console.error('Error:', error);
-                    alert('Gagal mengapprove dokumen.');
-                });
-            }
-        }
-    </script>
 @endsection

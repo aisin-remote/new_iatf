@@ -55,9 +55,12 @@ Route::post('/template-dokumen/add', [DokumenController::class, 'store'])
 Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.edit');
-Route::get('/template-dokumen/preview-download/{id}', [DokumenController::class, 'previewAndDownload'])
+Route::get('/template-dokumen/preview/{id}', [DokumenController::class, 'preview'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('template.preview-download');
+    ->name('template.preview');
+Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'download'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.download');
 
 // Document Draft Rule
 Route::get('/dokumen/{jenis}/{tipe}', [RuleController::class, 'index'])
@@ -66,30 +69,21 @@ Route::get('/dokumen/{jenis}/{tipe}', [RuleController::class, 'index'])
 Route::post('/dokumen/draft', [RuleController::class, 'store'])
     ->middleware(['auth', 'role:guest'])
     ->name('tambah.rule');
-Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [RuleController::class, 'download_draft'])
+Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [RuleController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.draft');
-Route::post('/dokumen/{jenis}/{tipe}/edit/{id}', [RuleController::class, 'update'])
-    ->middleware(['auth', 'role:guest'])
-    ->name('edit.rule');
+    ->name('download.rule');
 
 // Validate Rule
 Route::get('/admin/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])
     ->name('rule.validate');
-Route::post('/dokumen/validate-draft/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
+Route::post('/dokumen/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.approve');
-Route::post('/dokumen/validate-draft/rejected/{id}', [ValidateRuleController::class, 'RejectedDocument'])
+Route::post('/dokumen/validate/rejected/{id}', [ValidateRuleController::class, 'RejectedDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.rejected');
-Route::post('/dokumen/validate-final/approve/{id}', [ValidateRuleController::class, 'finalapproved'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('final.approve');
-Route::post('/dokumen/validate-final/rejected/{id}', [ValidateRuleController::class, 'finalrejected'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('final.reject');
-Route::put('/dokumen/{id}/activate',[ValidateRuleController::class, 'activateDocument'])->name('activate.document');
+Route::put('/dokumen/{id}/activate', [ValidateRuleController::class, 'activateDocument'])->name('activate.document');
 Route::put('/dokumen/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])->name('obsolete.document');
 
 

@@ -15,7 +15,9 @@ class Dokumen extends Model
         'nomor_template', // Tambahkan 'nomor_template' ke sini
         'jenis_dokumen',
         'tipe_dokumen',
+        'tgl_efektif',
         'file',
+        'template',
         // tambahkan kolom lainnya sesuai kebutuhan
     ];
 

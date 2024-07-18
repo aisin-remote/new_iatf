@@ -36,30 +36,12 @@
                                             <td>{{ $doc->tgl_upload }}</td>
                                             <td>{{ $doc->status }}</td>
                                             <td>
-                                                <!-- Tombol Edit -->
-                                                {{-- <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editDokumen-{{ $doc->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button> --}}
-
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}?preview=true"
+                                                <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                     class="btn btn-primary btn-sm" target="_blank">
                                                     Preview
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
-
-                                                @if ($doc->status == 'draft approved' || $doc->status == 'final rejected')
-                                                    <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                        data-target="#uploadfinalModal-{{ $doc->id }}">
-                                                        Upload Final
-                                                    </button>
-                                                @else
-                                                    <button class="btn btn-primary btn-sm" disabled>
-                                                        Upload Final
-                                                    </button>
-                                                @endif
                                             </td>
                                         </tr>
                                     @empty
@@ -76,7 +58,7 @@
         </div>
     </div>
 
-    <!-- Upload Draft Modal -->
+    <!-- Upload Modal -->
     <div class="modal fade" id="uploaddraftModal" tabindex="-1" role="dialog" aria-labelledby="uploaddraftModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -106,6 +88,10 @@
                         <div class="form-group" id="revisi_ke_group" style="display: none;">
                             <label for="revisi_ke">Revisi ke</label>
                             <input type="number" class="form-control" id="revisi_ke" name="revisi_ke">
+                        </div>
+                        <div class="form-group">
+                            <label for="nomor_list">Nomor Dokumen</label>
+                            <input type="text" class="form-control" id="nomor_list" name="nomor_list" required>
                         </div>
                         <div class="form-group">
                             <label for="rule_id">Kode Proses</label>
@@ -142,7 +128,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="form-group">
                             <label for="file">File</label>
                             <input type="file" class="form-control" id="file" name="file_draft" required>
@@ -159,107 +144,6 @@
         </div>
     </div>
 
-    {{-- upload final draft --}}
-    @foreach ($indukDokumenList as $doc)
-        <div class="modal fade" id="uploadfinalModal-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="uploadfinalModalLabel-{{ $doc->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form action="{{ route('upload.final', ['id' => $doc->id]) }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="uploadfinalModalLabel-{{ $doc->id }}">Upload Final</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="file_final">File</label>
-                                <input type="file" class="form-control-file" id="file_final" name="file_final"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Upload</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endforeach
-
-
-    {{-- edit dokumen modal --}}
-    {{-- @foreach ($indukDokumenList as $doc)
-        <div class="modal fade" id="editDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="editDokumenLabel-{{ $doc->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form action="{{ route('edit.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                        method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('POST')
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editDokumenLabel">Edit Dokumen {{ ucfirst($tipe) }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="nama_dokumen">Nama Dokumen</label>
-                                <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen"
-                                    required>
-                            </div>
-                            <div class="form-group">
-                                <label for="rule_id">Kode Proses</label>
-                                <select class="form-control" id="rule_id" name="rule_id" required>
-                                    <option value="">Pilih Kode Proses</option>
-                                    @foreach ($kodeProses as $item)
-                                        <option value="{{ $item['id'] }}">
-                                            {{ $item['kode_proses'] }} - {{ $item['nama_proses'] }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">Share Document To:</label>
-                                <div class="col-sm-9">
-                                    <div class="row">
-                                        @foreach ($departemens as $dept)
-                                            <div class="col-sm-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox"
-                                                        id="dept_{{ $dept->id }}" name="departemen[]"
-                                                        value="{{ $dept->id }}">
-                                                    <label class="form-check-label"
-                                                        for="dept_{{ $dept->id }}">{{ $dept->nama_departemen }}</label>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="file">File</label>
-                                <input type="file" class="form-control" id="file" name="file_draft" required>
-                            </div>
-
-                            <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
-                            <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    @endforeach --}}
     <script>
         document.getElementById('status_dokumen').addEventListener('change', function() {
             var revisiGroup = document.getElementById('revisi_ke_group');

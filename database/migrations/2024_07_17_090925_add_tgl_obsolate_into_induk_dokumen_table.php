@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::table('induk_dokumen', function (Blueprint $table) {
+            $table->dateTime('tgl_obsolate')->nullable()->after('tgl_efektif');
+        });
     }
 
     /**
@@ -19,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('induk_dokumen', function (Blueprint $table) {
+            // Drop the departemen_id column
+            $table->dropColumn('tgl_obsolate');
+        });
     }
 };

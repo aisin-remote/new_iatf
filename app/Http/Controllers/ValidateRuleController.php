@@ -37,7 +37,7 @@ class ValidateRuleController extends Controller
         // Validasi input
         $request->validate([
             'comment' => 'required|string|max:255',
-            'file_draft' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // File opsional, jika perlu diunggah
+            'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // File opsional, jika perlu diunggah
         ]);
 
         try {
@@ -81,62 +81,6 @@ class ValidateRuleController extends Controller
             // Tangani pengecualian jika terjadi kesalahan
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-    }
-    public function finalapproved(Request $request, $id)
-    {
-        // Temukan dokumen berdasarkan ID
-        $dokumen = IndukDokumen::findOrFail($id);
-
-        // Periksa apakah status dokumen adalah "waiting final approval"
-        if ($dokumen->status != 'waiting final approval') {
-            return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
-        }
-
-        // Lakukan perubahan status menjadi "final approved"
-        $dokumen->status = 'final approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
-
-        // Simpan komentar yang diambil dari inputan form
-        $dokumen->comment = 'Your "' . $dokumen->nama_dokumen . '" has been approved. ';
-
-        // Set status dokumen menjadi "belum aktif"
-        $dokumen->statusdoc = 'not yet active'; // Sesuaikan dengan kolom status_doc di tabel IndukDokumen Anda
-
-        // Simpan perubahan
-        $dokumen->save();
-
-        Alert::success('Success', 'Dokumen berhasil diapprove.');
-
-        // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back();
-    }
-    public function finalrejected(Request $request, $id)
-    {
-        // Temukan dokumen berdasarkan ID
-        $dokumen = IndukDokumen::findOrFail($id);
-
-        // Validasi input comment
-        $request->validate([
-            'comment' => 'required|string|max:255',
-        ]);
-
-        // Periksa apakah status dokumen adalah "waiting approval"
-        if ($dokumen->status != 'waiting final approval') {
-            return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
-        }
-
-        // Lakukan perubahan status menjadi "final rejected"
-        $dokumen->status = 'final rejected'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
-
-        // Simpan komentar yang diambil dari inputan form
-        $dokumen->comment = 'Your "' . $dokumen->nama_dokumen . '" has been rejected. ' . $request->input('comment');
-
-        // Simpan perubahan
-        $dokumen->save();
-
-        Alert::success('Success', 'Dokumen berhasil direject.');
-
-        // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back();
     }
     public function activateDocument($id)
     {

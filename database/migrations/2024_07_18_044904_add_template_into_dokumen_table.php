@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('dokumen', function (Blueprint $table) {
-            $table->dateTime('tgl_efektif')->nullable()->after('tipe_dokumen');
+            $table->text('template')->nullable()->after('file');
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     {
         Schema::table('dokumen', function (Blueprint $table) {
             // Drop the departemen_id column
-            $table->dropColumn('tgl_efektif');
+            $table->dropColumn('template');
         });
     }
 };
