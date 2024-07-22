@@ -83,8 +83,8 @@ Route::post('/dokumen/validate/approve/{id}', [ValidateRuleController::class, 'a
 Route::post('/dokumen/validate/rejected/{id}', [ValidateRuleController::class, 'RejectedDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.rejected');
-Route::put('/dokumen/{id}/activate', [ValidateRuleController::class, 'activateDocument'])->name('activate.document');
-Route::put('/dokumen/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])->name('obsolete.document');
+Route::post('/dokumen/{id}/activate', [ValidateRuleController::class, 'activateDocument'])->name('activate.document');
+Route::post('/dokumen/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])->name('obsolete.document');
 
 
 
@@ -98,9 +98,9 @@ Route::get('/dokumen-final/download/{id}', [RuleController::class, 'previewAndDo
 Route::get('/dokumen/final', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::get('/dokumen/final/preview-download/{id}', [RuleController::class, 'previewAndDownloadFinal'])
+Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadFinal'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('preview-download.final');
+    ->name('download.final');
 
 // Document Share
 Route::get('/document/share', [RuleController::class, 'share_document'])
@@ -112,5 +112,3 @@ Route::get('/document/share/preview-download/{id}', [RuleController::class, 'pre
 
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-Route::post('/mark-as-read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
-Route::get('/fetch-notifications', [NotificationController::class, 'fetchNotifications'])->name('notifications.fetch');

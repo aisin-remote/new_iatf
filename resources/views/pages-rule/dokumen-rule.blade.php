@@ -38,9 +38,9 @@
                                             <td>
                                                 <!-- Tombol Download -->
                                                 <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm" target="_blank">
-                                                    Preview
-                                                    <i class="fa-solid fa-eye"></i>
+                                                    class="btn btn-primary btn-sm">
+                                                    download
+                                                    <i class="fa-solid fa-download"></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -114,14 +114,14 @@
                                             <label class="form-check-label" for="select_all">Select All</label>
                                         </div>
                                     </div>
-                                    @foreach ($departemens as $dept)
+                                    @foreach ($uniqueDepartemens as $dept)
                                         <div class="col-sm-6">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox"
-                                                    id="dept_{{ $dept->id }}" name="departemen[]"
-                                                    value="{{ $dept->id }}">
+                                                    id="dept_{{ $dept->code }}" name="kode_departemen[]"
+                                                    value="{{ $dept->code }}">
                                                 <label class="form-check-label"
-                                                    for="dept_{{ $dept->id }}">{{ $dept->nama_departemen }}</label>
+                                                    for="dept_{{ $dept->code }}">{{ $dept->code }}</label>
                                             </div>
                                         </div>
                                     @endforeach
@@ -130,7 +130,7 @@
                         </div>
                         <div class="form-group">
                             <label for="file">File</label>
-                            <input type="file" class="form-control" id="file" name="file_draft" required>
+                            <input type="file" class="form-control" id="file" name="file" required>
                         </div>
                         <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
                         <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">

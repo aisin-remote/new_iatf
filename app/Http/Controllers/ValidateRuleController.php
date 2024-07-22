@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
-use App\Models\User;
-use App\Notifications\DocumentStatusChanged;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -34,38 +31,37 @@ class ValidateRuleController extends Controller
     }
     public function approveDocument(Request $request, $id)
     {
-        // Validasi input
-        $request->validate([
-            'comment' => 'required|string|max:255',
-            'file' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // File opsional, jika perlu diunggah
-        ]);
-
         try {
+
             // Temukan dokumen berdasarkan ID
             $dokumen = IndukDokumen::findOrFail($id);
+
 
             // Periksa apakah status dokumen adalah "waiting approval"
             if ($dokumen->status != 'waiting approval') {
                 return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
             }
 
-            // Jika pengguna mengirimkan file draft, proses file tersebut
-            if ($request->hasFile('file_draft')) {
+            // Jika pengguna mengirimkan file, proses file tersebut
+            if ($request->hasFile('file')) {
                 // Hapus file draft lama jika ada
-                if ($dokumen->file_draft) {
-                    Storage::disk('public')->delete($dokumen->file_draft);
+                if ($dokumen->file) {
+                    Storage::disk('public')->delete($dokumen->file);
                 }
 
-                $file = $request->file('file_draft');
+                $file = $request->file('file');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                Storage::disk('public')->putFileAs('draft_rule', $file, $filename);
+                Storage::disk('public')->putFileAs('rule', $file, $filename);
 
                 // Simpan path file draft ke dalam database
-                $dokumen->file_draft = 'draft_rule/' . $filename;
+                $dokumen->file = 'rule/' . $filename;
             }
 
-            // Lakukan perubahan status menjadi "draft approved"
-            $dokumen->status = 'draft approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
+            // Lakukan perubahan status menjadi "approved"
+            $dokumen->status = 'approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
+
+            // Lakukan perubahan statusdoc menjadi ""
+            $dokumen->statusdoc = 'not yet active'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
             // Simpan komentar yang diambil dari inputan form
             $dokumen->comment = $request->input('comment');
@@ -82,44 +78,49 @@ class ValidateRuleController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-    public function activateDocument($id)
+    public function activateDocument(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen belum aktif atau sudah obsolate
-        if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolate') {
+        // Periksa apakah dokumen belum aktif atau sudah obsolete
+        if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
+            // Set status dokumen
             $dokumen->statusdoc = 'active';
             $dokumen->comment = 'Dokumen berhasil diaktifkan.';
+            $dokumen->tgl_efektif = $request->input('activation_date');
             $dokumen->save();
 
-            alert::success('Dokumen berhasil diaktifkan.');
-
-            return redirect()->back();
+            Alert::success('Dokumen berhasil diaktifkan.');
+            return redirect()->route('document.final');
         }
-        alert::error('Dokumen tidak dapat diaktifkan.');
+
+        Alert::error('Dokumen tidak dapat diaktifkan.');
         return redirect()->back();
     }
 
-    public function obsoleteDocument($id)
+    public function obsoleteDocument(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen aktif
+        // Periksa apakah dokumen aktif atau belum aktif
         if ($dokumen->statusdoc == 'active' || $dokumen->statusdoc == 'not yet active') {
-            $dokumen->statusdoc = 'obsolate';
+            // Set status dokumen ke 'obsolete'
+            $dokumen->statusdoc = 'obsolete';
             $dokumen->comment = 'Dokumen berhasil diobsoletkan.';
+            $dokumen->tgl_obsolete = $request->input('obsoleted_date');
             $dokumen->save();
 
-            alert::success('Dokumen berhasil diobsoletkan.');
+            Alert::success('Dokumen berhasil diobsoletkan.');
             return redirect()->back();
-        } elseif ($dokumen->statusdoc == 'obsolate') {
-            // Jika sudah obsolate, maka tidak bisa diobsoletkan kembali
-            alert::error('Dokumen sudah dalam status obsolate.');
+        } elseif ($dokumen->statusdoc == 'obsolete') {
+            // Jika sudah obsolete, maka tidak bisa diobsoletkan kembali
+            Alert::error('Dokumen sudah dalam status obsolete.');
             return redirect()->back();
         }
-        alert::error('Dokumen tidak dapat diobsoletkan.');
+
+        Alert::error('Dokumen tidak dapat diobsoletkan.');
         return redirect()->back();
     }
 }

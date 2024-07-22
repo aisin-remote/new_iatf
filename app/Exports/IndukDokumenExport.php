@@ -27,7 +27,8 @@ class IndukDokumenExport implements FromCollection, WithHeadings, ShouldAutoSize
                 $dok->dokumen->jenis_dokumen, // Akses jenis dokumen dari relasi
                 $dok->dokumen->tipe_dokumen,  // Akses tipe dokumen dari relasi
                 $dok->rule->kode_proses,
-                $dok->tgl_upload,
+                $dok->tgl_efektif,
+                $dok->tgl_obsolete,
                 $dok->revisi_log,
                 $dok->getDepartemenTersebar(), // Misalnya, metode untuk mendapatkan departemen tersebar
             ];
@@ -43,7 +44,8 @@ class IndukDokumenExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Jenis Dokumen',
             'Tipe Dokumen',
             'Kode Proses',
-            'Tanggal Upload',
+            'Tanggal efektif',
+            'Tanggal obsolate',
             'Revisi Log',
             'Departemen Tersebar',
         ];

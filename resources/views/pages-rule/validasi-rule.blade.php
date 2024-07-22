@@ -47,10 +47,10 @@
 
                                                 @if ($doc->status == 'waiting approval')
                                                     <!-- Tombol Download Draft -->
-                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}?preview=true"
-                                                        class="btn btn-primary btn-sm" target="_blank">
-                                                        Preview
-                                                        <i class="fa-solid fa-eye"></i>
+                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        Download
+                                                        <i class="fa-solid fa-download"></i>
                                                     </a>
                                                     <!-- Tombol Approve Draft -->
                                                     <button class="btn btn-success btn-sm" data-toggle="modal"
@@ -99,7 +99,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="file">File (optional)</label>
-                                <input type="file" class="form-control-file" id="file" name="file_draft">
+                                <input type="file" class="form-control-file" id="file" name="file">
                             </div>
                         </div>
                         <div class="modal-footer">

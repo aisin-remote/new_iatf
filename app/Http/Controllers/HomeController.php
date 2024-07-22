@@ -43,7 +43,7 @@ class HomeController extends Controller
             })->where('statusdoc', 'active');
         } else {
             // Jika admin, tidak perlu filter statusdoc
-            $query->where('status', 'final approved');
+            $query->where('status', 'approved');
         }
 
         // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
@@ -79,18 +79,14 @@ class HomeController extends Controller
 
         // Menghitung jumlah berdasarkan status tertentu
         $waitingApproveCount = $countByStatusAndType->where('status', 'waiting approval')->sum('count');
-        $draftApproveCount = $countByStatusAndType->where('status', 'draft approved')->sum('count');
-        $waitingFinalCount = $countByStatusAndType->where('status', 'waiting final approval')->sum('count');
-        $finalApprovedCount = $countByStatusAndType->where('status', 'final approved')->sum('count');
+        $approveCount = $countByStatusAndType->where('status', 'approved')->sum('count');
 
         return view('pages-rule.dashboard', compact(
             'countByType',
             'waitingApproveCount',
-            'draftApproveCount',
+            'approveCount',
             'countByStatusAndType',
             'dokumenall',
-            'waitingFinalCount',
-            'finalApprovedCount',
             'allDepartemen',
             'tipeDokumen',
             'perPage'
@@ -108,13 +104,13 @@ class HomeController extends Controller
         // Ambil notifikasi dari tabel IndukDokumen
         if ($user->role === 'admin') {
             // Jika user adalah admin, ambil semua notifikasi yang memiliki file_draft diisi
-            $notifications = IndukDokumen::whereNotNull('file_draft')
+            $notifications = IndukDokumen::whereNotNull('file')
                 ->whereNotNull('command')
                 ->get();
         } else {
-            // Jika user bukan admin, ambil notifikasi berdasarkan user_id dan file_draft diisi
+            // Jika user bukan admin, ambil notifikasi berdasarkan user_id dan file diisi
             $notifications = IndukDokumen::where('user_id', $user->id)
-                ->whereNotNull('file_draft')
+                ->whereNotNull('file')
                 ->whereNotNull('command')
                 ->get();
         }
@@ -127,7 +123,7 @@ class HomeController extends Controller
         $departemen_user = $user->departemen->nama_departemen;
 
         // Query dasar untuk data dokumen yang akan diunduh
-        $query = IndukDokumen::where('status', 'final approved');
+        $query = IndukDokumen::where('status', 'approved');
 
         // Filter berdasarkan status dokumen
         if (!$user->hasRole('admin')) {

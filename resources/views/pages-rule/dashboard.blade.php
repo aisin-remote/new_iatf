@@ -305,14 +305,10 @@
                     .getContext('2d');
                 var data{{ $type }} = [
                     {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
-                    {{ $typeData->where('status', 'draft approved')->first()->count ?? 0 }},
-                    {{ $typeData->where('status', 'waiting final approval')->first()->count ?? 0 }},
-                    {{ $typeData->where('status', 'final approved')->first()->count ?? 0 }},
+                    {{ $typeData->where('status', 'approved')->first()->count ?? 0 }},
                     totalDocuments{{ $type }}
                 ];
-                var labels{{ $type }} = ['Waiting Approval', 'Draft Approved', 'Waiting Final',
-                    'Final Approved', 'Total'
-                ];
+                var labels{{ $type }} = ['Waiting Approval', 'Approved', 'Total'];
 
                 // Check if all data values are zero
                 if (data{{ $type }}.every(value => value === 0)) {
