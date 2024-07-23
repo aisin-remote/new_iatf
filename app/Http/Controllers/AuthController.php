@@ -68,16 +68,18 @@ class AuthController extends Controller
             'npk.required' => 'NPK tidak boleh kosong.',
             'npk.unique' => 'NPK sudah terdaftar.',
             'departemen.required' => 'Departemen tidak boleh kosong.',
+            'departemen.exists' => 'Departemen tidak valid.',
             'name.required' => 'Nama tidak boleh kosong.',
             'password.required' => 'Password tidak boleh kosong.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.size' => 'Password harus memiliki tepat 8 karakter.', // Pesan kesalahan untuk panjang tepat 8 karakter
         ];
 
         $validator = Validator::make($request->all(), [
             'npk' => 'required|string|max:255|unique:users',
             'departemen' => 'required|exists:departemen,id',
             'name' => 'required|string|max:255',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|size:8|confirmed', // Mengatur panjang tepat 8 karakter
         ], $message);
 
         if ($validator->fails()) {
@@ -105,6 +107,7 @@ class AuthController extends Controller
         Alert::success('Success', 'Registration successful! Please login.');
         return redirect()->route('login');
     }
+
     public function logout()
     {
         Auth::logout();

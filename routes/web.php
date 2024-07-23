@@ -41,7 +41,7 @@ Route::get('/notifications', [HomeController::class, 'getNotifications'])
 Route::get('download-excel', [HomeController::class, 'downloadExcel'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.excel');
-Route::post('/filter/documents', [HomeController::class, 'filterDocuments'])
+Route::post('/filter-documents', [HomeController::class, 'filterDocuments'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('filter.documents');
 
@@ -106,9 +106,9 @@ Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadFina
 Route::get('/document/share', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/document/share/preview-download/{id}', [RuleController::class, 'previewAndDownloadSharedDocument'])
+Route::get('/document/share/download/{id}', [RuleController::class, 'downloadSharedDocument'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('preview-download.share');
+    ->name('download.share');
 
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

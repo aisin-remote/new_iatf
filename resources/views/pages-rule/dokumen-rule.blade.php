@@ -161,18 +161,18 @@
             // Dapatkan elemen checkbox "Select All"
             const selectAllCheckbox = document.getElementById('select_all');
 
-            // Dapatkan semua elemen checkbox yang lainnya
-            const checkboxes = document.querySelectorAll('input[name="departemen[]"]');
+            // Dapatkan semua elemen checkbox departemen
+            const checkboxes = document.querySelectorAll('input[name="kode_departemen[]"]');
 
-            // Tambahkan event listener ke checkbox "Select All"
+            // Tambahkan event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
-                // Atur status semua checkbox berdasarkan status checkbox "Select All"
+                // Set status semua checkbox departemen sesuai dengan status checkbox "Select All"
                 checkboxes.forEach(checkbox => {
                     checkbox.checked = selectAllCheckbox.checked;
                 });
             });
 
-            // Tambahkan event listener ke setiap checkbox lainnya
+            // Tambahkan event listener untuk setiap checkbox departemen
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     // Jika ada satu checkbox yang tidak dipilih, hapus centang dari "Select All"
@@ -180,9 +180,9 @@
                         selectAllCheckbox.checked = false;
                     }
 
-                    // Jika semua checkbox lainnya dipilih, beri centang pada "Select All"
-                    if (document.querySelectorAll('input[name="departemen[]"]:checked').length ===
-                        checkboxes.length) {
+                    // Jika semua checkbox departemen dipilih, beri centang pada "Select All"
+                    if (document.querySelectorAll('input[name="kode_departemen[]"]:checked')
+                        .length === checkboxes.length) {
                         selectAllCheckbox.checked = true;
                     }
                 });

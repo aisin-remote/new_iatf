@@ -60,9 +60,7 @@
                                         class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">SIGN
                                         IN</button>
                                 </div>
-
                             </form>
-
                             <div class="text-center mt-4 font-weight-light">
                                 Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
                             </div>

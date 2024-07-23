@@ -21,7 +21,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Div untuk chart -->
         <div class="row">
             <div class="col-md-12 grid-margin">
@@ -112,7 +111,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Row untuk filter dan pencarian -->
         <div class="row mb-4">
             <div class="col-md-12">
@@ -133,8 +131,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Modal untuk filter -->
+        <!-- Modal Filter -->
         <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -148,24 +145,33 @@
                             </button>
                         </div>
                         <div class="modal-body">
+                            <!-- Filter berdasarkan Tanggal Upload -->
                             <div class="row my-2">
-                                <div class="col-4"><label class="col-form-label">Start Date / Upload Date</label></div>
+                                <div class="col-4">
+                                    <label class="col-form-label">Start Date / Upload Date</label>
+                                </div>
                                 <div class="col">
-                                    <input type="text" name="date_from" class="form-control input" value="">
+                                    <input type="text" name="date_from" class="form-control input"
+                                        placeholder="From">
                                 </div>
                                 <label class="col-form-label px-3">to</label>
                                 <div class="col">
-                                    <input type="text" name="date_to" class="form-control input" value="">
+                                    <input type="text" name="date_to" class="form-control input" placeholder="To">
                                 </div>
                             </div>
+
+                            <!-- Filter berdasarkan Tipe Dokumen -->
                             <div class="row my-2">
-                                <div class="col-4"><label class="col-form-label">Tipe Dokumen</label></div>
+                                <div class="col-4">
+                                    <label class="col-form-label">Tipe Dokumen</label>
+                                </div>
                                 <div class="col">
                                     <select name="tipe_dokumen_id" id="tipe_dokumen_id" class="form-control select2"
                                         style="width: 100%;">
                                         <option value="" selected>Select Tipe Dokumen</option>
                                         @foreach ($tipeDokumen as $dokumen)
-                                            <option value="{{ $dokumen->id }}">
+                                            <option value="{{ $dokumen->id }}"
+                                                {{ request('tipe_dokumen_id') == $dokumen->id ? 'selected' : '' }}>
                                                 {{ $dokumen->tipe_dokumen }}
                                             </option>
                                         @endforeach
@@ -173,30 +179,38 @@
                                 </div>
                             </div>
 
+                            <!-- Filter berdasarkan Departemen (Hanya untuk admin) -->
                             @role('admin')
                                 <div class="row my-2">
-                                    <div class="col-4"><label class="col-form-label">Departemen</label></div>
+                                    <div class="col-4">
+                                        <label class="col-form-label">Departemen</label>
+                                    </div>
                                     <div class="col">
                                         <select name="departemen_id" id="departemen_id" class="form-control select2"
                                             style="width: 100%;">
                                             <option value="" selected>Select Departemen</option>
                                             @foreach ($allDepartemen as $departemen)
                                                 <option value="{{ $departemen->nama_departemen }}"
-                                                    {{ request()->input('departemen') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                                    {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
                                                     {{ $departemen->nama_departemen }}
                                                 </option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
+
+                                <!-- Filter berdasarkan Status Dokumen -->
                                 <div class="row my-2">
-                                    <div class="col-4"><label class="col-form-label">Status Doc</label></div>
+                                    <div class="col-4">
+                                        <label class="col-form-label">Status Doc</label>
+                                    </div>
                                     <div class="col">
                                         <select name="statusdoc" id="statusdoc" class="form-control select2"
                                             style="width: 100%;">
-                                            <option value="status" selected>Pilih Status Doc</option>
-                                            <option value="active">active
-                                            </option>
+                                            <option value="" selected>Pilih Status Doc</option>
+                                            <option value="active" {{ request('statusdoc') == 'active' ? 'selected' : '' }}>
+                                                Active</option>
+                                            <!-- Tambahkan opsi status lain jika diperlukan -->
                                         </select>
                                     </div>
                                 </div>
@@ -211,17 +225,18 @@
             </div>
         </div>
 
-
         <!-- Bagian tabel -->
         <div class="row">
             <div class="col-md-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <div class="row">
+                        <!-- Header dan Filter -->
+                        <div class="row mb-3">
                             <div class="col-md-6">
                                 <p class="card-title">Dokumen Final</p>
                             </div>
-                            <div class="col-md-6 text-md-right mb-3">
+                            <div class="col-md-6 text-md-right">
+                                <!-- Form untuk memilih jumlah entri per halaman -->
                                 <form method="GET" action="{{ route('dashboard.rule') }}">
                                     <label class="mb-0">Show
                                         <select name="per_page" aria-controls="data-table-x"
@@ -240,6 +255,7 @@
                                 </form>
                             </div>
                         </div>
+                        <!-- Tabel Dokumen -->
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
@@ -256,21 +272,28 @@
                                             </tr>
                                         </thead>
                                         <tbody id="documentTableBody">
-                                            @foreach ($dokumenall as $doc)
+                                            @forelse ($dokumenall as $doc)
                                                 <tr>
                                                     <td>{{ ($dokumenall->currentPage() - 1) * $dokumenall->perPage() + $loop->iteration }}
                                                     </td>
                                                     <td>{{ $doc->nomor_dokumen }}</td>
                                                     <td>{{ $doc->nama_dokumen }}</td>
                                                     <td>{{ $doc->revisi_log }}</td>
-                                                    <td>{{ $doc->tgl_upload }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($doc->tgl_upload)->format('d-m-Y') }}</td>
                                                     <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                                     <td>{{ $doc->statusdoc }}</td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="7" class="text-center">No documents found.</td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
-                                    {{ $dokumenall->appends(['per_page' => $perPage])->links() }}
+                                    <!-- Paginasi -->
+                                    <div class="d-flex justify-content-center">
+                                        {{ $dokumenall->links('pagination::bootstrap-4', ['paginationClass' => 'pagination-sm']) }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -278,12 +301,9 @@
                 </div>
             </div>
         </div>
-
-
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Function to update the date and time
         function updateDateTime() {
             var currentDate = new Date();
             var formattedDate = currentDate.toLocaleString();
@@ -310,7 +330,6 @@
                 ];
                 var labels{{ $type }} = ['Waiting Approval', 'Approved', 'Total'];
 
-                // Check if all data values are zero
                 if (data{{ $type }}.every(value => value === 0)) {
                     labels{{ $type }} = ['No data available'];
                     data{{ $type }} = [0];

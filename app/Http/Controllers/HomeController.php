@@ -19,7 +19,7 @@ class HomeController extends Controller
         $departemen_user = $user->departemen->nama_departemen;
         $allDepartemen = Departemen::all();
 
-        // tampilan form filter tipe dokumen
+        // Tampilkan form filter tipe dokumen
         $tipeDokumen = Dokumen::where('jenis_dokumen', 'rule')->get();
 
         // Filter berdasarkan departemen
@@ -48,6 +48,12 @@ class HomeController extends Controller
 
         // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
         $dokumenall = $query->paginate($perPage);
+
+        // Format tanggal upload
+        $dokumenall->getCollection()->transform(function ($doc) {
+            $doc->tgl_upload = \Carbon\Carbon::parse($doc->tgl_upload)->format('d-m-Y');
+            return $doc;
+        });
 
         // Query untuk menghitung berdasarkan tipe dokumen
         $countByType = IndukDokumen::query()
@@ -153,42 +159,35 @@ class HomeController extends Controller
     }
     public function filterDocuments(Request $request)
     {
-        // Ambil data dari request
-        $date_from = $request->input('date_from');
-        $date_to = $request->input('date_to');
-        $tipe_dokumen_id = $request->input('tipe_dokumen_id');
-        $departemen_id = $request->input('departemen_id');
-        $statusdoc = $request->input('statusdoc');
-
-        // Query berdasarkan filter yang diterima
         $query = IndukDokumen::query();
 
-        // Filter berdasarkan range tanggal upload jika ada
-        if ($date_from && $date_to) {
-            $query->whereBetween('tgl_upload', [$date_from, $date_to]);
+        // Filter berdasarkan Tanggal Upload
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $query->whereBetween('tgl_upload', [$request->date_from, $request->date_to]);
         }
 
-        // Filter berdasarkan tipe dokumen jika dipilih
-        if ($tipe_dokumen_id) {
-            $query->where('tipe_dokumen_id', $tipe_dokumen_id);
+        // Filter berdasarkan Tipe Dokumen
+        if ($request->filled('tipe_dokumen_id')) {
+            $query->where('tipe_dokumen_id', $request->tipe_dokumen_id);
         }
 
-        // Filter berdasarkan departemen jika dipilih
-        if ($departemen_id) {
-            $query->whereHas('user.departemen', function ($query) use ($departemen_id) {
-                $query->where('nama_departemen', $departemen_id);
+        // Filter berdasarkan Departemen (Hanya untuk admin)
+        if (auth()->user()->hasRole('admin') && $request->filled('departemen_id')) {
+            $query->whereHas('user.departemen', function ($q) use ($request) {
+                $q->where('nama_departemen', $request->departemen_id);
             });
         }
 
-        // Filter berdasarkan status dokumen jika dipilih
-        if ($statusdoc) {
-            $query->where('statusdoc', $statusdoc);
+        // Filter berdasarkan Status Dokumen
+        if ($request->filled('statusdoc')) {
+            $query->where('statusdoc', $request->statusdoc);
         }
 
-        // Eksekusi query untuk mendapatkan hasil filter
-        $filteredDocuments = $query->get();
+        $dokumenall = $query->paginate($request->get('per_page', 10));
 
-        // Anda bisa mengembalikan response dalam bentuk JSON atau redirect ke halaman dengan data filter
-        return response()->json($filteredDocuments);
+        return view('dashboard', compact('dokumenall'))
+            ->with('tipeDokumen', TipeDokumen::all())
+            ->with('allDepartemen', Departemen::all())
+            ->with('countByType', $this->getDocumentCounts());
     }
 }

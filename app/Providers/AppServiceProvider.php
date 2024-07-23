@@ -26,8 +26,8 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('partials.notifications', function ($view) {
             $user = Auth::user();
+            $departemen_user = $user->departemen->nama_departemen;
 
-            // Ambil dokumen yang sesuai berdasarkan peran pengguna
             if ($user->hasRole('admin')) {
                 $documents = IndukDokumen::with(['user.departemen'])
                     ->where(function ($query) {
@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
                             ->orWhereNotIn('statusdoc', ['active', 'obsolete']);
                     })
                     ->orderByDesc('created_at')
-                    ->paginate(10); // Gunakan paginate untuk membuat objek LengthAwarePaginator
+                    ->get();
             } else {
                 $documents = IndukDokumen::where(function ($query) use ($user) {
                     $query->where(function ($q) use ($user) {
@@ -48,10 +48,34 @@ class AppServiceProvider extends ServiceProvider
                     });
                 })
                     ->orderByDesc('created_at')
-                    ->paginate(10); // Gunakan paginate untuk membuat objek LengthAwarePaginator
+                    ->get();
             }
 
-            $view->with('documents', $documents);
+            $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
+                $query->where('nama_departemen', $departemen_user);
+            })
+                ->where('statusdoc', 'active')
+                ->whereNotNull('file')
+                ->orderByDesc('created_at')
+                ->get()
+                ->each(function ($doc) {
+                    $doc->is_shared = true;
+                });
+
+            $allDocuments = $documents->merge($sharedDocuments)->sortByDesc('created_at');
+
+            $paginatedDocuments = new \Illuminate\Pagination\LengthAwarePaginator(
+                $allDocuments->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
+                $allDocuments->count(),
+                10,
+                \Illuminate\Pagination\Paginator::resolveCurrentPage(),
+                ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+            );
+
+            $notificationCount = $allDocuments->count();
+
+            $view->with('documents', $paginatedDocuments);
+            $view->with('notificationCount', $notificationCount);
         });
     }
 }

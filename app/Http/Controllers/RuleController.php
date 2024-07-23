@@ -52,22 +52,40 @@ class RuleController extends Controller
     }
     public function store(Request $request)
     {
+        // Validasi input
+        // $request->validate([
+        //     'file' => 'required|file',
+        //     'nama_dokumen' => 'required|string|max:255',
+        //     'rule_id' => 'required|exists:rule_codes,id',
+        //     'jenis_dokumen' => 'required|string',
+        //     'tipe_dokumen' => 'required|string',
+        //     'nomor_list' => 'required|integer',
+        //     'status_dokumen' => 'required|string',
+        //     'revisi_ke' => 'nullable|integer',
+        //     'kode_departemen' => 'required|array',
+        //     'kode_departemen.*' => 'exists:departemens,code',
+        // ]);
+
+        // Simpan file
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = 'rule/' . $filename;
         $file->storeAs('rule', $filename, 'public');
 
+        // Ambil informasi user
         $userId = auth()->id();
         $user = auth()->user();
         $departemen_user_code = $user->departemen->code;
         $revisi_log = $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0;
 
+        // Ambil rule
         $rule = RuleCode::find($request->rule_id);
         if (!$rule) {
             return redirect()->back()->with('error', 'Rule tidak valid.');
         }
         $kode_proses = $rule->kode_proses;
 
+        // Ambil dokumen
         $document = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
             ->where('tipe_dokumen', $request->tipe_dokumen)
             ->first();
@@ -78,6 +96,7 @@ class RuleController extends Controller
 
         $tipe_dokumen_code = $document->code;
 
+        // Format nomor dokumen
         $nomor_list = str_pad($request->nomor_list, 3, '0', STR_PAD_LEFT);
         $nomorDokumen = sprintf(
             '%s-%s-%s-%s-%02d',
@@ -88,6 +107,7 @@ class RuleController extends Controller
             $revisi_log
         );
 
+        // Buat entri baru di tabel IndukDokumen
         $dokumen = new IndukDokumen();
         $dokumen->nama_dokumen = $request->nama_dokumen;
         $dokumen->dokumen_id = $document->id;
@@ -101,15 +121,14 @@ class RuleController extends Controller
         $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
         $dokumen->save();
 
+        // Jika ada departemen yang dipilih, kaitkan dokumen dengan departemen tersebut
         if ($request->has('kode_departemen')) {
             $departemenCodes = $request->input('kode_departemen');
-            // Ambil departemen berdasarkan kode yang dipilih
             $departemens = Departemen::whereIn('code', $departemenCodes)->get();
-            // Debug output untuk memeriksa data yang dikaitkan
-            // dd($departemens);
-            $dokumen->departments()->attach($departemens->pluck('id'));
+            $dokumen->departments()->sync($departemens->pluck('id')); // Menggunakan sync() untuk update relasi
         }
 
+        // Tampilkan pesan sukses
         Alert::success('Success', 'Dokumen berhasil diunggah.');
         return redirect()->back();
     }
@@ -226,7 +245,7 @@ class RuleController extends Controller
         }
         return view('pages-rule.document-shared', compact('sharedDocuments'));
     }
-    public function previewAndDownloadSharedDocument($id)
+    public function downloadSharedDocument($id)
     {
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
@@ -261,15 +280,10 @@ class RuleController extends Controller
         // Tentukan nama file yang akan diunduh
         $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
 
-        // Tentukan header untuk pratinjau
+        // Tentukan header untuk download
         $headers = [
-            'Content-Type' => 'application/pdf',
+            'Content-Type' => mime_content_type(storage_path('app/public/' . $path)),
         ];
-
-        // Jika request adalah untuk pratinjau, tampilkan file PDF di browser
-        if (request()->has('preview')) {
-            return response()->file(storage_path('app/public/' . $path), $headers);
-        }
 
         // Lakukan download file dengan nama yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename, $headers);
