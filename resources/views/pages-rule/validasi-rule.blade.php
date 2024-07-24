@@ -18,7 +18,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nomor Dokumen</th>
-                                        <th>Nama Dokumen</th>
+                                        <th>Judul Dokumen</th>
                                         <th>Revisi</th>
                                         <th>Tanggal Upload</th>
                                         <th>Upload By</th>
@@ -29,7 +29,7 @@
                                 <tbody>
                                     @php
                                         $filteredDocs = $indukDokumenList->filter(function ($doc) {
-                                            return in_array($doc->status, ['waiting approval']);
+                                            return in_array($doc->status, ['Waiting check by MS']);
                                         });
                                     @endphp
 
@@ -45,7 +45,7 @@
                                             <!-- Tombol Edit -->
                                             <td>
 
-                                                @if ($doc->status == 'waiting approval')
+                                                @if ($doc->status == 'Waiting check by MS')
                                                     <!-- Tombol Download Draft -->
                                                     <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
                                                         class="btn btn-primary btn-sm">

@@ -52,20 +52,11 @@ class RuleController extends Controller
     }
     public function store(Request $request)
     {
-        // Validasi input
-        // $request->validate([
-        //     'file' => 'required|file',
-        //     'nama_dokumen' => 'required|string|max:255',
-        //     'rule_id' => 'required|exists:rule_codes,id',
-        //     'jenis_dokumen' => 'required|string',
-        //     'tipe_dokumen' => 'required|string',
-        //     'nomor_list' => 'required|integer',
-        //     'status_dokumen' => 'required|string',
-        //     'revisi_ke' => 'nullable|integer',
-        //     'kode_departemen' => 'required|array',
-        //     'kode_departemen.*' => 'exists:departemens,code',
-        // ]);
-
+        $request->validate([
+            'file' => 'required|mimes:doc,docx,xls,xlsx|max:2048',
+        ], [
+            'file.mimes' => 'Only Word and Excel files are allowed.',
+        ]);
         // Simpan file
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
@@ -117,7 +108,7 @@ class RuleController extends Controller
         $dokumen->tgl_upload = Carbon::now();
         $dokumen->user_id = $userId;
         $dokumen->rule_id = $request->rule_id;
-        $dokumen->status = 'waiting approval';
+        $dokumen->status = 'Waiting check by MS';
         $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
         $dokumen->save();
 
@@ -132,7 +123,6 @@ class RuleController extends Controller
         Alert::success('Success', 'Dokumen berhasil diunggah.');
         return redirect()->back();
     }
-
     public function download($jenis, $tipe, $id)
     {
         // Ambil dokumen berdasarkan ID
@@ -161,20 +151,28 @@ class RuleController extends Controller
         // Lakukan download dengan nama file yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename);
     }
-    public function final_doc()
+    public function final_doc($jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Jika user adalah admin, mengambil semua dokumen final approved
         if ($user->hasRole('admin')) {
-            $dokumenfinal = IndukDokumen::where('status', 'approved')
-                ->whereNotNull('file')
+            $dokumenfinal = IndukDokumen::where('status', 'Finish check by MS')
+                ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
+                    $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
+                        ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
+                })
+                ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
                 ->orderByDesc('updated_at')
                 ->get();
         } else {
             // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
             $dokumenfinal = IndukDokumen::where('status', 'approved')
-                ->whereNotNull('file')
+                ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
+                    $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
+                        ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
+                })
+                ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
                 ->whereHas('user', function ($query) use ($user) {
                     $query->where('departemen_id', $user->departemen_id);
                 })
@@ -182,9 +180,9 @@ class RuleController extends Controller
                 ->get();
         }
 
-        // dd($dokumenfinal); // Tambahkan ini untuk debug
-        return view('pages-rule.dokumen-final', compact('dokumenfinal'));
+        return view('pages-rule.dokumen-final', compact('dokumenfinal','jenis', 'tipe'));
     }
+
     public function downloadFinal($id)
     {
         // Ambil induk dokumen berdasarkan ID

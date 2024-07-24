@@ -129,8 +129,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="file">File</label>
+                            <label for="file">Choose File (Word, Excel)</label>
                             <input type="file" class="form-control" id="file" name="file" required>
+                            @if ($errors->has('file'))
+                                <div class="alert alert-danger mt-2">
+                                    {{ $errors->first('file') }}
+                                </div>
+                            @endif
                         </div>
                         <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
                         <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">

@@ -13,7 +13,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nomor Dokumen</th>
-                                        <th>Nama Dokumen</th>
+                                        <th>Judul Dokumen</th>
                                         <th>Upload By</th>
                                         <th>Action</th>
                                     </tr>

@@ -43,7 +43,7 @@ class HomeController extends Controller
             })->where('statusdoc', 'active');
         } else {
             // Jika admin, tidak perlu filter statusdoc
-            $query->where('status', 'approved');
+            $query->where('status', 'Approve by MS');
         }
 
         // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
@@ -84,13 +84,13 @@ class HomeController extends Controller
             ->get();
 
         // Menghitung jumlah berdasarkan status tertentu
-        $waitingApproveCount = $countByStatusAndType->where('status', 'waiting approval')->sum('count');
-        $approveCount = $countByStatusAndType->where('status', 'approved')->sum('count');
+        $waitingCheckCount = $countByStatusAndType->where('status', 'Waiting check by MS')->sum('count');
+        $finishCheckCount = $countByStatusAndType->where('status', 'Finish check by MS')->sum('count');
 
         return view('pages-rule.dashboard', compact(
             'countByType',
-            'waitingApproveCount',
-            'approveCount',
+            'waitingCheckCount',
+            'finishCheckCount',
             'countByStatusAndType',
             'dokumenall',
             'allDepartemen',

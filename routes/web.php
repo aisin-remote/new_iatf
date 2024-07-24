@@ -89,18 +89,15 @@ Route::post('/dokumen/{id}/obsolete', [ValidateRuleController::class, 'obsoleteD
 
 
 // Document Final Rule
-Route::post('upload-final/{id}', [RuleController::class, 'uploadFinal'])
-    ->middleware(['auth', 'role:guest'])
+Route::post('upload-final/{id}', [ValidateRuleController::class, 'uploadFinal'])
+    ->middleware(['auth', 'role:admin'])
     ->name('upload.final');
-Route::get('/dokumen-final/download/{id}', [RuleController::class, 'previewAndDownloadDocFinal'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('preview.doc.final');
-Route::get('/dokumen/final', [RuleController::class, 'final_doc'])
+Route::get('/dokumen/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::get('/dokumen/final/download/{id}', [RuleController::class, 'downloadFinal'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.final');
+Route::get('/document/{id}', [ValidateRuleController::class, 'previewsAndDownload'])
+    ->name('document.previewsAndDownload');
+
 
 // Document Share
 Route::get('/document/share', [RuleController::class, 'share_document'])

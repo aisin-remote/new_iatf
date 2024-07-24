@@ -38,7 +38,7 @@ class ValidateRuleController extends Controller
 
 
             // Periksa apakah status dokumen adalah "waiting approval"
-            if ($dokumen->status != 'waiting approval') {
+            if ($dokumen->status != 'Waiting check by MS') {
                 return redirect()->back()->with('error', 'Dokumen tidak dalam status waiting approval.');
             }
 
@@ -58,7 +58,7 @@ class ValidateRuleController extends Controller
             }
 
             // Lakukan perubahan status menjadi "approved"
-            $dokumen->status = 'approved'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
+            $dokumen->status = 'Finish check by MS'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
 
             // Lakukan perubahan statusdoc menjadi ""
             $dokumen->statusdoc = 'not yet active'; // Sesuaikan dengan kolom status di tabel IndukDokumen Anda
@@ -69,7 +69,7 @@ class ValidateRuleController extends Controller
             // Simpan perubahan
             $dokumen->save();
 
-            Alert::success('Success', 'Dokumen berhasil diapprove.');
+            Alert::success('Success', 'Finish check by MS.');
 
             // Redirect atau kembali ke halaman sebelumnya dengan pesan sukses
             return redirect()->back();
@@ -77,6 +77,54 @@ class ValidateRuleController extends Controller
             // Tangani pengecualian jika terjadi kesalahan
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
+    }
+    public function uploadFinal(Request $request, $id)
+    {
+        // Validasi file hanya bisa PDF
+        $request->validate([
+            'file' => 'required|mimes:pdf|max:2048',
+        ], [
+            'file.mimes' => 'Only PDF files are allowed.',
+        ]);
+
+        // Ambil dokumen berdasarkan ID
+        $doc = IndukDokumen::findOrFail($id);
+
+        // Simpan file di folder final-rule
+        $file = $request->file('file');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = 'final-rule/' . $filename;
+        $file->storeAs('final-rule', $filename, 'public');
+
+        // Update path file di database
+        $doc->file_pdf = $path;
+        $doc->save();
+
+        // Tampilkan pesan sukses
+        return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
+    }
+    public function previewsAndDownload(Request $request, $id)
+    {
+        // Ambil dokumen berdasarkan ID
+        $doc = IndukDokumen::findOrFail($id);
+
+        // Cek apakah ada file PDF
+        if (!$doc->file_pdf) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        }
+
+        // Jika permintaan adalah untuk mengunduh file
+        if ($request->input('action') === 'download') {
+            return Storage::disk('public')->download($doc->file_pdf);
+        }
+
+        // Menampilkan pratinjau PDF
+        $filePath = storage_path('app/public/' . $doc->file_pdf);
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        }
+
+        return response()->file($filePath);
     }
     public function activateDocument(Request $request, $id)
     {
@@ -98,7 +146,6 @@ class ValidateRuleController extends Controller
         Alert::error('Dokumen tidak dapat diaktifkan.');
         return redirect()->back();
     }
-
     public function obsoleteDocument(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID

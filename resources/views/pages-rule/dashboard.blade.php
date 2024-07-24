@@ -317,6 +317,8 @@
             @foreach (['WI', 'WIS', 'STANDAR', 'PROSEDUR'] as $type)
                 @php
                     $typeData = $countByStatusAndType->where('tipe_dokumen', $type);
+                    $waitingCheck = $typeData->where('status', 'Waiting check by MS')->first()->count ?? 0;
+                    $finishCheck = $typeData->where('status', 'Finish check by MS')->first()->count ?? 0;
                     $totalDocuments = $typeData->sum('count');
                 @endphp
 
@@ -324,11 +326,11 @@
                 var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
                     .getContext('2d');
                 var data{{ $type }} = [
-                    {{ $typeData->where('status', 'waiting approval')->first()->count ?? 0 }},
-                    {{ $typeData->where('status', 'approved')->first()->count ?? 0 }},
+                    {{ $waitingCheck }},
+                    {{ $finishCheck }},
                     totalDocuments{{ $type }}
                 ];
-                var labels{{ $type }} = ['Waiting Approval', 'Approved', 'Total'];
+                var labels{{ $type }} = ['Waiting check by MS', 'Finish check by MS', 'Total'];
 
                 if (data{{ $type }}.every(value => value === 0)) {
                     labels{{ $type }} = ['No data available'];
@@ -343,16 +345,12 @@
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)',
                             'rgba(54, 162, 235, 0.2)',
-                            'rgba(0, 255, 0, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(255, 206, 86, 0.2)'
+                            'rgba(0, 255, 0, 0.2)'
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
-                            'rgba(0, 255, 0, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(255, 206, 86, 1)'
+                            'rgba(0, 255, 0, 1)'
                         ],
                         borderWidth: 1
                     }]
@@ -407,7 +405,7 @@
                     var text = row.textContent.toLowerCase();
 
                     if ((filterStatus === '' || status.includes(filterStatus)) && text.includes(
-                            searchInput)) {
+                        searchInput)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';

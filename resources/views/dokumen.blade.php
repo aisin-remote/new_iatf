@@ -22,8 +22,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nomor Template</th>
-                                        <th>Jenis Dokumen</th>
-                                        <th>Tipe Dokumen</th>
+                                        <th>Judul Dokumen</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -32,7 +31,6 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_template }}</td>
-                                            <td>{{ $doc->jenis_dokumen }}</td>
                                             <td>{{ $doc->tipe_dokumen }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->

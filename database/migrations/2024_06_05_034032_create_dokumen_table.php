@@ -13,8 +13,13 @@ return new class extends Migration
     {
         Schema::create('dokumen', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
+            $table->string('nomor_template');
             $table->string('jenis_dokumen');
             $table->string('tipe_dokumen');
+            $table->text('file_pdf');
+            $table->text('template');
+            $table->date('tgl_efektif');
             $table->timestamps();
         });
     }

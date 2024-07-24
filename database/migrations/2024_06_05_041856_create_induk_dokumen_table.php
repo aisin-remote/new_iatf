@@ -15,8 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_dokumen');
             $table->string('nama_dokumen');
-            $table->dateTime('tgl_upload');
-            $table->text('file_draft');
+            $table->date('tgl_upload');
+            $table->text('file');
+            $table->text('file_pdf');
+            $table->string('revisi_log');
+            $table->string('status');
+            $table->string('statusdoc');
+            $table->string('comment');
+            $table->string('tgl_efektif');
+            $table->string('tgl_obsolete');
             $table->timestamps();
         });
     }
