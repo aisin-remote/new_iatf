@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Validasi Rule')
+@section('title', 'Document Rule')
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -28,22 +28,24 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($indukDokumenList as $doc)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $doc->nomor_dokumen }}</td>
-                                            <td>{{ $doc->nama_dokumen }}</td>
-                                            <td>{{ $doc->revisi_log }}</td>
-                                            <td>{{ $doc->tgl_upload }}</td>
-                                            <td>{{ $doc->status }}</td>
-                                            <td>
-                                                <!-- Tombol Download -->
-                                                <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    download
-                                                    <i class="fa-solid fa-download"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
+                                        @if ($doc->statusdoc != 'active')
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $doc->nomor_dokumen }}</td>
+                                                <td>{{ $doc->nama_dokumen }}</td>
+                                                <td>{{ $doc->revisi_log }}</td>
+                                                <td>{{ $doc->tgl_upload }}</td>
+                                                <td>{{ $doc->status }}</td>
+                                                <td>
+                                                    <!-- Tombol Download -->
+                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        download
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @empty
                                         <tr>
                                             <td colspan="7" class="text-center">No data available</td>

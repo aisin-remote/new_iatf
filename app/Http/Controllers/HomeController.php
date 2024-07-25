@@ -161,6 +161,9 @@ class HomeController extends Controller
     {
         $query = IndukDokumen::query();
 
+        // Join dengan tabel dokumen
+        $query->with('dokumen');
+
         // Filter berdasarkan Tanggal Upload
         if ($request->filled('date_from') && $request->filled('date_to')) {
             $query->whereBetween('tgl_upload', [$request->date_from, $request->date_to]);
@@ -168,7 +171,16 @@ class HomeController extends Controller
 
         // Filter berdasarkan Tipe Dokumen
         if ($request->filled('tipe_dokumen_id')) {
-            $query->where('tipe_dokumen_id', $request->tipe_dokumen_id);
+            $query->whereHas('dokumen', function ($q) use ($request) {
+                $q->where('tipe_dokumen_id', $request->tipe_dokumen_id);
+            });
+        }
+
+        // Filter berdasarkan Jenis Dokumen
+        if ($request->filled('jenis_dokumen_id')) {
+            $query->whereHas('dokumen', function ($q) use ($request) {
+                $q->where('jenis_dokumen_id', $request->jenis_dokumen_id);
+            });
         }
 
         // Filter berdasarkan Departemen (Hanya untuk admin)
@@ -185,9 +197,18 @@ class HomeController extends Controller
 
         $dokumenall = $query->paginate($request->get('per_page', 10));
 
-        return view('dashboard', compact('dokumenall'))
-            ->with('tipeDokumen', TipeDokumen::all())
-            ->with('allDepartemen', Departemen::all())
-            ->with('countByType', $this->getDocumentCounts());
+        // Simpan hasil filter dalam sesi
+        session()->flash('dokumenall', $dokumenall);
+
+        return redirect()->back();
+    }
+
+    // Fungsi untuk menghitung jumlah dokumen berdasarkan tipe
+    private function getDocumentCounts()
+    {
+        return IndukDokumen::selectRaw('count(*) as count, dokumen.tipe_dokumen_id')
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->groupBy('dokumen.tipe_dokumen_id')
+            ->get();
     }
 }

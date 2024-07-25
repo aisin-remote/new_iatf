@@ -100,12 +100,12 @@ Route::get('/document/{id}', [ValidateRuleController::class, 'previewsAndDownloa
 
 
 // Document Share
-Route::get('/document/share', [RuleController::class, 'share_document'])
+Route::get('/document/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/document/share/download/{id}', [RuleController::class, 'downloadSharedDocument'])
+    Route::get('/document/{id}/preview-and-download', [RuleController::class, 'previewAndDownload'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.share');
+    ->name('previewAndDownload.share');
 
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

@@ -6,7 +6,17 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Dokumen Shared</h4>
+                        <h4 class="card-title">Dokumen Shared {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
+                        <div class="d-flex justify-content-end mb-3">
+                            <!-- Input pencarian -->
+                            <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput"
+                                placeholder="Search...">
+
+                            <!-- Tombol Filter -->
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal" style="background: #56544B">
+                                Filter
+                            </button>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -27,9 +37,9 @@
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('download.share', ['id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    Download <i class="fa-solid fa-download"></i> 
+                                                <a href="{{ route('previewAndDownload.share', ['id' => $doc->id]) }}"
+                                                    class="btn btn-primary btn-sm" target="blank">
+                                                    Download <i class="fa-solid fa-eye"></i>
                                                 </a>
                                             </td>
                                         </tr>

@@ -8,6 +8,13 @@
                     <div class="card-body">
                         <h4 class="card-title">Dokumen Final {{ ucfirst($jenis) }} - {{ ucfirst($tipe) }}</h4>
                         <div class="d-flex justify-content-end mb-3">
+                            <!-- Input pencarian -->
+                            <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput" placeholder="Search...">
+                            
+                            <!-- Tombol Filter -->
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal" style="background: #56544B">
+                                Filter
+                            </button>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped">

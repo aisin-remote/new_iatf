@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
             if ($user->hasRole('admin')) {
                 $documents = IndukDokumen::with(['user.departemen'])
                     ->where(function ($query) {
-                        $query->whereNotIn('status', ['approved'])
+                        $query->whereNotIn('status', ['Approve by MS'])
                             ->orWhereNotIn('statusdoc', ['active', 'obsolete']);
                     })
                     ->orderByDesc('created_at')
@@ -40,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
                 $documents = IndukDokumen::where(function ($query) use ($user) {
                     $query->where(function ($q) use ($user) {
                         $q->where('user_id', $user->id)
-                            ->whereNotIn('status', ['approved']);
+                            ->whereNotIn('status', ['Approve by MS']);
                     })->orWhere(function ($q) use ($user) {
                         $q->whereHas('user', function ($q2) use ($user) {
                             $q2->where('departemen_id', $user->departemen_id);
@@ -55,7 +55,7 @@ class AppServiceProvider extends ServiceProvider
                 $query->where('nama_departemen', $departemen_user);
             })
                 ->where('statusdoc', 'active')
-                ->whereNotNull('file')
+                ->whereNotNull('file_pdf')
                 ->orderByDesc('created_at')
                 ->get()
                 ->each(function ($doc) {

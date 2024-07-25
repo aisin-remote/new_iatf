@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Departemen;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
@@ -15,20 +16,24 @@ class ValidateRuleController extends Controller
     {
         // Ambil dokumen yang sesuai dengan jenis dan tipe dokumen dan urutkan berdasarkan tanggal upload
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
-            ->where('tipe_dokumen', $tipe) // Urutkan berdasarkan tanggal upload secara menurun
+            ->where('tipe_dokumen', $tipe)
             ->get();
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih dan memiliki status "waiting approval"
         $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
-            ->orderBy('tgl_upload', 'desc') // Pastikan ini juga diurutkan jika perlu
+            ->orderBy('tgl_upload', 'desc')
             ->get();
 
         // Ambil semua kode proses
         $kodeProses = RuleCode::all();
 
+        // Ambil semua departemen
+        $allDepartemen = Departemen::all();
+
         // Return view dengan data yang sudah difilter
-        return view('pages-rule.validasi-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses'));
+        return view('pages-rule.validasi-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'allDepartemen'));
     }
+
     public function approveDocument(Request $request, $id)
     {
         try {
@@ -135,12 +140,13 @@ class ValidateRuleController extends Controller
         if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
             // Set status dokumen
             $dokumen->statusdoc = 'active';
+            $dokumen->status = 'Approve by MS';
             $dokumen->comment = 'Dokumen berhasil diaktifkan.';
             $dokumen->tgl_efektif = $request->input('activation_date');
             $dokumen->save();
 
             Alert::success('Dokumen berhasil diaktifkan.');
-            return redirect()->route('document.final');
+            return redirect()->back();
         }
 
         Alert::error('Dokumen tidak dapat diaktifkan.');

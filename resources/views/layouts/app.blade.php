@@ -9,6 +9,7 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     {{-- <link rel="stylesheet" href="{{ asset('vendors/feather/feather.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('vendors/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('vendors/css/vendor.bundle.base.css') }}">
@@ -95,7 +96,7 @@
         right: 5px;
         font-size: 0.75em;
     }
-</style>    
+</style>
 
 <body>
     <div class="container-scroller">
@@ -146,6 +147,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     @include('sweetalert::alert')
     <!-- End custom js for this page-->
 </body>

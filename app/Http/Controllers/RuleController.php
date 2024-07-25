@@ -21,14 +21,13 @@ class RuleController extends Controller
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
 
-        // Ambil dokumen berdasarkan jenis, tipe, departemen user yang login, dan status selain 'final approved'
+        // Ambil dokumen berdasarkan jenis, tipe, departemen user yang login, dan status 'Waiting check by MS' atau 'Finish Check by MS'
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
             ->where('tipe_dokumen', $tipe)
             ->whereHas('indukDokumen.user.departemen', function ($query) use ($departemen_user) {
                 $query->where('nama_departemen', $departemen_user);
             })
             ->whereHas('indukDokumen', function ($query) {
-                $query->where('status', '!=', 'approved');
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -38,7 +37,6 @@ class RuleController extends Controller
             ->whereHas('user.departemen', function ($query) use ($departemen_user) {
                 $query->where('nama_departemen', $departemen_user);
             })
-            ->where('status', '!=', 'approved')
             ->orderBy('tgl_upload', 'desc')
             ->get();
 
@@ -50,6 +48,7 @@ class RuleController extends Controller
 
         return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'uniqueDepartemens'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -157,17 +156,16 @@ class RuleController extends Controller
 
         // Jika user adalah admin, mengambil semua dokumen final approved
         if ($user->hasRole('admin')) {
-            $dokumenfinal = IndukDokumen::where('status', 'Finish check by MS')
+            $dokumenfinal = IndukDokumen::whereIn('status', ['Finish check by MS', 'Approve by MS'])
                 ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
                     $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
                         ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
                 })
-                ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
                 ->orderByDesc('updated_at')
                 ->get();
         } else {
             // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
-            $dokumenfinal = IndukDokumen::where('status', 'approved')
+            $dokumenfinal = IndukDokumen::where('statusdoc', 'active')
                 ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
                     $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
                         ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
@@ -180,7 +178,7 @@ class RuleController extends Controller
                 ->get();
         }
 
-        return view('pages-rule.dokumen-final', compact('dokumenfinal','jenis', 'tipe'));
+        return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe'));
     }
 
     public function downloadFinal($id)
@@ -222,28 +220,35 @@ class RuleController extends Controller
         // Unduh file dari storage
         return Storage::disk('public')->download($path, $filename);
     }
-    public function share_document()
+    public function share_document($jenis, $tipe)
     {
-        // Mendapatkan user yang sedang login
         $user = auth()->user();
 
+        // Jika user adalah admin, mengambil semua dokumen dengan status 'active' sesuai jenis dan tipe
         if ($user->hasRole('admin')) {
-            // Jika user adalah admin, mengambil semua dokumen dengan status 'active'
-            $sharedDocuments = IndukDokumen::where('statusdoc', 'active')
-                ->orderBy('updated_at', 'desc')
+            $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
+                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+                ->where('dokumen.jenis_dokumen', $jenis)
+                ->where('dokumen.tipe_dokumen', $tipe)
+                ->where('induk_dokumen.statusdoc', 'active')
+                ->orderBy('induk_dokumen.updated_at', 'desc')
                 ->get();
         } else {
-            // Jika user bukan admin, mengambil dokumen yang terkait dengan departemen user dan memiliki status 'active'
+            // Jika user bukan admin, mengambil dokumen yang terkait dengan departemen user dan memiliki status 'active' sesuai jenis dan tipe
             $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
-                ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
+                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+                ->join('document_departement', 'induk_dokumen.id', '=', 'document_departement.induk_dokumen_id')
                 ->where('document_departement.departemen_id', $user->departemen_id)
+                ->where('dokumen.jenis_dokumen', $jenis)
+                ->where('dokumen.tipe_dokumen', $tipe)
                 ->where('induk_dokumen.statusdoc', 'active')
                 ->orderBy('induk_dokumen.updated_at', 'desc')
                 ->get();
         }
-        return view('pages-rule.document-shared', compact('sharedDocuments'));
+
+        return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe'));
     }
-    public function downloadSharedDocument($id)
+    public function previewAndDownload($id)
     {
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
@@ -255,7 +260,7 @@ class RuleController extends Controller
                 $query->where('nama_departemen', $departemen_user);
             })
             ->where('statusdoc', 'active')
-            ->whereNotNull('file')
+            ->whereNotNull('file_pdf')
             ->first();
 
         if (!$dokumen) {
@@ -263,7 +268,7 @@ class RuleController extends Controller
         }
 
         // Ambil path file dari database
-        $path = $dokumen->file;
+        $path = $dokumen->file_pdf;
 
         // Periksa apakah path tidak null dan merupakan string
         if (is_null($path) || !is_string($path)) {
@@ -283,7 +288,14 @@ class RuleController extends Controller
             'Content-Type' => mime_content_type(storage_path('app/public/' . $path)),
         ];
 
-        // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename, $headers);
+        // Periksa jenis file untuk menentukan pratinjau
+        $fileExtension = pathinfo($path, PATHINFO_EXTENSION);
+        if ($fileExtension == 'pdf') {
+            // Tampilkan pratinjau PDF
+            return response()->file(storage_path('app/public/' . $path));
+        } else {
+            // Tampilkan link untuk mengunduh file
+            return response()->download(storage_path('app/public/' . $path), $downloadFilename, $headers);
+        }
     }
 }
