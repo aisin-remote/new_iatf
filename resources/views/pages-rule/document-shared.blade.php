@@ -39,7 +39,7 @@
                                                 <!-- Tombol Download -->
                                                 <a href="{{ route('previewAndDownload.share', ['id' => $doc->id]) }}"
                                                     class="btn btn-primary btn-sm" target="blank">
-                                                    Download <i class="fa-solid fa-eye"></i>
+                                                    <i class="fa-solid fa-eye"></i>
                                                 </a>
                                             </td>
                                         </tr>

@@ -42,7 +42,7 @@
                                                     </button>
                                                 @endrole
                                                 <!-- Tombol Download -->
-                                                @if ($doc->file)
+                                                @if ($doc->file_pdf)
                                                     <a href="{{ route('template.preview', ['id' => $doc->id, 'preview' => true]) }}"
                                                         class="btn btn-info btn-sm" target="_blank">
 
@@ -54,7 +54,7 @@
                                                         <i class="fa-solid fa-eye"></i>
                                                     </button>
                                                 @endif
-                                                @if ($doc->file)
+                                                @if ($doc->template)
                                                     <a href="{{ route('template.download', ['id' => $doc->id, 'preview' => false]) }}"
                                                         class="btn btn-success btn-sm" target="_blank">
                                                         <i class="fa-solid fa-download"></i>
@@ -93,15 +93,6 @@
                         <div class="form-group">
                             <label for="nomor_template">Nomor Template</label>
                             <input type="text" class="form-control" id="nomor_template" name="nomor_template" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="jenis_dokumen">Pilih Jenis Dokumen</label>
-                            <select class="form-control" id="jenis_dokumen" name="jenis_dokumen" required>
-                                <option value="" disabled selected>Pilih jenis dokumen</option>
-                                <option value="Rule">Rule</option>
-                                <option value="Process">Process</option>
-                                <!-- Tambahkan opsi lainnya sesuai kebutuhan -->
-                            </select>
                         </div>
                         <div class="form-group">
                             <label for="tipe_dokumen">Tipe Dokumen</label>

@@ -51,11 +51,12 @@ class RuleController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:doc,docx,xls,xlsx|max:2048',
-        ], [
-            'file.mimes' => 'Only Word and Excel files are allowed.',
-        ]);
+        // dd($request);
+        // $request->validate([
+        //     'file' => 'required|mimes:doc,docx,xls,xlsx|max:2048',
+        // ], [
+        //     'file.mimes' => 'Only Word and Excel files are allowed.',
+        // ]);
         // Simpan file
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();

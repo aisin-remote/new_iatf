@@ -86,11 +86,13 @@ class HomeController extends Controller
         // Menghitung jumlah berdasarkan status tertentu
         $waitingCheckCount = $countByStatusAndType->where('status', 'Waiting check by MS')->sum('count');
         $finishCheckCount = $countByStatusAndType->where('status', 'Finish check by MS')->sum('count');
+        $approveCount = $countByStatusAndType->where('status', 'Approve by MS')->sum('count');
 
         return view('pages-rule.dashboard', compact(
             'countByType',
             'waitingCheckCount',
             'finishCheckCount',
+            'approveCount',
             'countByStatusAndType',
             'dokumenall',
             'allDepartemen',

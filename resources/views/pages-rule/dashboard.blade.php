@@ -319,18 +319,28 @@
                     $typeData = $countByStatusAndType->where('tipe_dokumen', $type);
                     $waitingCheck = $typeData->where('status', 'Waiting check by MS')->first()->count ?? 0;
                     $finishCheck = $typeData->where('status', 'Finish check by MS')->first()->count ?? 0;
+                    $approve = $typeData->where('status', 'Approve by MS')->first()->count ?? 0;
                     $totalDocuments = $typeData->sum('count');
                 @endphp
 
-                var totalDocuments{{ $type }} = {{ $totalDocuments }};
+                console.log('Data for {{ $type }}:', {
+                    waitingCheck: {{ $waitingCheck }},
+                    finishCheck: {{ $finishCheck }},
+                    approve: {{ $approve }},
+                    totalDocuments: {{ $totalDocuments }}
+                });
+
                 var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
                     .getContext('2d');
                 var data{{ $type }} = [
                     {{ $waitingCheck }},
                     {{ $finishCheck }},
-                    totalDocuments{{ $type }}
+                    {{ $approve }},
+                    {{ $totalDocuments }}
                 ];
-                var labels{{ $type }} = ['Waiting check by MS', 'Finish check by MS', 'Total'];
+                var labels{{ $type }} = ['Waiting check by MS', 'Finish check by MS', 'Approve by MS',
+                    'Total'
+                ];
 
                 if (data{{ $type }}.every(value => value === 0)) {
                     labels{{ $type }} = ['No data available'];
@@ -343,20 +353,22 @@
                         label: 'Number of Documents',
                         data: data{{ $type }},
                         backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(0, 255, 0, 0.2)'
+                            'rgba(255, 99, 132, 0.2)', // Waiting check by MS
+                            'rgba(54, 162, 235, 0.2)', // Finish check by MS
+                            'rgba(255, 140, 0, 0.2)', // Approve by MS
+                            'rgba(0, 255, 0, 0.2)' // Total
                         ],
                         borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(0, 255, 0, 1)'
+                            'rgba(255, 99, 132, 1)', // Waiting check by MS
+                            'rgba(54, 162, 235, 1)', // Finish check by MS
+                            'rgba(255, 140, 0, 1)', // Approve by MS
+                            'rgba(0, 255, 0, 1)' // Total
                         ],
                         borderWidth: 1
                     }]
                 };
 
-                var statusBarChart{{ $type }} = new Chart(ctx{{ $type }}, {
+                new Chart(ctx{{ $type }}, {
                     type: 'bar',
                     data: chartData{{ $type }},
                     options: {
@@ -368,18 +380,19 @@
                             title: {
                                 display: true,
                                 text: 'Documents Status for {{ $type }}'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(tooltipItem) {
+                                        return tooltipItem.label + ': ' + tooltipItem.raw
+                                            .toLocaleString();
+                                    }
+                                }
                             }
                         },
                         scales: {
                             x: {
                                 beginAtZero: true
-                            }
-                        },
-                        tooltips: {
-                            callbacks: {
-                                label: function(tooltipItem) {
-                                    return tooltipItem.label + ': ' + tooltipItem.raw.toLocaleString();
-                                }
                             }
                         }
                     }
@@ -405,7 +418,7 @@
                     var text = row.textContent.toLowerCase();
 
                     if ((filterStatus === '' || status.includes(filterStatus)) && text.includes(
-                        searchInput)) {
+                            searchInput)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';

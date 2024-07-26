@@ -6,7 +6,7 @@ use App\Models\Dokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
-
+use Symfony\Contracts\Service\Attribute\Required;
 
 class DokumenController extends Controller
 {
@@ -25,6 +25,7 @@ class DokumenController extends Controller
             'jenis_dokumen' => 'required|string|in:Rule,Process', // Sesuaikan dengan jenis dokumen yang tersedia
             'tipe_dokumen' => 'required|string|max:255',
             'file' => 'required|mimes:pdf|max:2048',
+            'tgl_efektif' => 'required',
             'template' => 'required|mimes:xlsx,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
         ]);
 
@@ -41,8 +42,9 @@ class DokumenController extends Controller
         // Buat entry baru dalam database untuk template dokumen
         Dokumen::create([
             'nomor_template' => $request->input('nomor_template'),
-            'jenis_dokumen' => $request->input('jenis_dokumen'),
             'tipe_dokumen' => $request->input('tipe_dokumen'),
+            'jenis_dokumen' => 'rule',
+            'tgl_efektif' => $request->input('tgl_efektif'),
             'file' => $fileName,
             'template' => $templateName,
         ]);
@@ -56,6 +58,7 @@ class DokumenController extends Controller
         // Validasi data input
         $request->validate([
             'nomor_template' => 'required|string|max:255',
+            'tgl_efektif' => 'required',
             'file' => 'nullable|file|mimes:pdf|max:2048',
             'template' => 'nullable|file|mimes:xlsx,doc,docx|max:2048', // Sesuaikan dengan kebutuhan
         ]);
@@ -65,6 +68,7 @@ class DokumenController extends Controller
 
         // Update nomor template
         $template->nomor_template = $request->nomor_template;
+        $template->tgl_efektif = $request->tgl_efektif;
 
         // Jika ada file yang diupload
         if ($request->hasFile('file')) {
@@ -79,7 +83,7 @@ class DokumenController extends Controller
             }
 
             // Update path file pada template
-            $template->file = $fileName;
+            $template->file_pdf = $fileName;
         }
 
         // Jika ada template yang diupload
@@ -112,12 +116,12 @@ class DokumenController extends Controller
         $document = Dokumen::findOrFail($id);
 
         // Lakukan validasi atau pengecekan apakah dokumen tersedia
-        if (!$document->file) {
+        if (!$document->file_pdf) {
             abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
         }
 
         // Path ke file PDF
-        $filePath = storage_path('app/public/template_dokumen/' . $document->file);
+        $filePath = storage_path('app/public/template_dokumen/' . $document->file_pdf);
 
         // Verifikasi apakah file ada di path yang diharapkan
         if (!file_exists($filePath)) {
@@ -130,6 +134,7 @@ class DokumenController extends Controller
         // Tampilkan file PDF di browser untuk pratinjau
         return response()->file($filePath, ['Content-Disposition' => 'inline; filename="' . $fileName . '"']);
     }
+
     public function download($id)
     {
         // Cari dokumen berdasarkan ID
@@ -140,7 +145,7 @@ class DokumenController extends Controller
             abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
         }
 
-        // Path ke file PDF
+        // Path ke file template
         $filePath = storage_path('app/public/template_dokumen/' . $document->template);
 
         // Verifikasi apakah file ada di path yang diharapkan
@@ -149,7 +154,7 @@ class DokumenController extends Controller
         }
 
         // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
-        $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.pdf';
+        $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.' . pathinfo($document->template, PATHINFO_EXTENSION);
 
         // Kembalikan file untuk diunduh
         return response()->download($filePath, $fileName);
