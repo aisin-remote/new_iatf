@@ -9,10 +9,12 @@
                         <h4 class="card-title">Dokumen Final {{ ucfirst($jenis) }} - {{ ucfirst($tipe) }}</h4>
                         <div class="d-flex justify-content-end mb-3">
                             <!-- Input pencarian -->
-                            <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput" placeholder="Search...">
-                            
+                            <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput"
+                                placeholder="Search...">
+
                             <!-- Tombol Filter -->
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal" style="background: #56544B">
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal"
+                                style="background: #56544B">
                                 Filter
                             </button>
                         </div>
@@ -49,23 +51,39 @@
                                             </td>
                                             <td>
                                                 @if ($doc->file_pdf)
-                                                    <a href="{{ route('document.previewsAndDownload', ['id' => $doc->id]) }}"
-                                                        class="btn btn-info btn-sm" target="_blank">
-                                                        <i class="fa-solid fa-eye"></i>
-                                                    </a>
+                                                    @if ($doc->statusdoc == 'not yet active')
+                                                        <a href="{{ route('document.previewsAndDownload', ['id' => $doc->id]) }}"
+                                                            class="btn btn-info btn-sm" target="_blank">
+                                                            <i class="fa-solid fa-eye"></i>
+                                                        </a>
+                                                    @elseif ($doc->statusdoc == 'active')
+                                                        <a href="{{ route('documents.downloadWatermarked', ['id' => $doc->id]) }}"
+                                                            class="btn btn-info btn-sm" target="_blank">
+                                                            <i class="fa-solid fa-eye"></i>
+                                                        </a>
+                                                    @endif
                                                 @endif
+
                                                 @role('admin')
                                                     <!-- Tombol untuk mengaktifkan dokumen -->
-                                                    @if ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolete')
+                                                    @if ($doc->file_pdf && ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolete'))
                                                         <button class="btn btn-primary btn-sm" data-toggle="modal"
                                                             data-target="#activateDokumen-{{ $doc->id }}">
                                                             activate
                                                         </button>
+                                                    @else
+                                                        <button class="btn btn-primary btn-sm" disabled>
+                                                            activate
+                                                        </button>
                                                     @endif
                                                     <!-- Tombol untuk mengobsoletkan dokumen -->
-                                                    @if ($doc->statusdoc == 'active' || $doc->statusdoc == 'not yet active')
+                                                    @if ($doc->file_pdf && ($doc->statusdoc == 'active' || $doc->statusdoc == 'not yet active'))
                                                         <button class="btn btn-danger btn-sm" data-toggle="modal"
                                                             data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                            obsolate
+                                                        </button>
+                                                    @else
+                                                        <button class="btn btn-danger btn-sm" disabled>
                                                             obsolate
                                                         </button>
                                                     @endif

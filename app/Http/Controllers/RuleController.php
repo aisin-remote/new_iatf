@@ -48,7 +48,6 @@ class RuleController extends Controller
 
         return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'uniqueDepartemens'));
     }
-
     public function store(Request $request)
     {
         // dd($request);
@@ -181,7 +180,6 @@ class RuleController extends Controller
 
         return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe'));
     }
-
     public function downloadFinal($id)
     {
         // Ambil induk dokumen berdasarkan ID

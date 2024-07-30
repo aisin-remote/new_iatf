@@ -97,13 +97,14 @@ Route::get('/dokumen/final/{jenis}/{tipe}', [RuleController::class, 'final_doc']
     ->name('document.final');
 Route::get('/document/{id}', [ValidateRuleController::class, 'previewsAndDownload'])
     ->name('document.previewsAndDownload');
+Route::get('/documents/{id}/download-watermarked', [ValidateRuleController::class, 'downloadWatermarkedDocument'])->name('documents.downloadWatermarked');
 
 
 // Document Share
 Route::get('/document/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-    Route::get('/document/{id}/preview-and-download', [RuleController::class, 'previewAndDownload'])
+Route::get('/document/{id}/preview-and-download', [RuleController::class, 'previewAndDownload'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('previewAndDownload.share');
 

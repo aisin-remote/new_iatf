@@ -131,7 +131,7 @@ class HomeController extends Controller
         $departemen_user = $user->departemen->nama_departemen;
 
         // Query dasar untuk data dokumen yang akan diunduh
-        $query = IndukDokumen::where('status', 'approved');
+        $query = IndukDokumen::where('status', 'Approve by MS');
 
         // Filter berdasarkan status dokumen
         if (!$user->hasRole('admin')) {

@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^2.2",
+        "dompdf/dompdf": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
@@ -18,7 +19,10 @@
         "phpoffice/phpspreadsheet": "^1.18",
         "phpoffice/phpword": "^1.2",
         "realrashid/sweet-alert": "^7.2",
-        "spatie/laravel-permission": "^6.9"
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.6",
+        "spatie/laravel-permission": "^6.9",
+        "tecnickcom/tcpdf": "^6.7"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
