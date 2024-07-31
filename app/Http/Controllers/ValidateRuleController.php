@@ -6,12 +6,11 @@ use App\Models\Departemen;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
-
+use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\Tcpdf\Fpdi as TcpdfFpdi;
 
 class ValidateRuleController extends Controller
 {
@@ -157,36 +156,66 @@ class ValidateRuleController extends Controller
             return null;
         }
 
-        // Baca konten file PDF asli
-        $pdfContent = file_get_contents($fullPath);
+        // Path gambar watermark
+        $watermarkImagePath = storage_path('app/public/stamp_controlled_copy.png');
 
-        // Set up DOMPDF
-        $options = new Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isPhpEnabled', true); // Aktifkan PHP di dalam DOMPDF
-        $dompdf = new Dompdf($options);
+        if (!file_exists($watermarkImagePath)) {
+            Log::error("Gambar watermark tidak ditemukan: $watermarkImagePath");
+            return null;
+        }
 
-        // Buat HTML untuk watermark
-        $html = '<html><body style="position: relative; width: 100%; height: 100%; overflow: hidden;">';
-        $html .= '<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); font-size: 64px; color: rgba(0, 0, 0, 0.1); z-index: -1;">' . htmlspecialchars($watermarkText) . '</div>';
-        $html .= '<div style="position: absolute; top: 0; left: 0;">' . base64_encode($pdfContent) . '</div>';
-        $html .= '</body></html>';
+        // Buat instance TCPDF dengan FPDI
+        $pdf = new TcpdfFpdi();
+        $pdf->SetAutoPageBreak(false);
 
-        // Load HTML ke DOMPDF
-        $dompdf->loadHtml($html);
+        $pageCount = $pdf->setSourceFile($fullPath);
 
-        // (Opsional) Ukuran kertas dan orientasi
-        $dompdf->setPaper('A4', 'portrait');
+        // Proses setiap halaman
+        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+            $tplId = $pdf->importPage($pageNo);
+            $size = $pdf->getTemplateSize($tplId);
 
-        // Render PDF
-        $dompdf->render();
+            // Tambahkan halaman dengan ukuran yang sama
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+
+            // Import halaman asli
+            $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
+
+            // Tambahkan watermark gambar kecil di kiri bawah halaman
+            $imageWidth = 36; // Lebar gambar watermark
+            $imageHeight = 36; // Tinggi gambar watermark
+            $xPos = 10; // Posisi X dari kiri
+            $yPos = $size['height'] - $imageHeight - 10; // Posisi Y dari bawah (10mm dari bagian bawah)
+
+            // Menggunakan metode "Image" untuk menempatkan gambar
+            $pdf->Image($watermarkImagePath, $xPos, $yPos, $imageWidth, $imageHeight, 'PNG');
+
+            // Tambahkan watermark teks dengan transparansi abu-abu pada halaman
+            $pdf->SetFont('helvetica', 'B', 72); // Ukuran font tetap 72
+            $pdf->SetTextColor(150, 150, 150); // Warna abu-abu
+
+            // Set opacity (transparansi) untuk teks watermark
+            $pdf->SetAlpha(0.3); // Sesuaikan nilai opacity (0.0 sampai 1.0, di mana 1.0 adalah sepenuhnya tidak transparan)
+
+            // Menyesuaikan posisi watermark teks
+            $textXPos = 20; // Posisi X untuk teks
+            $textYPos = 150; // Posisi Y untuk teks tetap
+
+            $pdf->StartTransform();
+            $pdf->Rotate(45, $textXPos + 50, $textYPos); // Rotasi sekitar titik tengah watermark teks
+            $pdf->Text($textXPos, $textYPos, $watermarkText); // Posisi teks dengan rotasi
+            $pdf->StopTransform();
+
+            // Kembalikan opacity ke default
+            $pdf->SetAlpha(1.0);
+        }
 
         // Tentukan path file baru
         $watermarkedPath = $watermarkDirectory . '/watermarked_' . uniqid() . '.pdf';
         $fullWatermarkedPath = storage_path('app/public/' . $watermarkedPath);
 
         // Simpan file PDF yang di-watermark
-        file_put_contents($fullWatermarkedPath, $dompdf->output());
+        $pdf->Output($fullWatermarkedPath, 'F');
 
         if (!file_exists($fullWatermarkedPath)) {
             Log::error("File watermark tidak dapat disimpan: $fullWatermarkedPath");
