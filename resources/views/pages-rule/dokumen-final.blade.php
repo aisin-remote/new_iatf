@@ -13,7 +13,7 @@
                                 placeholder="Search...">
 
                             <!-- Tombol Filter -->
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal"
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterFinalModal"
                                 style="background: #56544B">
                                 Filter
                             </button>
@@ -52,18 +52,22 @@
                                             <td>
                                                 @if ($doc->file_pdf)
                                                     @if ($doc->statusdoc == 'not yet active')
-                                                        <a href="{{ route('document.previewsAndDownload', ['id' => $doc->id]) }}"
+                                                        <a href="{{ route('document.previewsAndDownloadDocFinal', ['id' => $doc->id]) }}"
                                                             class="btn btn-info btn-sm" target="_blank">
                                                             <i class="fa-solid fa-eye"></i>
                                                         </a>
                                                     @elseif ($doc->statusdoc == 'active')
-                                                        <a href="{{ route('documents.downloadWatermarked', ['id' => $doc->id]) }}"
+                                                        <a href="{{ route('documents.previewsAndDownloadActiveDoc', ['id' => $doc->id]) }}"
+                                                            class="btn btn-info btn-sm" target="_blank">
+                                                            <i class="fa-solid fa-eye"></i>
+                                                        </a>
+                                                    @elseif ($doc->statusdoc == 'obsolete')
+                                                        <a href="{{ route('documents.previewsAndDownloadObsoleteDoc', ['id' => $doc->id]) }}"
                                                             class="btn btn-info btn-sm" target="_blank">
                                                             <i class="fa-solid fa-eye"></i>
                                                         </a>
                                                     @endif
                                                 @endif
-
                                                 @role('admin')
                                                     <!-- Tombol untuk mengaktifkan dokumen -->
                                                     @if ($doc->file_pdf && ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolete'))
@@ -190,6 +194,98 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="filterFinalModal" tabindex="-1" role="dialog" aria-labelledby="filterFinalModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="" method="">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterFinalModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Filter berdasarkan Tanggal Upload -->
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Start Date / Upload Date</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="date_from" class="form-control input"
+                                        placeholder="From">
+                                </div>
+                                <label class="col-form-label px-3">to</label>
+                                <div class="col">
+                                    <input type="text" name="date_to" class="form-control input" placeholder="To">
+                                </div>
+                            </div>
+
+                            <!-- Filter berdasarkan Tipe Dokumen -->
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Tipe Dokumen</label>
+                                </div>
+                                <div class="col">
+                                    <select name="tipe_dokumen_id" id="tipe_dokumen_id" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="" selected>Select Tipe Dokumen</option>
+                                        @foreach ($tipeDokumen as $dokumen)
+                                            <option value="{{ $dokumen->id }}"
+                                                {{ request('tipe_dokumen_id') == $dokumen->id ? 'selected' : '' }}>
+                                                {{ $dokumen->tipe_dokumen }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter berdasarkan Departemen (Hanya untuk admin) -->
+                            @role('admin')
+                                <div class="row my-2">
+                                    <div class="col-4">
+                                        <label class="col-form-label">Departemen</label>
+                                    </div>
+                                    <div class="col">
+                                        <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                            style="width: 100%;">
+                                            <option value="" selected>Select Departemen</option>
+                                            @foreach ($allDepartemen as $departemen)
+                                                <option value="{{ $departemen->nama_departemen }}"
+                                                    {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                                    {{ $departemen->nama_departemen }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Filter berdasarkan Status Dokumen -->
+                                <div class="row my-2">
+                                    <div class="col-4">
+                                        <label class="col-form-label">Status Doc</label>
+                                    </div>
+                                    <div class="col">
+                                        <select name="statusdoc" id="statusdoc" class="form-control select2"
+                                            style="width: 100%;">
+                                            <option value="" selected>Pilih Status Doc</option>
+                                            <option value="active" {{ request('statusdoc') == 'active' ? 'selected' : '' }}>
+                                                Active</option>
+                                            <!-- Tambahkan opsi status lain jika diperlukan -->
+                                        </select>
+                                    </div>
+                                </div>
+                            @endrole
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
                         </div>
                     </form>
                 </div>

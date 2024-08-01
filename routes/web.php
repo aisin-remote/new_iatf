@@ -66,10 +66,10 @@ Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'downlo
 Route::get('/dokumen/{jenis}/{tipe}', [RuleController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('rule.index');
-Route::post('/dokumen/draft', [RuleController::class, 'store'])
+Route::post('/dokumen/draftRule', [RuleController::class, 'store'])
     ->middleware(['auth', 'role:guest'])
     ->name('tambah.rule');
-Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [RuleController::class, 'download'])
+Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [RuleController::class, 'downloadDraft'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.rule');
 
@@ -80,33 +80,37 @@ Route::get('/admin/validate-draft/{jenis}/{tipe}', [ValidateRuleController::clas
 Route::post('/dokumen/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.approve');
-Route::post('/dokumen/validate/rejected/{id}', [ValidateRuleController::class, 'RejectedDocument'])
+Route::post('/dokumen/validate/{id}/activate', [ValidateRuleController::class, 'activateDocument'])
     ->middleware(['auth', 'role:admin'])
-    ->name('dokumen.rejected');
-Route::post('/dokumen/{id}/activate', [ValidateRuleController::class, 'activateDocument'])->name('activate.document');
-Route::post('/dokumen/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])->name('obsolete.document');
-
-
+    ->name('activate.document');
+Route::post('/dokumen/validate/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('obsolete.document');
 
 // Document Final Rule
-Route::post('upload-final/{id}', [ValidateRuleController::class, 'uploadFinal'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('upload.final');
 Route::get('/dokumen/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::get('/document/{id}', [ValidateRuleController::class, 'previewsAndDownload'])
-    ->name('document.previewsAndDownload');
-Route::get('/documents/{id}/download-watermarked', [ValidateRuleController::class, 'downloadWatermarkedDocument'])->name('documents.downloadWatermarked');
-
+Route::post('dokumen/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('upload.final');
+Route::get('/document/final/download/{id}', [RuleController::class, 'previewsAndDownloadDocFinal'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('document.previewsAndDownloadDocFinal');
+Route::get('/documents/final/download-active/{id}', [ValidateRuleController::class, 'previewsAndDownloadActiveDoc'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('documents.previewsAndDownloadActiveDoc');
+Route::get('/documents/final/download-obsolete/{id}', [ValidateRuleController::class, 'previewsAndDownloadObsoleteDoc'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('documents.previewsAndDownloadObsoleteDoc');
 
 // Document Share
 Route::get('/document/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/document/{id}/preview-and-download', [RuleController::class, 'previewAndDownload'])
+Route::get('/document/share/preview-and-download/{id}', [RuleController::class, 'previewsAndDownloadShareDoc'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('previewAndDownload.share');
+    ->name('previewsAndDownloadShareDoc');
 
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

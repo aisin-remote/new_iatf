@@ -122,7 +122,7 @@ class RuleController extends Controller
         Alert::success('Success', 'Dokumen berhasil diunggah.');
         return redirect()->back();
     }
-    public function download($jenis, $tipe, $id)
+    public function downloadDraft($jenis, $tipe, $id)
     {
         // Ambil dokumen berdasarkan ID
         $dokumen = IndukDokumen::find($id);
@@ -156,7 +156,7 @@ class RuleController extends Controller
 
         // Jika user adalah admin, mengambil semua dokumen final approved
         if ($user->hasRole('admin')) {
-            $dokumenfinal = IndukDokumen::whereIn('status', ['Finish check by MS', 'Approve by MS'])
+            $dokumenfinal = IndukDokumen::whereIn('status', ['Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
                 ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
                     $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
                         ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
@@ -180,44 +180,28 @@ class RuleController extends Controller
 
         return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe'));
     }
-    public function downloadFinal($id)
+    public function previewsAndDownloadDocFinal(Request $request, $id)
     {
-        // Ambil induk dokumen berdasarkan ID
-        $dokumen = IndukDokumen::find($id);
+        // Ambil dokumen berdasarkan ID
+        $doc = IndukDokumen::findOrFail($id);
 
-        // Lakukan validasi jika dokumen tidak ditemukan
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
+        // Cek apakah ada file PDF
+        if (!$doc->file_pdf) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
         }
 
-        // Periksa apakah dokumen memiliki file final
-        if (is_null($dokumen->file)) {
-            return redirect()->back()->with('error', 'Dokumen belum memiliki file final atau tidak diizinkan untuk diunduh.');
+        // Jika permintaan adalah untuk mengunduh file
+        if ($request->input('action') === 'download') {
+            return Storage::disk('public')->download($doc->file_pdf);
         }
 
-        // Periksa apakah dokumen memiliki status final approved
-        if ($dokumen->status != 'approved') {
-            return redirect()->back()->with('error', 'Dokumen belum disetujui final atau tidak diizinkan untuk diunduh.');
+        // Menampilkan pratinjau PDF
+        $filePath = storage_path('app/public/' . $doc->file_pdf);
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
         }
 
-        // Ambil path file dari database
-        $path = $dokumen->file;
-
-        // Periksa apakah path tidak null dan merupakan string
-        if (is_null($path) || !is_string($path)) {
-            return redirect()->back()->with('error', 'Path file tidak valid.');
-        }
-
-        // Periksa apakah file ada di storage
-        if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
-        }
-
-        // Tentukan nama file untuk unduhan
-        $filename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
-
-        // Unduh file dari storage
-        return Storage::disk('public')->download($path, $filename);
+        return response()->file($filePath);
     }
     public function share_document($jenis, $tipe)
     {
@@ -246,55 +230,5 @@ class RuleController extends Controller
         }
 
         return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe'));
-    }
-    public function previewAndDownload($id)
-    {
-        $user = auth()->user();
-        $departemen_user = $user->departemen->nama_departemen;
-
-        // Periksa apakah dokumen tersebut dibagikan kepada departemen user yang sedang login
-        // dan memiliki status final approved serta kolom file tidak null
-        $dokumen = IndukDokumen::where('id', $id)
-            ->whereHas('departments', function ($query) use ($departemen_user) {
-                $query->where('nama_departemen', $departemen_user);
-            })
-            ->where('statusdoc', 'active')
-            ->whereNotNull('file_pdf')
-            ->first();
-
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan atau tidak diizinkan untuk diakses.');
-        }
-
-        // Ambil path file dari database
-        $path = $dokumen->file_pdf;
-
-        // Periksa apakah path tidak null dan merupakan string
-        if (is_null($path) || !is_string($path)) {
-            return redirect()->back()->with('error', 'Path file tidak valid.');
-        }
-
-        // Periksa apakah file ada di storage
-        if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage: ' . $path);
-        }
-
-        // Tentukan nama file yang akan diunduh
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
-
-        // Tentukan header untuk download
-        $headers = [
-            'Content-Type' => mime_content_type(storage_path('app/public/' . $path)),
-        ];
-
-        // Periksa jenis file untuk menentukan pratinjau
-        $fileExtension = pathinfo($path, PATHINFO_EXTENSION);
-        if ($fileExtension == 'pdf') {
-            // Tampilkan pratinjau PDF
-            return response()->file(storage_path('app/public/' . $path));
-        } else {
-            // Tampilkan link untuk mengunduh file
-            return response()->download(storage_path('app/public/' . $path), $downloadFilename, $headers);
-        }
     }
 }

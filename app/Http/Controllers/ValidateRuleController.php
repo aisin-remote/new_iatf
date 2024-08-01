@@ -9,11 +9,11 @@ use App\Models\RuleCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
-use setasign\Fpdi\Fpdi;
-use setasign\Fpdi\Tcpdf\Fpdi as TcpdfFpdi;
+use App\Traits\AddWatermarkTrait;
 
 class ValidateRuleController extends Controller
 {
+    use AddWatermarkTrait;
     public function validate_index($jenis, $tipe)
     {
         // Ambil dokumen yang sesuai dengan jenis dan tipe dokumen dan urutkan berdasarkan tanggal upload
@@ -118,7 +118,7 @@ class ValidateRuleController extends Controller
         if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
             // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy');
+                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy', 'stamp_controlled_copy.png', 20, 150);
 
                 // Simpan path file yang sudah di-watermark ke kolom active_doc
                 $dokumen->active_doc = $watermarkedPath;
@@ -138,116 +138,7 @@ class ValidateRuleController extends Controller
         Alert::error('Dokumen tidak dapat diaktifkan.');
         return redirect()->back();
     }
-    protected function addWatermarkToPdf($filePath, $watermarkText)
-    {
-        // Buat direktori rule_watermark jika belum ada
-        $watermarkDirectory = 'rule_watermark';
-        $storagePath = storage_path('app/public/' . $watermarkDirectory);
-
-        if (!file_exists($storagePath)) {
-            mkdir($storagePath, 0755, true);
-        }
-
-        // Path lengkap file PDF asli
-        $fullPath = storage_path('app/public/' . $filePath);
-
-        if (!file_exists($fullPath)) {
-            Log::error("File tidak ditemukan: $fullPath");
-            return null;
-        }
-
-        // Path gambar watermark
-        $watermarkImagePath = storage_path('app/public/stamp_controlled_copy.png');
-
-        if (!file_exists($watermarkImagePath)) {
-            Log::error("Gambar watermark tidak ditemukan: $watermarkImagePath");
-            return null;
-        }
-
-        // Buat instance TCPDF dengan FPDI
-        $pdf = new TcpdfFpdi();
-        $pdf->SetAutoPageBreak(false);
-
-        $pageCount = $pdf->setSourceFile($fullPath);
-
-        // Proses setiap halaman
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-            $tplId = $pdf->importPage($pageNo);
-            $size = $pdf->getTemplateSize($tplId);
-
-            // Tambahkan halaman dengan ukuran yang sama
-            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-
-            // Import halaman asli
-            $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
-
-            // Tambahkan watermark gambar kecil di kiri bawah halaman
-            $imageWidth = 36; // Lebar gambar watermark
-            $imageHeight = 36; // Tinggi gambar watermark
-            $xPos = 10; // Posisi X dari kiri
-            $yPos = $size['height'] - $imageHeight - 10; // Posisi Y dari bawah (10mm dari bagian bawah)
-
-            // Menggunakan metode "Image" untuk menempatkan gambar
-            $pdf->Image($watermarkImagePath, $xPos, $yPos, $imageWidth, $imageHeight, 'PNG');
-
-            // Tambahkan watermark teks dengan transparansi abu-abu pada halaman
-            $pdf->SetFont('helvetica', 'B', 72); // Ukuran font tetap 72
-            $pdf->SetTextColor(150, 150, 150); // Warna abu-abu
-
-            // Set opacity (transparansi) untuk teks watermark
-            $pdf->SetAlpha(0.3); // Sesuaikan nilai opacity (0.0 sampai 1.0, di mana 1.0 adalah sepenuhnya tidak transparan)
-
-            // Menyesuaikan posisi watermark teks
-            $textXPos = 20; // Posisi X untuk teks
-            $textYPos = 150; // Posisi Y untuk teks tetap
-
-            $pdf->StartTransform();
-            $pdf->Rotate(45, $textXPos + 50, $textYPos); // Rotasi sekitar titik tengah watermark teks
-            $pdf->Text($textXPos, $textYPos, $watermarkText); // Posisi teks dengan rotasi
-            $pdf->StopTransform();
-
-            // Kembalikan opacity ke default
-            $pdf->SetAlpha(1.0);
-        }
-
-        // Tentukan path file baru
-        $watermarkedPath = $watermarkDirectory . '/watermarked_' . uniqid() . '.pdf';
-        $fullWatermarkedPath = storage_path('app/public/' . $watermarkedPath);
-
-        // Simpan file PDF yang di-watermark
-        $pdf->Output($fullWatermarkedPath, 'F');
-
-        if (!file_exists($fullWatermarkedPath)) {
-            Log::error("File watermark tidak dapat disimpan: $fullWatermarkedPath");
-            return null;
-        }
-
-        return $watermarkedPath;
-    }
-    public function previewsAndDownload(Request $request, $id)
-    {
-        // Ambil dokumen berdasarkan ID
-        $doc = IndukDokumen::findOrFail($id);
-
-        // Cek apakah ada file PDF
-        if (!$doc->file_pdf) {
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
-        }
-
-        // Jika permintaan adalah untuk mengunduh file
-        if ($request->input('action') === 'download') {
-            return Storage::disk('public')->download($doc->file_pdf);
-        }
-
-        // Menampilkan pratinjau PDF
-        $filePath = storage_path('app/public/' . $doc->file_pdf);
-        if (!file_exists($filePath)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
-        }
-
-        return response()->file($filePath);
-    }
-    public function downloadWatermarkedDocument($id)
+    public function previewsAndDownloadActiveDoc($id)
     {
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
@@ -263,31 +154,144 @@ class ValidateRuleController extends Controller
             'Content-Type' => 'application/pdf',
         ];
 
-        // Unduh file yang sudah di-watermark
-        return response()->download($path, 'watermarked_' . $dokumen->nomor_dokumen . '.pdf', $headers);
+        // Tampilkan file yang sudah di-watermark di browser
+        return response()->file($path, $headers);
     }
+
     public function obsoleteDocument(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen aktif atau belum aktif
-        if ($dokumen->statusdoc == 'active' || $dokumen->statusdoc == 'not yet active') {
-            // Set status dokumen ke 'obsolete'
+        // Periksa apakah dokumen belum aktif atau sudah obsolete
+        if ($dokumen->statusdoc != 'obsolete') {
+            // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
+            if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
+                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Obsolete', 'stamp_obsolete.png', 50, 120);
+
+                // Simpan path file yang sudah di-watermark ke kolom obsolete_doc
+                $dokumen->obsolete_doc = $watermarkedPath;
+            }
+
+            // Set status dokumen
             $dokumen->statusdoc = 'obsolete';
-            $dokumen->comment = 'Dokumen berhasil diobsoletkan.';
-            $dokumen->tgl_obsolete = $request->input('obsoleted_date');
+            $dokumen->status = 'Obsolete by MS';
+            $dokumen->comment = 'Dokumen berhasil di-obsalete-kan.';
+            $dokumen->tgl_obsolete = $request->input('obsolete_date');
             $dokumen->save();
 
-            Alert::success('Dokumen berhasil diobsoletkan.');
-            return redirect()->back();
-        } elseif ($dokumen->statusdoc == 'obsolete') {
-            // Jika sudah obsolete, maka tidak bisa diobsoletkan kembali
-            Alert::error('Dokumen sudah dalam status obsolete.');
+            Alert::success('Dokumen berhasil di-obsalete-kan.');
             return redirect()->back();
         }
 
-        Alert::error('Dokumen tidak dapat diobsoletkan.');
+        Alert::error('Dokumen tidak dapat di-obsalete-kan.');
         return redirect()->back();
     }
+    public function previewsAndDownloadObsoleteDoc($id)
+    {
+        // Temukan dokumen berdasarkan ID
+        $dokumen = IndukDokumen::findOrFail($id);
+
+        // Periksa apakah dokumen memiliki file yang sudah di-watermark
+        if (is_null($dokumen->obsolete_doc) || !Storage::disk('public')->exists($dokumen->obsolete_doc)) {
+            Alert::error('File watermark tidak ditemukan.');
+            return redirect()->back();
+        }
+
+        $path = storage_path('app/public/' . $dokumen->obsolete_doc);
+        $headers = [
+            'Content-Type' => 'application/pdf',
+        ];
+
+        // Tampilkan file yang sudah di-watermark di browser
+        return response()->file($path, $headers);
+    }
+
+
+    // protected function addWatermarkToPdf($filePath, $watermarkText)
+    // {
+    //     // Buat direktori rule_watermark jika belum ada
+    //     $watermarkDirectory = 'rule_watermark';
+    //     $storagePath = storage_path('app/public/' . $watermarkDirectory);
+
+    //     if (!file_exists($storagePath)) {
+    //         mkdir($storagePath, 0755, true);
+    //     }
+
+    //     // Path lengkap file PDF asli
+    //     $fullPath = storage_path('app/public/' . $filePath);
+
+    //     if (!file_exists($fullPath)) {
+    //         Log::error("File tidak ditemukan: $fullPath");
+    //         return null;
+    //     }
+
+    //     // Path gambar watermark
+    //     $watermarkImagePath = storage_path('app/public/stamp_controlled_copy.png');
+
+    //     if (!file_exists($watermarkImagePath)) {
+    //         Log::error("Gambar watermark tidak ditemukan: $watermarkImagePath");
+    //         return null;
+    //     }
+
+    //     // Buat instance TCPDF dengan FPDI
+    //     $pdf = new TcpdfFpdi();
+    //     $pdf->SetAutoPageBreak(false);
+
+    //     $pageCount = $pdf->setSourceFile($fullPath);
+
+    //     // Proses setiap halaman
+    //     for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+    //         $tplId = $pdf->importPage($pageNo);
+    //         $size = $pdf->getTemplateSize($tplId);
+
+    //         // Tambahkan halaman dengan ukuran yang sama
+    //         $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+
+    //         // Import halaman asli
+    //         $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
+
+    //         // Tambahkan watermark gambar kecil di kiri bawah halaman
+    //         $imageWidth = 36; // Lebar gambar watermark
+    //         $imageHeight = 36; // Tinggi gambar watermark
+    //         $xPos = 10; // Posisi X dari kiri
+    //         $yPos = $size['height'] - $imageHeight - 10; // Posisi Y dari bawah (10mm dari bagian bawah)
+
+    //         // Menggunakan metode "Image" untuk menempatkan gambar
+    //         $pdf->Image($watermarkImagePath, $xPos, $yPos, $imageWidth, $imageHeight, 'PNG');
+
+    //         // Tambahkan watermark teks dengan transparansi abu-abu pada halaman
+    //         $pdf->SetFont('helvetica', 'B', 72); // Ukuran font tetap 72
+    //         $pdf->SetTextColor(150, 150, 150); // Warna abu-abu
+
+    //         // Set opacity (transparansi) untuk teks watermark
+    //         $pdf->SetAlpha(0.3); // Sesuaikan nilai opacity (0.0 sampai 1.0, di mana 1.0 adalah sepenuhnya tidak transparan)
+
+    //         // Menyesuaikan posisi watermark teks
+    //         $textXPos = 20; // Posisi X untuk teks
+    //         $textYPos = 150; // Posisi Y untuk teks tetap
+
+    //         $pdf->StartTransform();
+    //         $pdf->Rotate(45, $textXPos + 50, $textYPos); // Rotasi sekitar titik tengah watermark teks
+    //         $pdf->Text($textXPos, $textYPos, $watermarkText); // Posisi teks dengan rotasi
+    //         $pdf->StopTransform();
+
+    //         // Kembalikan opacity ke default
+    //         $pdf->SetAlpha(1.0);
+    //     }
+
+    //     // Tentukan path file baru
+    //     $watermarkedPath = $watermarkDirectory . '/watermarked_' . uniqid() . '.pdf';
+    //     $fullWatermarkedPath = storage_path('app/public/' . $watermarkedPath);
+
+    //     // Simpan file PDF yang di-watermark
+    //     $pdf->Output($fullWatermarkedPath, 'F');
+
+    //     if (!file_exists($fullWatermarkedPath)) {
+    //         Log::error("File watermark tidak dapat disimpan: $fullWatermarkedPath");
+    //         return null;
+    //     }
+
+    //     return $watermarkedPath;
+    // }
 }
