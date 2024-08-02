@@ -7,7 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Validator;
+use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
@@ -17,47 +19,48 @@ class AuthController extends Controller
         // Mengirim data user ke tampilan 'auth.login'
         return view('auth.login');
     }
+    public function select_dashboard()
+    {
+        return view('select-dashboard');
+    }
     public function login_proses(Request $request)
     {
-        $message = [
-            'npk.required' => 'NPK tidak boleh kosong.',
-            'password.required' => 'Password tidak boleh kosong.',
-        ];
-
-        // Validate the request data with custom messages
-        $validator = Validator::make($request->all(), [
+        // Validasi input
+        $request->validate([
             'npk' => 'required|string',
             'password' => 'required|string',
-        ], $message);
+        ]);
 
-        // Check if validation fails
-        if ($validator->fails()) {
-            return redirect()->route('login')
-                ->withErrors($validator)
-                ->withInput($request->except('password'));
-        }
-
-        // Retrieve only the 'npk' and 'password' from the request
         $credentials = $request->only('npk', 'password');
 
-        // Attempt to authenticate the user with the provided credentials
-        if (Auth::attempt($credentials)) {
-            // Regenerate the session to prevent fixation attacks
-            $request->session()->regenerate();
+        // Rate Limiting
+        $attemptsKey = 'login_attempts_' . $request->ip();
+        $lockoutKey = 'login_lockout_' . $request->ip();
 
-            // Menampilkan SweetAlert modal
-            return view('select-dashboard');
+        if (RateLimiter::tooManyAttempts($attemptsKey, 3)) {
+            $seconds = RateLimiter::availableIn($attemptsKey);
+            return back()->withErrors(['lockout' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.']);
         }
 
-        // If authentication fails, redirect back to the login page with an error message
-        return redirect()->route('login')->with('error', 'NPK atau password salah.');
+        if (Auth::attempt($credentials)) {
+            // Reset the rate limiter on successful login
+            RateLimiter::clear($attemptsKey);
+            return redirect()->route('select.dashboard');
+        }
+
+        // Increment login attempts
+        RateLimiter::hit($attemptsKey, 60); // Set 1-minute expiration for attempts
+
+        return back()->withErrors([
+            'npk' => 'NPK atau Password salah.',
+            'password' => 'NPK atau Password salah.',
+        ])->withInput();
     }
     public function register_form()
     {
         $departemens = Departemen::all();
         return view('auth.register', compact('departemens'));
     }
-
     // Fungsi untuk memproses registrasi
     public function register_proses(Request $request)
     {
@@ -65,14 +68,18 @@ class AuthController extends Controller
             'npk.required' => 'NPK tidak boleh kosong.',
             'npk.unique' => 'NPK sudah terdaftar.',
             'departemen.required' => 'Departemen tidak boleh kosong.',
+            'departemen.exists' => 'Departemen tidak valid.',
+            'name.required' => 'Nama tidak boleh kosong.',
             'password.required' => 'Password tidak boleh kosong.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.size' => 'Password harus memiliki tepat 8 karakter.', // Pesan kesalahan untuk panjang tepat 8 karakter
         ];
 
         $validator = Validator::make($request->all(), [
             'npk' => 'required|string|max:255|unique:users',
             'departemen' => 'required|exists:departemen,id',
-            'password' => 'required|string|min:6|confirmed',
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|size:8|confirmed', // Mengatur panjang tepat 8 karakter
         ], $message);
 
         if ($validator->fails()) {
@@ -81,28 +88,24 @@ class AuthController extends Controller
                 ->withInput($request->except('password'));
         }
 
-        // Default role name for guest
         $defaultRoleName = 'guest';
-
-        // Find the guest role
         $role = Role::where('name', $defaultRoleName)->first();
 
-        // Create the user
         $user = User::create([
             'npk' => $request->npk,
             'departemen_id' => $request->departemen,
+            'name' => $request->name,
             'password' => Hash::make($request->password),
         ]);
 
-        // Assign the guest role to the user
         if ($role) {
             $user->assignRole($role);
         }
 
-        // Login user after registration
         Auth::login($user);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please Login');
+        Alert::success('Success', 'Registration successful! Please login.');
+        return redirect()->route('login');
     }
 
     public function logout()

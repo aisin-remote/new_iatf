@@ -25,8 +25,9 @@ class IndukDokumen extends Model
         'revisi_log',
         'status',
         'statusdoc',
-        'file_draft',
-        'file_final'
+        'file',
+        'tgl_efektif',
+        'tgl_obsolate'
     ];
 
     // Relasi dengan pengguna (user)

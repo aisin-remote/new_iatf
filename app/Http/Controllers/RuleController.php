@@ -7,12 +7,12 @@ use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
 use App\Models\User;
-use App\Notifications\DocumentStatusChanged;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class RuleController extends Controller
 {
@@ -21,15 +21,15 @@ class RuleController extends Controller
         $user = auth()->user();
         $departemen_user = $user->departemen->nama_departemen;
 
-        // Ambil dokumen berdasarkan jenis, tipe, departemen user yang login, dan status selain 'final approved'
+        // Ambil dokumen berdasarkan jenis, tipe, departemen user yang login, dan status 'Waiting check by MS' atau 'Finish Check by MS'
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
             ->where('tipe_dokumen', $tipe)
             ->whereHas('indukDokumen.user.departemen', function ($query) use ($departemen_user) {
                 $query->where('nama_departemen', $departemen_user);
             })
             ->whereHas('indukDokumen', function ($query) {
-                $query->where('status', '!=', 'final approved');
             })
+            ->orderBy('created_at', 'desc')
             ->get();
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
@@ -37,131 +37,93 @@ class RuleController extends Controller
             ->whereHas('user.departemen', function ($query) use ($departemen_user) {
                 $query->where('nama_departemen', $departemen_user);
             })
-            ->where('status', '!=', 'final approved')
+            ->orderBy('tgl_upload', 'desc')
             ->get();
 
         $kodeProses = RuleCode::all();
         $departemens = Departemen::all();
 
-        return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'departemens'));
+        // Array untuk melacak code yang sudah ditampilkan
+        $uniqueDepartemens = $departemens->unique('code');
+
+        return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'uniqueDepartemens'));
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'nama_dokumen' => 'required',
-            'file_draft' => 'required|file',
-            'rule_id' => 'required|exists:rule,id',
-            'jenis_dokumen' => 'required',
-            'tipe_dokumen' => 'required',
-            'departemen' => 'nullable|array',
-            'departemen.*' => 'exists:departemen,id',
-            'revisi_ke' => 'nullable|integer',
-        ]);
-
-        $file = $request->file('file_draft');
+        // dd($request);
+        // $request->validate([
+        //     'file' => 'required|mimes:doc,docx,xls,xlsx|max:2048',
+        // ], [
+        //     'file.mimes' => 'Only Word and Excel files are allowed.',
+        // ]);
+        // Simpan file
+        $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
-        $path = 'draft_rule/' . $filename;
-        $file->storeAs('draft_rule', $filename, 'public');
+        $path = 'rule/' . $filename;
+        $file->storeAs('rule', $filename, 'public');
 
+        // Ambil informasi user
         $userId = auth()->id();
         $user = auth()->user();
-        $departemen_user = $user->departemen->nama_departemen;
+        $departemen_user_code = $user->departemen->code;
         $revisi_log = $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0;
 
+        // Ambil rule
         $rule = RuleCode::find($request->rule_id);
         if (!$rule) {
             return redirect()->back()->with('error', 'Rule tidak valid.');
         }
         $kode_proses = $rule->kode_proses;
 
-        $documentId = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
+        // Ambil dokumen
+        $document = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
             ->where('tipe_dokumen', $request->tipe_dokumen)
-            ->value('id');
+            ->first();
 
-        if (!$documentId) {
+        if (!$document) {
             return redirect()->back()->with('error', 'Jenis dan tipe dokumen tidak valid.');
         }
 
-        $latestDokumen = IndukDokumen::where('dokumen_id', $documentId)
-            ->orderBy('id', 'desc')
-            ->first();
+        $tipe_dokumen_code = $document->code;
 
-        $currentNumber = $latestDokumen ? intval(substr($latestDokumen->nomor_dokumen, -5, 3)) : 0;
-        $newNumber = $currentNumber + 1;
-        $number = str_pad($newNumber, 3, '0', STR_PAD_LEFT);
-
+        // Format nomor dokumen
+        $nomor_list = str_pad($request->nomor_list, 3, '0', STR_PAD_LEFT);
         $nomorDokumen = sprintf(
             '%s-%s-%s-%s-%02d',
-            strtoupper(substr($request->tipe_dokumen, 0, 3)),
-            strtoupper(substr($departemen_user, 0, 3)),
+            strtoupper($tipe_dokumen_code),
+            strtoupper($departemen_user_code),
             strtoupper($kode_proses),
-            $number,
+            $nomor_list,
             $revisi_log
         );
 
+        // Buat entri baru di tabel IndukDokumen
         $dokumen = new IndukDokumen();
         $dokumen->nama_dokumen = $request->nama_dokumen;
-        $dokumen->dokumen_id = $documentId;
-        $dokumen->file_draft = $path;
+        $dokumen->dokumen_id = $document->id;
+        $dokumen->file = $path;
         $dokumen->revisi_log = $revisi_log;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
         $dokumen->user_id = $userId;
         $dokumen->rule_id = $request->rule_id;
-        $dokumen->status = 'waiting approval';
+        $dokumen->status = 'Waiting check by MS';
         $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
         $dokumen->save();
 
-        if ($request->has('departemen')) {
-            $dokumen->departments()->attach($request->departemen);
+        // Jika ada departemen yang dipilih, kaitkan dokumen dengan departemen tersebut
+        if ($request->has('kode_departemen')) {
+            $departemenCodes = $request->input('kode_departemen');
+            $departemens = Departemen::whereIn('code', $departemenCodes)->get();
+            $dokumen->departments()->sync($departemens->pluck('id')); // Menggunakan sync() untuk update relasi
         }
 
-        return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
+        // Tampilkan pesan sukses
+        Alert::success('Success', 'Dokumen berhasil diunggah.');
+        return redirect()->back();
     }
-
-    public function uploadFinal(Request $request, $id)
+    public function downloadDraft($jenis, $tipe, $id)
     {
-        try {
-            // Validasi request
-            $request->validate([
-                'file_final' => 'required|file|mimes:pdf,doc,docx|max:2048', // Sesuaikan dengan kebutuhan Anda
-            ]);
-
-            // Ambil dokumen berdasarkan ID yang diterima
-            $dokumen = IndukDokumen::findOrFail($id);
-
-            // Ambil file yang diunggah
-            $file = $request->file('file_final');
-
-            // Generate nama file unik dengan timestamp
-            $filename = time() . '_' . $file->getClientOriginalName();
-
-            // Tentukan path penyimpanan file
-            $path = 'final_rule/' . $filename;
-
-            // Simpan file di penyimpanan publik
-            $file->storeAs('final_rule', $filename, 'public');
-
-            // Update kolom file_final di database
-            $dokumen->file_final = $path;
-
-            // Update status dokumen menjadi "pending final approved"
-            $dokumen->status = 'waiting final approval';
-            // Simpan perubahan
-            $dokumen->save();
-
-            // Redirect atau kembalikan respons sukses
-            return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengunggah dokumen: ' . $e->getMessage());
-        }
-    }
-
-    public function download_draft($jenis, $tipe, $id)
-    {
-        // Lakukan validasi jika diperlukan
-        // Misalnya, pastikan jenis dan tipe sesuai dengan kebutuhan bisnis Anda.
-
         // Ambil dokumen berdasarkan ID
         $dokumen = IndukDokumen::find($id);
 
@@ -169,8 +131,8 @@ class RuleController extends Controller
             return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
         }
 
-        // Ambil path file dari database
-        $path = $dokumen->file_draft;
+        // Tentukan path file draft
+        $path = $dokumen->file;
 
         // Periksa apakah path tidak null dan merupakan string
         if (is_null($path) || !is_string($path)) {
@@ -182,163 +144,94 @@ class RuleController extends Controller
             return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
         }
 
-        // Tentukan nama file yang akan diunduh
+        // Tentukan nama file untuk download
         $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
 
-        // Lakukan download file dengan nama yang ditentukan
+        // Lakukan download dengan nama file yang ditentukan
         return Storage::disk('public')->download($path, $downloadFilename);
     }
-    public function share_document()
+    public function final_doc($jenis, $tipe)
     {
-        // Mendapatkan user yang sedang login
-        $user = auth()->user();
-        // Mendapatkan nama departemen dari user
-        $departemen_user = $user->departemen->nama_departemen;
+        $user = Auth::user(); // Mendapatkan user yang sedang login
+        $departments = Departemen::all();
 
-        // $sharedDocuments = IndukDokumen::first()->with('distributions')->where('statusdoc', 'active')->get();
-        $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
-            ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
-            ->where('document_departement.departemen_id', $user->departemen_id)
-            ->where('induk_dokumen.statusdoc', 'active')
-            ->get();
-        // $test = $sharedDocuments->departments;
-        // Mengambil dokumen yang dibagikan berdasarkan departemen user dan memiliki status final approved
-        // $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
-        //     $query->where('nama_departemen', $departemen_user);
-        // })
-        //     ->where('statusdoc', 'active')
-        //     ->whereNotNull('file_final')
-        //     ->orderByDesc('created_at')
-        //     ->get();
+        // Jika user adalah admin, mengambil semua dokumen final approved
+        if ($user->hasRole('admin')) {
+            $dokumenfinal = IndukDokumen::whereIn('status', ['Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
+                ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
+                    $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
+                        ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
+                })
+                ->orderByDesc('updated_at')
+                ->get();
+        } else {
+            // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
+            $dokumenfinal = IndukDokumen::whereIn('status', ['Approve by MS', 'Obsolete by MS'])
+                ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
+                    $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
+                        ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
+                })
+                ->whereIn('statusdoc', ['active', 'obsolete']) // Tambahkan kondisi untuk statusdoc
+                ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
+                ->whereHas('user', function ($query) use ($user) {
+                    $query->where('departemen_id', $user->departemen_id);
+                })
+                ->orderByDesc('updated_at')
+                ->get();
+        }
 
-        return view('pages-rule.document-shared', compact('sharedDocuments'));
+        return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe', 'departments'));
     }
 
-    public function downloadSharedDocument($id)
+    public function previewsAndDownloadDocFinal(Request $request, $id)
+    {
+        // Ambil dokumen berdasarkan ID
+        $doc = IndukDokumen::findOrFail($id);
+
+        // Cek apakah ada file PDF
+        if (!$doc->file_pdf) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        }
+
+        // Jika permintaan adalah untuk mengunduh file
+        if ($request->input('action') === 'download') {
+            return Storage::disk('public')->download($doc->file_pdf);
+        }
+
+        // Menampilkan pratinjau PDF
+        $filePath = storage_path('app/public/' . $doc->file_pdf);
+        if (!file_exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        }
+
+        return response()->file($filePath);
+    }
+    public function share_document($jenis, $tipe)
     {
         $user = auth()->user();
-        $departemen_user = $user->departemen->nama_departemen;
-
-        // Periksa apakah dokumen tersebut dibagikan kepada departemen user yang sedang login
-        // dan memiliki status final approved serta kolom file_final tidak null
-        $dokumen = IndukDokumen::where('id', $id)
-            ->whereHas('departments', function ($query) use ($departemen_user) {
-                $query->where('nama_departemen', $departemen_user);
-            })
-            ->where('statusdoc', 'active')
-            ->whereNotNull('file_final')
-            ->first();
-
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan atau tidak diizinkan untuk diakses.');
+        $departments = Departemen::all();
+        // Jika user adalah admin, mengambil semua dokumen dengan status 'active' sesuai jenis dan tipe
+        if ($user->hasRole('admin')) {
+            $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
+                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+                ->where('dokumen.jenis_dokumen', $jenis)
+                ->where('dokumen.tipe_dokumen', $tipe)
+                ->where('induk_dokumen.statusdoc', 'active')
+                ->orderBy('induk_dokumen.updated_at', 'desc')
+                ->get();
+        } else {
+            // Jika user bukan admin, mengambil dokumen yang terkait dengan departemen user dan memiliki status 'active' sesuai jenis dan tipe
+            $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
+                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+                ->join('document_departement', 'induk_dokumen.id', '=', 'document_departement.induk_dokumen_id')
+                ->where('document_departement.departemen_id', $user->departemen_id)
+                ->where('dokumen.jenis_dokumen', $jenis)
+                ->where('dokumen.tipe_dokumen', $tipe)
+                ->where('induk_dokumen.statusdoc', 'active')
+                ->orderBy('induk_dokumen.updated_at', 'desc')
+                ->get();
         }
 
-        // Ambil path file dari database
-        $path = $dokumen->file_final;
-
-        // Periksa apakah path tidak null dan merupakan string
-        if (is_null($path) || !is_string($path)) {
-            return redirect()->back()->with('error', 'Path file tidak valid.');
-        }
-
-        // Periksa apakah file ada di storage
-        if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
-        }
-
-        // Tentukan nama file yang akan diunduh
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
-
-        // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
-    }
-    public function final_doc()
-    {
-        // Mengambil semua dokumen yang memiliki status final approved
-        $dokumenfinal = IndukDokumen::where('status', 'final approved')
-            ->whereNotNull('file_final')
-            ->orderByDesc('created_at')
-            ->get();
-
-        return view('pages-rule.dokumen-final', compact('dokumenfinal'));
-    }
-    public function downloadfinal($id)
-    {
-        // Lakukan validasi jika diperlukan
-        // Misalnya, pastikan jenis dan tipe sesuai dengan kebutuhan bisnis Anda.
-
-        // Ambil dokumen berdasarkan ID
-        $dokumen = IndukDokumen::find($id);
-
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
-        }
-
-        // Periksa apakah dokumen memiliki file final
-        if (is_null($dokumen->file_final)) {
-            return redirect()->back()->with('error', 'Dokumen belum memiliki file final atau tidak diizinkan untuk diunduh.');
-        }
-
-        // Periksa apakah dokumen memiliki status final approved
-        if ($dokumen->status != 'final approved') {
-            return redirect()->back()->with('error', 'Dokumen belum disetujui final atau tidak diizinkan untuk diunduh.');
-        }
-
-        // Ambil path file dari database
-        $path = $dokumen->file_final;
-
-        // Periksa apakah path tidak null dan merupakan string
-        if (is_null($path) || !is_string($path)) {
-            return redirect()->back()->with('error', 'Path file tidak valid.');
-        }
-
-        // Periksa apakah file ada di storage
-        if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
-        }
-
-        // Tentukan nama file yang akan diunduh
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
-
-        // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
-    }
-    public function DownloadDocFinal($id)
-    {
-        // Ambil dokumen berdasarkan ID
-        $dokumen = IndukDokumen::find($id);
-
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
-        }
-
-        // Periksa apakah dokumen memiliki status final approved
-        if ($dokumen->status != 'waiting final approved') {
-            return redirect()->back()->with('error', 'Dokumen belum disetujui final atau tidak diizinkan untuk diunduh.');
-        }
-
-        // Periksa apakah dokumen memiliki file final
-        if (is_null($dokumen->file_final)) {
-            return redirect()->back()->with('error', 'Dokumen belum memiliki file final atau tidak diizinkan untuk diunduh.');
-        }
-
-        // Ambil path file dari database
-        $path = $dokumen->file_final;
-
-        // Periksa apakah path tidak null dan merupakan string
-        if (is_null($path) || !is_string($path)) {
-            return redirect()->back()->with('error', 'Path file tidak valid.');
-        }
-
-        // Periksa apakah file ada di storage
-        if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
-        }
-
-        // Tentukan nama file yang akan diunduh
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
-
-        // Lakukan download file dengan nama yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
+        return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe', 'departments'));
     }
 }

@@ -5,11 +5,12 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Skydash Admin</title>
+    <title>Login - Control Dokumen</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="../../vendors/feather/feather.css">
     <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
     <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -25,6 +26,9 @@
             <div class="content-wrapper d-flex align-items-center auth px-0">
                 <div class="row w-100 mx-0">
                     <div class="col-lg-4 mx-auto">
+                        @if ($errors->has('lockout'))
+                            <div class="alert alert-danger mt-3">{{ $errors->first('lockout') }}</div>
+                        @endif
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo">
                                 <img src="../../images/logo-iatf.png" alt="logo">
@@ -34,13 +38,22 @@
                             <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
                                 @csrf
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-lg" id="exampleInputnpk"
-                                        placeholder="NPK" style="padding-left: 16px" name="npk">
+                                    <input type="text"
+                                        class="form-control form-control-lg @error('npk') is-invalid @enderror"
+                                        id="exampleInputnpk" placeholder="NPK" style="padding-left: 16px" name="npk"
+                                        value="{{ old('npk') }}">
+                                    @error('npk')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="form-group">
-                                    <input type="password" class="form-control form-control-lg"
+                                    <input type="password"
+                                        class="form-control form-control-lg @error('password') is-invalid @enderror"
                                         id="exampleInputPassword1" placeholder="Password" style="padding-left: 16px"
                                         name="password">
+                                    @error('password')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 <div class="mt-3">
                                     <button type="submit"
@@ -50,6 +63,9 @@
                             </form>
                             <div class="text-center mt-4 font-weight-light">
                                 Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
+                            </div>
+                            <div class="text-center mt-4 font-weight-light">
+                                Forgot the password? contact ITD
                             </div>
                         </div>
 
@@ -72,7 +88,9 @@
     <script src="../../js/template.js"></script>
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <!-- endinject -->
 </body>

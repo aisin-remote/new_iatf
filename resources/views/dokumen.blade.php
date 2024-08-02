@@ -1,5 +1,7 @@
 @extends('layouts.app')
+
 @section('title', 'Template Dokumen')
+
 @section('content')
     <div class="content-wrapper">
         <div class="row">
@@ -20,8 +22,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Nomor Template</th>
-                                        <th>Jenis Dokumen</th>
-                                        <th>Tipe Dokumen</th>
+                                        <th>Judul Dokumen</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -30,7 +31,6 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_template }}</td>
-                                            <td>{{ $doc->jenis_dokumen }}</td>
                                             <td>{{ $doc->tipe_dokumen }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
@@ -41,13 +41,29 @@
                                                         <i class="fa-solid fa-edit"></i>
                                                     </button>
                                                 @endrole
-
                                                 <!-- Tombol Download -->
-                                                <a href="{{ route('template.download', ['id' => $doc->id]) }}"
-                                                    class="btn btn-primary btn-sm">
-                                                    Download
-                                                    <i class="fa-solid fa-file-arrow-down"></i>
-                                                </a>
+                                                @if ($doc->file_pdf)
+                                                    <a href="{{ route('template.preview', ['id' => $doc->id, 'preview' => true]) }}"
+                                                        class="btn btn-info btn-sm" target="_blank">
+
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                @else
+                                                    <button class="btn btn-info btn-sm" disabled>
+
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </button>
+                                                @endif
+                                                @if ($doc->template)
+                                                    <a href="{{ route('template.download', ['id' => $doc->id, 'preview' => false]) }}"
+                                                        class="btn btn-success btn-sm" target="_blank">
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </a>
+                                                @else
+                                                    <button class=  "btn btn-success btn-sm" disabled>
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </button>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -59,7 +75,8 @@
             </div>
         </div>
     </div>
-    {{-- add template dokumen --}}
+
+    {{-- Modal Add Template --}}
     <div class="modal fade" id="addtemplate" tabindex="-1" role="dialog" aria-labelledby="addtemplateLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -78,24 +95,22 @@
                             <input type="text" class="form-control" id="nomor_template" name="nomor_template" required>
                         </div>
                         <div class="form-group">
-                            <label for="jenis_dokumen">Pilih Jenis Dokumen</label>
-                            <select class="form-control" id="jenis_dokumen" name="jenis_dokumen" required>
-                                <option value="" disabled selected>Pilih jenis dokumen</option>
-                                <option value="Rule">Rule</option>
-                                <option value="Process">Process</option>
-                                <!-- Tambahkan opsi lainnya sesuai kebutuhan -->
-                            </select>
-                        </div>
-                        <div class="form-group">
                             <label for="tipe_dokumen">Tipe Dokumen</label>
                             <input type="text" class="form-control" id="tipe_dokumen" name="tipe_dokumen" required>
                         </div>
                         <div class="form-group">
-                            <label for="file">Pilih File</label>
+                            <label for="tgl_efektif">Tanggal Efektif</label>
+                            <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="file">Pilih Pratinjau (.pdf)</label>
                             <input type="file" class="form-control-file" id="file" name="file" required>
                         </div>
+                        <div class="form-group">
+                            <label for="template">Pilih Template (.word, .excel)</label>
+                            <input type="file" class="form-control-file" id="template" name="template">
+                        </div>
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Upload</button>
@@ -104,7 +119,8 @@
             </div>
         </div>
     </div>
-    {{-- edit template dokumen --}}
+
+    {{-- Modal Edit Template --}}
     @foreach ($dokumen as $doc)
         <div class="modal fade" id="edittemplate-{{ $doc->id }}" tabindex="-1" role="dialog"
             aria-labelledby="edittemplateLabel" aria-hidden="true">
@@ -124,12 +140,18 @@
                                 <label for="nomor_template">Nomor Template</label>
                                 <input type="text" class="form-control" id="nomor_template" name="nomor_template"
                                     value="{{ $doc->nomor_template }}" required>
-
-
                             </div>
                             <div class="form-group">
-                                <label for="file">Pilih File (Opsional)</label>
-                                <input type="file" class="form-control-file" id="file" name="template">
+                                <label for="tgl_efektif">Tanggal Efektif</label>
+                                <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">Pilih Pratinjau (pdf)</label>
+                                <input type="file" class="form-control-file" id="file" name="file">
+                            </div>
+                            <div class="form-group">
+                                <label for="template">Pilih Template (.word, .excel)</label>
+                                <input type="file" class="form-control-file" id="template" name="template">
                             </div>
                         </div>
                         <div class="modal-footer">

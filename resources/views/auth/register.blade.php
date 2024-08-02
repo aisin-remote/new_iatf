@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../../vendors/feather/feather.css">
     <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
     <link rel="stylesheet" href="../../vendors/css/vendor.bundle.base.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <!-- endinject -->
     <!-- Plugin css for this page -->
     <!-- End plugin css for this page -->
@@ -31,6 +32,7 @@
                             </div>
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
+
                             <form action="{{ route('register.proses') }}" class="pt-3" method="POST">
                                 @csrf
                                 <div class="form-group">
@@ -41,13 +43,19 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
+                                    <input type="text" class="form-control form-control-lg" id="exampleInputName"
+                                        placeholder="Name" name="name" value="{{ old('name') }}">
+                                    @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
                                     <select class="form-control form-control-lg" id="exampleFormControlSelect2"
-                                        style="padding-left: 28px" name="departemen">
-                                        <option value="">Departemen</option>
+                                        style="padding-left: 28px; color:black " name="departemen">
+                                        <option value="" style="color:gray !important">Departemen</option>
                                         @foreach ($departemens as $departemen)
-                                            <option value="{{ $departemen->id }}"
-                                                {{ old('departemen') == $departemen->id ? 'selected' : '' }}>
-                                                {{ $departemen->nama_departemen }}</option>
+                                            <option value="{{ $departemen->id }}" style="color:black">
+                                                {{ $departemen->nama_departemen }} </option>
                                         @endforeach
                                     </select>
                                     @error('departemen')
@@ -78,6 +86,7 @@
                                     Already have an account? <a href="{{ route('login') }}"
                                         class="text-primary">Login</a>
                                 </div>
+
                             </form>
                         </div>
                     </div>
@@ -100,18 +109,8 @@
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: "{{ session('success') }}"
-                });
-            });
-        </script>
-    @endif
-    <!-- endinject -->
+</body>
+<!-- endinject -->
 </body>
 
 </html>

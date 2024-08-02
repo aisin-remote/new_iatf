@@ -8,7 +8,13 @@
                     <div class="card-body">
                         <h4 class="card-title">Dokumen {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
                         <div class="d-flex justify-content-end mb-3">
-                            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#filterModal">
+                            <!-- Input pencarian -->
+                            <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput"
+                                placeholder="Search...">
+
+                            <!-- Tombol Filter -->
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
+                                style="background: #56544B">
                                 Filter
                             </button>
                         </div>
@@ -17,10 +23,10 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nomor Dokumen</th>
-                                        <th>Nama Dokumen</th>
-                                        <th>Revisi</th>
-                                        <th>Tanggal Upload</th>
+                                        <th>Dcocument Number</th>
+                                        <th>Document Title</th>
+                                        <th>Revision</th>
+                                        <th>Upload Date</th>
                                         <th>Upload By</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -29,10 +35,7 @@
                                 <tbody>
                                     @php
                                         $filteredDocs = $indukDokumenList->filter(function ($doc) {
-                                            return in_array($doc->status, [
-                                                'waiting approval',
-                                                'waiting final approval',
-                                            ]);
+                                            return in_array($doc->status, ['Waiting check by MS']);
                                         });
                                     @endphp
 
@@ -47,38 +50,22 @@
                                             <td>{{ $doc->status }}</td>
                                             <!-- Tombol Edit -->
                                             <td>
-                                                <div class="btn-group" role="group" aria-label="Actions">
-                                                    @if ($doc->status == 'waiting approval')
-                                                        <!-- Tombol Download Draft -->
-                                                        <a href="{{ route('download.draft', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                            class="btn btn-primary btn-sm">
-                                                            <i class="fas fa-file-download"></i> Download Draft
-                                                        </a>
-                                                        <!-- Tombol Approve Draft -->
-                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                            data-target="#approveDraftDokumen-{{ $doc->id }}">
-                                                            <i class="fa-solid fa-check"></i> Approve Draft
-                                                        </button>
-                                                    @elseif ($doc->status == 'waiting final approval')
-                                                        <!-- Tombol Download Final Document -->
-                                                        <a href="{{ route('download.doc.final', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                            class="btn btn-primary btn-sm">
-                                                            <i class="fas fa-file-download"></i> Download Final Document
-                                                        </a>
-                                                        <!-- Tombol Approve Document -->
-                                                        <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                            data-target="#approveDokumen-{{ $doc->id }}">
-                                                            <i class="fa-solid fa-check"></i> Approve Document
-                                                        </button>
-                                                        <!-- Tombol Reject Document -->
-                                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                            data-target="#rejectDokumen-{{ $doc->id }}">
-                                                            <i class="fa-solid fa-circle-xmark"></i> Reject Document
-                                                        </button>
-                                                    @else
-                                                        <p class="text-muted">No data available</p>
-                                                    @endif
-                                                </div>
+                                                @if ($doc->status == 'Waiting check by MS')
+                                                    <!-- Tombol Download Draft -->
+                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
+                                                        class="btn btn-primary btn-sm">
+                                                        Download
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </a>
+                                                    <!-- Tombol Approve Draft -->
+                                                    <button class="btn btn-success btn-sm" data-toggle="modal"
+                                                        data-target="#approveDokumen-{{ $doc->id }}">
+                                                        <i class="fa-solid fa-comment"></i> Check
+                                                    </button>
+                                                @else
+                                                    <p class="text-muted">No data available</p>
+                                                @endif
+
                                             </td>
                                         </tr>
                                     @empty
@@ -94,15 +81,72 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ route('filter.documents') }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="filterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Filter berdasarkan Tanggal Upload -->
+                        <div class="row my-2">
+                            <div class="col-4">
+                                <label class="col-form-label">Start Date / Upload Date</label>
+                            </div>
+                            <div class="col">
+                                <input type="text" name="date_from" class="form-control input" placeholder="From">
+                            </div>
+                            <label class="col-form-label px-3">to</label>
+                            <div class="col">
+                                <input type="text" name="date_to" class="form-control input" placeholder="To">
+                            </div>
+                        </div>
+
+                        <!-- Filter berdasarkan Departemen (Hanya untuk admin) -->
+                        @role('admin')
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Departemen</label>
+                                </div>
+                                <div class="col">
+                                    <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="" selected>Select Departemen</option>
+                                        @foreach ($allDepartemen as $departemen)
+                                            <option value="{{ $departemen->nama_departemen }}"
+                                                {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                                {{ $departemen->nama_departemen }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        @endrole
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     @foreach ($indukDokumenList as $doc)
-        <div class="modal fade" id="approveDraftDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="approveDraftDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
+                    <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="approveDraftDokumenLabel-{{ $doc->id }}">Document Confirmation
+                            <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
                                 Approved
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -116,7 +160,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="file">File (optional)</label>
-                                <input type="file" class="form-control-file" id="file" name="file_draft">
+                                <input type="file" class="form-control-file" id="file" name="file">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -127,87 +171,56 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Konfirmasi Approve Dokumen
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Apakah Anda yakin ingin menyetujui dokumen ini?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
-                            @csrf
-                            @method('POST')
-                            <button type="submit" class="btn btn-success">
-                                <i class="fa-solid fa-circle-check"></i> Approve
+                    <form action="" method="GET">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter Documents</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
                             </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade" id="rejectDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="rejectDokumenLabel-{{ $doc->id }}" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="rejectDokumenLabel-{{ $doc->id }}">Konfirmasi Approve Dokumen
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Apakah Anda yakin ingin menyetujui dokumen ini?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST">
-                            @csrf
-                            @method('POST')
-                            <button type="submit" class="btn btn-success">
-                                <i class="fa-solid fa-circle-check"></i> Approve
-                            </button>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Start Date / Upload Date</label>
+                                </div>
+                                <div class="col">
+                                    <input type="text" name="date_from" class="form-control input"
+                                        placeholder="From">
+                                </div>
+                                <label class="col-form-label px-3">to</label>
+                                <div class="col">
+                                    <input type="text" name="date_to" class="form-control input" placeholder="To">
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Departemen</label>
+                                </div>
+                                <div class="col">
+                                    <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="" selected>Select Departemen</option>
+                                        @foreach ($allDepartemen as $departemen)
+                                            <option value="{{ $departemen->id }}"
+                                                {{ request('departemen_id') == $departemen->id ? 'selected' : '' }}>
+                                                {{ $departemen->nama_departemen }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     @endforeach
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script>
-        function approveDocument(id) {
-            if (confirm('Are you sure you want to approve this document?')) {
-                fetch(`/document/approve/${id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        _method: 'POST'
-                    })
-                }).then(response => {
-                    if (response.ok) {
-                        document.getElementById(`document-${id}`).remove();
-                        alert('Dokumen berhasil diapprove.');
-                    } else {
-                        alert('Gagal mengapprove dokumen.');
-                    }
-                }).catch(error => {
-                    console.error('Error:', error);
-                    alert('Gagal mengapprove dokumen.');
-                });
-            }
-        }
-    </script>
 @endsection

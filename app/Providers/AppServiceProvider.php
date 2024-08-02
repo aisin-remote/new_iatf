@@ -26,36 +26,56 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('partials.notifications', function ($view) {
             $user = Auth::user();
+            $departemen_user = $user->departemen->nama_departemen;
 
             if ($user->hasRole('admin')) {
-                // Jika user adalah admin, ambil semua data IndukDokumen
-                $documents = IndukDokumen::with(['user.departemen', 'distributions.departemen'])
-                    ->paginate(10);
+                $documents = IndukDokumen::with(['user.departemen'])
+                    ->where(function ($query) {
+                        $query->whereNotIn('status', ['Approve by MS'])
+                            ->orWhereNotIn('statusdoc', ['active', 'obsolete']);
+                    })
+                    ->orderByDesc('created_at')
+                    ->get();
             } else {
-                // Jika user bukan admin, ambil data IndukDokumen sesuai dengan departemen user
-                // $documents = IndukDokumen::where(function ($query) use ($user) {
-                //     $query->whereHas('user', function ($q) use ($user) {
-                //         $q->where('departemen_id', $user->departemen_id);
-                //     })
-                //         ->orWhereHas('distributions', function ($q) use ($user) {
-                //             $q->where('departemen_id', $user->departemen_id);
-                //         })
-                //         ->orWhereHas('departments', function ($q) use ($user) {
-                //             $q->where('departemen_id', $user->departemen_id);
-                //         });
-                // })
-                //     ->where('statusdoc', '!=', 'active')
-                //     ->with(['user.departemen', 'distributions.departemen'])
-                //     ->paginate(10);
-
-                $documents = IndukDokumen::select('induk_dokumen.*')
-                    ->join('document_departement', 'induk_dokumen.id', 'document_departement.induk_dokumen_id')
-                    ->where('document_departement.departemen_id', $user->departemen_id)
-                    ->where('induk_dokumen.statusdoc', 'active')
-                    ->paginate(10);
+                $documents = IndukDokumen::where(function ($query) use ($user) {
+                    $query->where(function ($q) use ($user) {
+                        $q->where('user_id', $user->id)
+                            ->whereNotIn('status', ['Approve by MS']);
+                    })->orWhere(function ($q) use ($user) {
+                        $q->whereHas('user', function ($q2) use ($user) {
+                            $q2->where('departemen_id', $user->departemen_id);
+                        })->whereNotIn('statusdoc', ['active', 'obsolete']);
+                    });
+                })
+                    ->orderByDesc('created_at')
+                    ->get();
             }
 
-            $view->with('documents', $documents);
+            $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
+                $query->where('nama_departemen', $departemen_user);
+            })
+                ->where('statusdoc', 'active')
+                ->whereNotNull('file_pdf')
+                ->orderByDesc('created_at')
+                ->get()
+                ->each(function ($doc) {
+                    $doc->is_shared = true;
+                });
+
+            $allDocuments = $documents->merge($sharedDocuments)->sortByDesc('created_at');
+
+            $paginatedDocuments = new \Illuminate\Pagination\LengthAwarePaginator(
+                $allDocuments->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
+                $allDocuments->count(),
+                10,
+                \Illuminate\Pagination\Paginator::resolveCurrentPage(),
+                ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+            );
+
+            $notificationCount = $allDocuments->count();
+
+            $view->with('documents', $paginatedDocuments);
+            $view->with('notificationCount', $notificationCount);
         });
     }
 }
