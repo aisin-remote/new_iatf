@@ -112,5 +112,7 @@ Route::get('/document/share/preview-and-download/{id}', [RuleController::class, 
     ->middleware(['auth', 'role:admin|guest'])
     ->name('previewsAndDownloadShareDoc');
 
+Route::get('/documents/filter', 'DocumentController@filter')->name('documents.filter');
+
 //notifications
 Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

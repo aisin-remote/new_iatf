@@ -64,6 +64,9 @@
                             <div class="text-center mt-4 font-weight-light">
                                 Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
                             </div>
+                            <div class="text-center mt-4 font-weight-light">
+                                Forgot the password? contact ITD
+                            </div>
                         </div>
 
                     </div>

@@ -153,6 +153,7 @@ class RuleController extends Controller
     public function final_doc($jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login
+        $departments = Departemen::all();
 
         // Jika user adalah admin, mengambil semua dokumen final approved
         if ($user->hasRole('admin')) {
@@ -165,11 +166,12 @@ class RuleController extends Controller
                 ->get();
         } else {
             // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
-            $dokumenfinal = IndukDokumen::where('statusdoc', 'active')
+            $dokumenfinal = IndukDokumen::whereIn('status', ['Approve by MS', 'Obsolete by MS'])
                 ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
                     $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
                         ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
                 })
+                ->whereIn('statusdoc', ['active', 'obsolete']) // Tambahkan kondisi untuk statusdoc
                 ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
                 ->whereHas('user', function ($query) use ($user) {
                     $query->where('departemen_id', $user->departemen_id);
@@ -178,8 +180,9 @@ class RuleController extends Controller
                 ->get();
         }
 
-        return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe'));
+        return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe', 'departments'));
     }
+
     public function previewsAndDownloadDocFinal(Request $request, $id)
     {
         // Ambil dokumen berdasarkan ID
@@ -206,7 +209,7 @@ class RuleController extends Controller
     public function share_document($jenis, $tipe)
     {
         $user = auth()->user();
-
+        $departments = Departemen::all();
         // Jika user adalah admin, mengambil semua dokumen dengan status 'active' sesuai jenis dan tipe
         if ($user->hasRole('admin')) {
             $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
@@ -229,6 +232,6 @@ class RuleController extends Controller
                 ->get();
         }
 
-        return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe'));
+        return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe', 'departments'));
     }
 }

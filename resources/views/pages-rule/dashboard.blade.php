@@ -44,7 +44,7 @@
                     <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title">Standar</h4>
+                                <h4 class="card-title">Standard</h4>
                                 <canvas id="statusBarChartSTANDAR" width="400" height="400"></canvas>
                             </div>
                         </div>
@@ -52,7 +52,7 @@
                     <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title">Prosedur</h4>
+                                <h4 class="card-title">Procedure</h4>
                                 <canvas id="statusBarChartPROSEDUR" width="400" height="400"></canvas>
                             </div>
                         </div>
@@ -91,7 +91,7 @@
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
-                                <h4 class="mb-4">Standar</h4>
+                                <h4 class="mb-4">Standard</h4>
                                 <p class="fs-30 mb-2">
                                     {{ $countByType->where('tipe_dokumen', 'STANDAR')->first()->count ?? 0 }}
                                 </p>
@@ -101,7 +101,7 @@
                     <div class="col-md-6 mb-4 stretch-card transparent">
                         <div class="card card-dark-blue">
                             <div class="card-body">
-                                <h4 class="mb-4">Prosedur</h4>
+                                <h4 class="mb-4">Procedure</h4>
                                 <p class="fs-30 mb-2">
                                     {{ $countByType->where('tipe_dokumen', 'PROSEDUR')->first()->count ?? 0 }}
                                 </p>
@@ -233,7 +233,7 @@
                         <!-- Header dan Filter -->
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <p class="card-title">Dokumen Final</p>
+                                <p class="card-title">Final Document</p>
                             </div>
                             <div class="col-md-6 text-md-right">
                                 <!-- Form untuk memilih jumlah entri per halaman -->
@@ -263,11 +263,10 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Nomor Dokumen</th>
-                                                <th>Nama Dokumen</th>
-                                                <th>Revisi</th>
-                                                <th>Tanggal Upload</th>
-                                                <th>Departemen</th>
+                                                <th>Document Number</th>
+                                                <th>Document Title</th>
+                                                <th>Revision</th>
+                                                <th>Department</th>
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
@@ -279,7 +278,6 @@
                                                     <td>{{ $doc->nomor_dokumen }}</td>
                                                     <td>{{ $doc->nama_dokumen }}</td>
                                                     <td>{{ $doc->revisi_log }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($doc->tgl_upload)->format('d-m-Y') }}</td>
                                                     <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                                     <td>{{ $doc->statusdoc }}</td>
                                                 </tr>
@@ -319,15 +317,15 @@
                     $typeData = $countByStatusAndType->where('tipe_dokumen', $type);
                     $waitingCheck = $typeData->where('status', 'Waiting check by MS')->first()->count ?? 0;
                     $finishCheck = $typeData->where('status', 'Finish check by MS')->first()->count ?? 0;
-                    $approve = $typeData->where('status', 'Approve by MS')->first()->count ?? 0;
-                    $totalDocuments = $typeData->sum('count');
+                    $active = $typeData->where('status', 'Approve by MS')->first()->count ?? 0;
+                    $obsolete = $typeData->where('status', 'Obsolete by MS')->first()->count ?? 0;
                 @endphp
 
                 console.log('Data for {{ $type }}:', {
                     waitingCheck: {{ $waitingCheck }},
                     finishCheck: {{ $finishCheck }},
-                    approve: {{ $approve }},
-                    totalDocuments: {{ $totalDocuments }}
+                    active: {{ $active }},
+                    obsolete: {{ $obsolete }}
                 });
 
                 var ctx{{ $type }} = document.getElementById('statusBarChart{{ $type }}')
@@ -335,11 +333,11 @@
                 var data{{ $type }} = [
                     {{ $waitingCheck }},
                     {{ $finishCheck }},
-                    {{ $approve }},
-                    {{ $totalDocuments }}
+                    {{ $active }},
+                    {{ $obsolete }}
                 ];
-                var labels{{ $type }} = ['Waiting check by MS', 'Finish check by MS', 'Approve by MS',
-                    'Total'
+                var labels{{ $type }} = ['Waiting check by MS', 'Finish check by MS', 'Active',
+                    'Obsolete'
                 ];
 
                 if (data{{ $type }}.every(value => value === 0)) {
@@ -355,13 +353,13 @@
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.2)', // Waiting check by MS
                             'rgba(54, 162, 235, 0.2)', // Finish check by MS
-                            'rgba(255, 140, 0, 0.2)', // Approve by MS
+                            'rgba(255, 140, 0, 0.2)', // active by MS
                             'rgba(0, 255, 0, 0.2)' // Total
                         ],
                         borderColor: [
                             'rgba(255, 99, 132, 1)', // Waiting check by MS
                             'rgba(54, 162, 235, 1)', // Finish check by MS
-                            'rgba(255, 140, 0, 1)', // Approve by MS
+                            'rgba(255, 140, 0, 1)', // active by MS
                             'rgba(0, 255, 0, 1)' // Total
                         ],
                         borderWidth: 1

@@ -6,14 +6,14 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Dokumen Final {{ ucfirst($jenis) }} - {{ ucfirst($tipe) }}</h4>
+                        <h4 class="card-title">Final Document {{ ucfirst($jenis) }} - {{ ucfirst($tipe) }}</h4>
                         <div class="d-flex justify-content-end mb-3">
                             <!-- Input pencarian -->
                             <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput"
                                 placeholder="Search...">
 
                             <!-- Tombol Filter -->
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterFinalModal"
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
                                 style="background: #56544B">
                                 Filter
                             </button>
@@ -23,11 +23,16 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nomor Dokumen</th>
-                                        <th>Nama Dokumen</th>
+                                        <th>Document Number</th>
+                                        <th>Document Title</th>
                                         <th>Upload By</th>
                                         <th>Status</th>
-                                        <th>Pdf File</th>
+                                        @if (
+                                            $dokumenfinal->contains(function ($doc) {
+                                                return is_null($doc->file_pdf);
+                                            }))
+                                            <th>Pdf File</th>
+                                        @endif
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -39,16 +44,14 @@
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>{{ $doc->user->departemen->nama_departemen }}</td>
                                             <td>{{ $doc->statusdoc }}</td>
-                                            <td>
-                                                @if ($doc->file_pdf)
-                                                    {{ basename($doc->file_pdf) }}
-                                                @else
+                                            @if (is_null($doc->file_pdf))
+                                                <td>
                                                     <button class="btn btn-warning btn-sm" data-toggle="modal"
                                                         data-target="#uploadFinalModal-{{ $doc->id }}">
                                                         Upload Final
                                                     </button>
-                                                @endif
-                                            </td>
+                                                </td>
+                                            @endif
                                             <td>
                                                 @if ($doc->file_pdf)
                                                     @if ($doc->statusdoc == 'not yet active')
@@ -199,20 +202,18 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="filterFinalModal" tabindex="-1" role="dialog" aria-labelledby="filterFinalModalLabel"
+        <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="" method="">
-                        @csrf
+                    <form action="" method="GET">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="filterFinalModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                            <h5 class="modal-title" id="filterModalLabel">Filter Documents</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <!-- Filter berdasarkan Tanggal Upload -->
                             <div class="row my-2">
                                 <div class="col-4">
                                     <label class="col-form-label">Start Date / Upload Date</label>
@@ -226,62 +227,39 @@
                                     <input type="text" name="date_to" class="form-control input" placeholder="To">
                                 </div>
                             </div>
-
-                            <!-- Filter berdasarkan Tipe Dokumen -->
                             <div class="row my-2">
                                 <div class="col-4">
-                                    <label class="col-form-label">Tipe Dokumen</label>
+                                    <label class="col-form-label">Departemen</label>
                                 </div>
                                 <div class="col">
-                                    <select name="tipe_dokumen_id" id="tipe_dokumen_id" class="form-control select2"
+                                    <select name="departemen_id" id="departemen_id" class="form-control select2"
                                         style="width: 100%;">
-                                        <option value="" selected>Select Tipe Dokumen</option>
-                                        @foreach ($tipeDokumen as $dokumen)
-                                            <option value="{{ $dokumen->id }}"
-                                                {{ request('tipe_dokumen_id') == $dokumen->id ? 'selected' : '' }}>
-                                                {{ $dokumen->tipe_dokumen }}
+                                        <option value="" selected>Select Departemen</option>
+                                        @foreach ($departments as $departemen)
+                                            <option value="{{ $departemen->id }}"
+                                                {{ request('departemen_id') == $departemen->id ? 'selected' : '' }}>
+                                                {{ $departemen->nama_departemen }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-
-                            <!-- Filter berdasarkan Departemen (Hanya untuk admin) -->
-                            @role('admin')
-                                <div class="row my-2">
-                                    <div class="col-4">
-                                        <label class="col-form-label">Departemen</label>
-                                    </div>
-                                    <div class="col">
-                                        <select name="departemen_id" id="departemen_id" class="form-control select2"
-                                            style="width: 100%;">
-                                            <option value="" selected>Select Departemen</option>
-                                            @foreach ($allDepartemen as $departemen)
-                                                <option value="{{ $departemen->nama_departemen }}"
-                                                    {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
-                                                    {{ $departemen->nama_departemen }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Status Doc</label>
                                 </div>
-
-                                <!-- Filter berdasarkan Status Dokumen -->
-                                <div class="row my-2">
-                                    <div class="col-4">
-                                        <label class="col-form-label">Status Doc</label>
-                                    </div>
-                                    <div class="col">
-                                        <select name="statusdoc" id="statusdoc" class="form-control select2"
-                                            style="width: 100%;">
-                                            <option value="" selected>Pilih Status Doc</option>
-                                            <option value="active" {{ request('statusdoc') == 'active' ? 'selected' : '' }}>
-                                                Active</option>
-                                            <!-- Tambahkan opsi status lain jika diperlukan -->
-                                        </select>
-                                    </div>
+                                <div class="col">
+                                    <select name="statusdoc" id="statusdoc" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="">Semua</option>
+                                        <option value="WI">WI</option>
+                                        <option value="WIS">WIS</option>
+                                        <option value="Standar">Standar</option>
+                                        <option value="Prosedur">Prosedur</option>
+                                        <!-- Tambahkan opsi status lain jika diperlukan -->
+                                    </select>
                                 </div>
-                            @endrole
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

@@ -118,7 +118,11 @@ class ValidateRuleController extends Controller
         if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
             // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy', 'stamp_controlled_copy.png', 20, 150);
+                // Tentukan ukuran gambar watermark
+                $imageWidth = 36; // Lebar gambar watermark
+                $imageHeight = 36; // Tinggi gambar watermark
+
+                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy', 'stamp_controlled_copy.png', 20, 150, $imageWidth, $imageHeight);
 
                 // Simpan path file yang sudah di-watermark ke kolom active_doc
                 $dokumen->active_doc = $watermarkedPath;
@@ -167,7 +171,11 @@ class ValidateRuleController extends Controller
         if ($dokumen->statusdoc != 'obsolete') {
             // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Obsolete', 'stamp_obsolete.png', 50, 120);
+                // Tentukan ukuran gambar watermark
+                $imageWidth = 36; // Lebar gambar watermark
+                $imageHeight = 36; // Tinggi gambar watermark
+
+                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Obsolete', 'stamp_obsolete.png', 50, 120, $imageWidth, $imageHeight);
 
                 // Simpan path file yang sudah di-watermark ke kolom obsolete_doc
                 $dokumen->obsolete_doc = $watermarkedPath;

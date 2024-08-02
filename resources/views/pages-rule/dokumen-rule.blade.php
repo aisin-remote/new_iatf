@@ -6,7 +6,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Dokumen {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
+                        <h4 class="card-title">Document {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
                         <p class="card-description"></p>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal">
@@ -18,10 +18,10 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nomor Dokumen</th>
-                                        <th>Judul Dokumen</th>
-                                        <th>Revisi</th>
-                                        <th>Tanggal Upload</th>
+                                        <th>Document Number</th>
+                                        <th>Document Title</th>
+                                        <th>Revision</th>
+                                        <th>Upload Date</th>
                                         <th>status</th>
                                         <th>Action</th>
                                     </tr>
@@ -76,27 +76,27 @@
                     <div class="modal-body">
                         <!-- Form untuk Upload Draft -->
                         <div class="form-group">
-                            <label for="nama_dokumen">Judul Dokumen</label>
+                            <label for="nama_dokumen">Document Title</label>
                             <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
                         </div>
                         <div class="form-group">
-                            <label for="status_dokumen">Status Dokumen</label>
+                            <label for="status_dokumen">Document Status</label>
                             <select class="form-control" id="status_dokumen" name="status_dokumen" required>
-                                <option value="">Pilih Status Dokumen</option>
-                                <option value="baru">Baru</option>
-                                <option value="revisi">Revisi</option>
+                                <option value="">Select Document Status</option>
+                                <option value="baru">New</option>
+                                <option value="revisi">Revision</option>
                             </select>
                         </div>
                         <div class="form-group" id="revisi_ke_group" style="display: none;">
-                            <label for="revisi_ke">Revisi ke</label>
+                            <label for="revisi_ke">Revision Number</label>
                             <input type="number" class="form-control" id="revisi_ke" name="revisi_ke">
                         </div>
                         <div class="form-group">
-                            <label for="nomor_list">Nomor Dokumen</label>
+                            <label for="nomor_list">Number Document</label>
                             <input type="text" class="form-control" id="nomor_list" name="nomor_list" required>
                         </div>
                         <div class="form-group">
-                            <label for="rule_id">Kode Proses</label>
+                            <label for="rule_id">Process Code</label>
                             <select class="form-control" id="rule_id" name="rule_id" required>
                                 <option value="">Pilih Kode Proses</option>
                                 @foreach ($kodeProses as $item)

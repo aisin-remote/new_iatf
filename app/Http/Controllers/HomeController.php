@@ -34,16 +34,18 @@ class HomeController extends Controller
         // Query dasar untuk data dokumen
         $query = IndukDokumen::query();
 
-        // Hanya jika bukan admin, filter berdasarkan dokumen yang diunggah oleh departemen user
+        // Filter berdasarkan status dokumen jika bukan admin
+        if (!$user->hasRole('admin')) {
+            $query->whereIn('statusdoc', ['active', 'obsolete', 'not yet active']);
+        }
+
+        // Filter berdasarkan departemen user jika bukan admin
         if (!$user->hasRole('admin')) {
             $query->whereHas('user', function ($query) use ($departemen_user) {
                 $query->whereHas('departemen', function ($query) use ($departemen_user) {
                     $query->where('nama_departemen', $departemen_user);
                 });
-            })->where('statusdoc', 'active');
-        } else {
-            // Jika admin, tidak perlu filter statusdoc
-            $query->where('status', 'Approve by MS');
+            });
         }
 
         // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
@@ -86,13 +88,15 @@ class HomeController extends Controller
         // Menghitung jumlah berdasarkan status tertentu
         $waitingCheckCount = $countByStatusAndType->where('status', 'Waiting check by MS')->sum('count');
         $finishCheckCount = $countByStatusAndType->where('status', 'Finish check by MS')->sum('count');
-        $approveCount = $countByStatusAndType->where('status', 'Approve by MS')->sum('count');
+        $activeCount = $countByStatusAndType->where('status', 'Approve by MS')->sum('count');
+        $obsolateCount = $countByStatusAndType->where('status', 'Obsolete by MS')->sum('count');
 
         return view('pages-rule.dashboard', compact(
             'countByType',
             'waitingCheckCount',
             'finishCheckCount',
-            'approveCount',
+            'activeCount',
+            'obsolateCount',
             'countByStatusAndType',
             'dokumenall',
             'allDepartemen',
@@ -131,14 +135,14 @@ class HomeController extends Controller
         $departemen_user = $user->departemen->nama_departemen;
 
         // Query dasar untuk data dokumen yang akan diunduh
-        $query = IndukDokumen::where('status', 'Approve by MS');
+        $query = IndukDokumen::query();
 
-        // Filter berdasarkan status dokumen
+        // Filter berdasarkan status dokumen jika bukan admin
         if (!$user->hasRole('admin')) {
-            $query->where('statusdoc', 'active');
+            $query->whereIn('statusdoc', ['active', 'obsolete', 'not yet active']);
         }
 
-        // Hanya jika bukan admin, filter berdasarkan departemen user
+        // Filter berdasarkan departemen user jika bukan admin
         if (!$user->hasRole('admin')) {
             $query->whereHas('user', function ($query) use ($departemen_user) {
                 $query->whereHas('departemen', function ($query) use ($departemen_user) {
