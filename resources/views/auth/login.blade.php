@@ -30,9 +30,17 @@
                             <div class="alert alert-danger mt-3">{{ $errors->first('lockout') }}</div>
                         @endif
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                            <div class="brand-logo">
-                                <img src="../../images/logo-iatf.png" alt="logo">
+                            <div style="display: flex; align-items: center;">
+                                <div style="margin-right: 116px;">
+                                    <img src="../../images/logo-iatf.png" alt="logo"
+                                        style="height: auto; max-height: 64px;">
+                                </div>
+                                <div>
+                                    <img src="../../images/aisin.png" alt="logo"
+                                        style="height: auto; max-height: 64px;">
+                                </div>
                             </div>
+
                             <h4>Hello! let's get started</h4>
                             <h6 class="font-weight-light">Sign in to continue.</h6>
                             <form action="{{ route('login.proses') }}" method="POST" class="pt-3">

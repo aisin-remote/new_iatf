@@ -59,8 +59,8 @@
                                                     </a>
                                                     <!-- Tombol Approve Draft -->
                                                     <button class="btn btn-success btn-sm" data-toggle="modal"
-                                                        data-target="#approveDokumen-{{ $doc->id }}">
-                                                        <i class="fa-solid fa-comment"></i> Check
+                                                        data-target="#feedbackDokumen-{{ $doc->id }}">
+                                                        <i class="fa-solid fa-comment"></i> Feedback
                                                     </button>
                                                 @else
                                                     <p class="text-muted">No data available</p>
@@ -138,15 +138,15 @@
         </div>
     </div>
     @foreach ($indukDokumenList as $doc)
-        <div class="modal fade" id="approveDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="approveDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+        <div class="modal fade" id="feedbackDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="feedbackDokumenLabel-{{ $doc->id }}" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form action="{{ route('dokumen.approve', ['id' => $doc->id]) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="approveDokumenLabel-{{ $doc->id }}">Document Confirmation
+                            <h5 class="modal-title" id="feedbackDokumenLabel-{{ $doc->id }}">Document Confirmation
                                 Approved
                             </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
