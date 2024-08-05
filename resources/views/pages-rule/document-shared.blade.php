@@ -36,14 +36,19 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
                                             <td>{{ $doc->nama_dokumen }}</td>
-                                            <td>{{ $doc->user->departemen->nama_departemen }}</td>
+                                            <td>
+                                                @if($doc->user_id)
+                                                    {{ $doc->user->departemen->nama_departemen }}
+                                                @else
+                                                    {{ $doc->departemen->nama_departemen }}
+                                                @endif
+                                            </td>
                                             <td>{{ $doc->statusdoc }}</td>
                                             <td>
                                                 <a href="{{ route('documents.previewsAndDownloadActiveDoc', ['id' => $doc->id]) }}"
                                                     class="btn btn-info btn-sm" target="_blank">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
-
                                             </td>
                                         </tr>
                                     @empty

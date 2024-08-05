@@ -6,7 +6,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Dokumen {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
+                        <h4 class="card-title">Document {{ ucfirst($jenis) }} - Type: {{ ucfirst($tipe) }}</h4>
                         <div class="d-flex justify-content-end mb-3">
                             <!-- Input pencarian -->
                             <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput"
@@ -97,7 +97,7 @@
                         <!-- Filter berdasarkan Tanggal Upload -->
                         <div class="row my-2">
                             <div class="col-4">
-                                <label class="col-form-label">Start Date / Upload Date</label>
+                                <label class="col-form-label">Start Date</label>
                             </div>
                             <div class="col">
                                 <input type="text" name="date_from" class="form-control input" placeholder="From">
@@ -107,27 +107,23 @@
                                 <input type="text" name="date_to" class="form-control input" placeholder="To">
                             </div>
                         </div>
-
-                        <!-- Filter berdasarkan Departemen (Hanya untuk admin) -->
-                        @role('admin')
-                            <div class="row my-2">
-                                <div class="col-4">
-                                    <label class="col-form-label">Departemen</label>
-                                </div>
-                                <div class="col">
-                                    <select name="departemen_id" id="departemen_id" class="form-control select2"
-                                        style="width: 100%;">
-                                        <option value="" selected>Select Departemen</option>
-                                        @foreach ($allDepartemen as $departemen)
-                                            <option value="{{ $departemen->nama_departemen }}"
-                                                {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
-                                                {{ $departemen->nama_departemen }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                        <div class="row my-2">
+                            <div class="col-4">
+                                <label class="col-form-label">Department</label>
                             </div>
-                        @endrole
+                            <div class="col">
+                                <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                    style="width: 100%;">
+                                    <option value="" selected>Select Department</option>
+                                    @foreach ($allDepartemen as $departemen)
+                                        <option value="{{ $departemen->nama_departemen }}"
+                                            {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                            {{ $departemen->nama_departemen }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

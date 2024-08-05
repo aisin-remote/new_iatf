@@ -31,7 +31,7 @@
                         @endif
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div style="display: flex; align-items: center;">
-                                <div style="margin-right: 116px;">
+                                <div style="margin-right: 188px;">
                                     <img src="../../images/logo-iatf.png" alt="logo"
                                         style="height: auto; max-height: 64px;">
                                 </div>

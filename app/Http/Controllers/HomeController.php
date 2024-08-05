@@ -41,8 +41,12 @@ class HomeController extends Controller
 
         // Filter berdasarkan departemen user jika bukan admin
         if (!$user->hasRole('admin')) {
-            $query->whereHas('user', function ($query) use ($departemen_user) {
-                $query->whereHas('departemen', function ($query) use ($departemen_user) {
+            $query->where(function ($query) use ($departemen_user) {
+                $query->whereHas('user', function ($query) use ($departemen_user) {
+                    $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                        $query->where('nama_departemen', $departemen_user);
+                    });
+                })->orWhereHas('departemen', function ($query) use ($departemen_user) {
                     $query->where('nama_departemen', $departemen_user);
                 });
             });
@@ -60,8 +64,12 @@ class HomeController extends Controller
         // Query untuk menghitung berdasarkan tipe dokumen
         $countByType = IndukDokumen::query()
             ->when(!$user->hasRole('admin'), function ($query) use ($departemen_user) {
-                $query->whereHas('user', function ($query) use ($departemen_user) {
-                    $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                $query->where(function ($query) use ($departemen_user) {
+                    $query->whereHas('user', function ($query) use ($departemen_user) {
+                        $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                            $query->where('nama_departemen', $departemen_user);
+                        });
+                    })->orWhereHas('departemen', function ($query) use ($departemen_user) {
                         $query->where('nama_departemen', $departemen_user);
                     });
                 });
@@ -74,8 +82,12 @@ class HomeController extends Controller
         // Query untuk menghitung berdasarkan status dan tipe dokumen
         $countByStatusAndType = IndukDokumen::query()
             ->when(!$user->hasRole('admin'), function ($query) use ($departemen_user) {
-                $query->whereHas('user', function ($query) use ($departemen_user) {
-                    $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                $query->where(function ($query) use ($departemen_user) {
+                    $query->whereHas('user', function ($query) use ($departemen_user) {
+                        $query->whereHas('departemen', function ($query) use ($departemen_user) {
+                            $query->where('nama_departemen', $departemen_user);
+                        });
+                    })->orWhereHas('departemen', function ($query) use ($departemen_user) {
                         $query->where('nama_departemen', $departemen_user);
                     });
                 });
@@ -104,6 +116,7 @@ class HomeController extends Controller
             'perPage'
         ));
     }
+
 
     public function getNotifications()
     {

@@ -148,7 +148,7 @@
                             <!-- Filter berdasarkan Tanggal Upload -->
                             <div class="row my-2">
                                 <div class="col-4">
-                                    <label class="col-form-label">Start Date / Upload Date</label>
+                                    <label class="col-form-label">Start Date</label>
                                 </div>
                                 <div class="col">
                                     <input type="text" name="date_from" class="form-control input"
@@ -163,12 +163,12 @@
                             <!-- Filter berdasarkan Tipe Dokumen -->
                             <div class="row my-2">
                                 <div class="col-4">
-                                    <label class="col-form-label">Tipe Dokumen</label>
+                                    <label class="col-form-label">Document Type</label>
                                 </div>
                                 <div class="col">
                                     <select name="tipe_dokumen_id" id="tipe_dokumen_id" class="form-control select2"
                                         style="width: 100%;">
-                                        <option value="" selected>Select Tipe Dokumen</option>
+                                        <option value="" selected>Select Document Type</option>
                                         @foreach ($tipeDokumen as $dokumen)
                                             <option value="{{ $dokumen->id }}"
                                                 {{ request('tipe_dokumen_id') == $dokumen->id ? 'selected' : '' }}>
@@ -183,12 +183,12 @@
                             @role('admin')
                                 <div class="row my-2">
                                     <div class="col-4">
-                                        <label class="col-form-label">Departemen</label>
+                                        <label class="col-form-label">Department</label>
                                     </div>
                                     <div class="col">
                                         <select name="departemen_id" id="departemen_id" class="form-control select2"
                                             style="width: 100%;">
-                                            <option value="" selected>Select Departemen</option>
+                                            <option value="" selected>Select Department</option>
                                             @foreach ($allDepartemen as $departemen)
                                                 <option value="{{ $departemen->nama_departemen }}"
                                                     {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
@@ -198,23 +198,29 @@
                                         </select>
                                     </div>
                                 </div>
-
-                                <!-- Filter berdasarkan Status Dokumen -->
-                                <div class="row my-2">
-                                    <div class="col-4">
-                                        <label class="col-form-label">Status Doc</label>
-                                    </div>
-                                    <div class="col">
-                                        <select name="statusdoc" id="statusdoc" class="form-control select2"
-                                            style="width: 100%;">
-                                            <option value="" selected>Pilih Status Doc</option>
-                                            <option value="active" {{ request('statusdoc') == 'active' ? 'selected' : '' }}>
-                                                Active</option>
-                                            <!-- Tambahkan opsi status lain jika diperlukan -->
-                                        </select>
-                                    </div>
-                                </div>
                             @endrole
+                            <!-- Filter berdasarkan Status Dokumen -->
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Document Status</label>
+                                </div>
+                                <div class="col">
+                                    <select name="statusdoc" id="statusdoc" class="form-control select2"
+                                        style="width: 100%;">
+                                        <option value="" selected>Select Document Status</option>
+                                        <option value="active" {{ request('statusdoc') == 'active' ? 'selected' : '' }}>
+                                            Active</option>
+                                        <option value="obsolete"
+                                            {{ request('statusdoc') == 'obsolete' ? 'selected' : '' }}>
+                                            Obsolete</option>
+                                        <option value="not yet active"
+                                            {{ request('statusdoc') == 'not yet active' ? 'selected' : '' }}>
+                                            Not Yet Active</option>
+                                        <!-- Tambahkan opsi status lain jika diperlukan -->
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -278,7 +284,13 @@
                                                     <td>{{ $doc->nomor_dokumen }}</td>
                                                     <td>{{ $doc->nama_dokumen }}</td>
                                                     <td>{{ $doc->revisi_log }}</td>
-                                                    <td>{{ $doc->user->departemen->nama_departemen }}</td>
+                                                    <td>
+                                                        @if($doc->user_id)
+                                                            {{ $doc->user->departemen->nama_departemen }}
+                                                        @else
+                                                            {{ $doc->departemen->nama_departemen }}
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $doc->statusdoc }}</td>
                                                 </tr>
                                             @empty

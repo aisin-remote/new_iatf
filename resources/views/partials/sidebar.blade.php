@@ -9,7 +9,7 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" href="{{ route('template.index') }}">
-                <i class="fa-solid fa-file-pen" style="margin-right: 14px"></i>
+                <i class="fa-solid fa-file-pen" style="margin-right: 8px"></i>
                 <span class="menu-title"> Template Documents</span>
             </a>
         </li>
@@ -17,7 +17,7 @@
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#rule-collapse-guest" aria-expanded="false"
                     aria-controls="rule-collapse-guest">
-                    <i class="fa-solid fa-file-word" style="margin-right: 20px"></i>
+                    <i class="fa-solid fa-file-word" style="margin-right: 14px"></i>
                     <span class="menu-title"> Create/Revision Doc</span>
                     <i class="menu-arrow"></i>
                 </a>
@@ -46,8 +46,8 @@
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#validasi-draft-rule-collapse-admin" aria-expanded="false"
                     aria-controls="validasi-draft-rule-collapse-admin">
-                    <i class="fas fa-file" style="margin-right: 14px"></i>
-                    <span class="menu-title"> Validate Doc. Rule</span>
+                    <i class="fas fa-file" style="margin-right: 16px"></i>
+                    <span class="menu-title"> Document Validation</span>
                     <i class="menu-arrow"></i>
                 </a>
                 <div class="collapse" id="validasi-draft-rule-collapse-admin">
@@ -75,7 +75,7 @@
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#final-rule-collapse" aria-expanded="false"
                 aria-controls="final-rule-collapse">
-                <i class="fa-solid fa-file-pdf" style="margin-right: 16px"></i>
+                <i class="fa-solid fa-file-pdf" style="margin-right: 14px"></i>
                 <span class="menu-title"> Final Dokumen</span>
                 <i class="menu-arrow"></i>
             </a>
@@ -103,8 +103,8 @@
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#document-share-collapse" aria-expanded="false"
                 aria-controls="document-share-collapse">
-                <i class="fa-solid fa-file-import" style="margin-right: 16px"></i>
-                <span class="menu-title"> Document Distribution</span>
+                <i class="fa-solid fa-file-import" style="margin-right: 14px"></i>
+                <span class="menu-title"> Distributed Document</span>
                 <i class="menu-arrow"></i>
             </a>
             <div class="collapse" id="document-share-collapse">

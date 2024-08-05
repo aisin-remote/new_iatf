@@ -16,14 +16,16 @@ return new class extends Migration
             $table->string('nomor_dokumen');
             $table->string('nama_dokumen');
             $table->date('tgl_upload');
-            $table->text('file');
-            $table->text('file_pdf');
-            $table->string('revisi_log');
-            $table->string('status');
-            $table->string('statusdoc');
-            $table->string('comment');
-            $table->string('tgl_efektif');
-            $table->string('tgl_obsolete');
+            $table->text('file')->nullable();
+            $table->text('file_pdf')->nullable();
+            $table->text('active_doc')->nullable();
+            $table->text('obsolete_doc')->nullable();
+            $table->string('revisi_log')->nullable();
+            $table->string('status')->nullable();
+            $table->string('statusdoc')->nullable();
+            $table->string('comment')->nullable();
+            $table->string('tgl_efektif')->nullable();
+            $table->string('tgl_obsolete')->nullable();
             $table->timestamps();
         });
     }

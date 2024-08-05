@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('nomor_template');
             $table->string('jenis_dokumen');
             $table->string('tipe_dokumen');
-            $table->text('file_pdf');
-            $table->text('template');
-            $table->date('tgl_efektif');
+            $table->text('file_pdf')->nullable();
+            $table->text('template')->nullable();
+            $table->date('tgl_efektif')->nullable();
             $table->timestamps();
         });
     }

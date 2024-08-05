@@ -41,19 +41,16 @@ class IndukDokumen extends Model
     {
         return $this->belongsTo(Dokumen::class, 'dokumen_id');
     }
-
     // Relasi dengan kode proses (rule)
     public function rule()
     {
         return $this->belongsTo(RuleCode::class, 'rule_id');
     }
-
     // Relasi many-to-many dengan departemen melalui tabel pivot document_departement
     public function departments()
     {
         return $this->belongsToMany(Departemen::class, 'document_departement', 'induk_dokumen_id', 'departemen_id');
     }
-
     // Metode untuk mendapatkan nama departemen yang tersebar
     public function getDepartemenTersebar()
     {
@@ -62,5 +59,13 @@ class IndukDokumen extends Model
     public function distributions()
     {
         return $this->hasMany(DocumentDepartement::class, 'induk_dokumen_id', 'id');
+    }
+    public function departemen()
+    {
+        if ($this->user_id) {
+            return $this->belongsTo(User::class, 'user_id')->with('departemen');
+        } else {
+            return $this->belongsTo(Departemen::class, 'departemen_id');
+        }
     }
 }

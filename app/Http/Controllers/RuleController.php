@@ -105,7 +105,7 @@ class RuleController extends Controller
         $dokumen->revisi_log = $revisi_log;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
-        $dokumen->user_id = $userId;
+        $dokumen->user_id = $request;
         $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'Waiting check by MS';
         $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
@@ -153,7 +153,12 @@ class RuleController extends Controller
     public function final_doc($jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login
-        $departments = Departemen::all();
+        
+        $kodeProses = RuleCode::all();
+        $alldepartmens = Departemen::all();
+        $departemens = Departemen::all();
+
+        $uniqueDepartemens = $departemens->unique('code');
 
         // Jika user adalah admin, mengambil semua dokumen final approved
         if ($user->hasRole('admin')) {
@@ -173,14 +178,18 @@ class RuleController extends Controller
                 })
                 ->whereIn('statusdoc', ['active', 'obsolete']) // Tambahkan kondisi untuk statusdoc
                 ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
-                ->whereHas('user', function ($query) use ($user) {
-                    $query->where('departemen_id', $user->departemen_id);
+                ->where(function ($query) use ($user) {
+                    // Filter berdasarkan departemen user_id dan departemen_id
+                    $query->whereHas('user', function ($query) use ($user) {
+                        $query->where('departemen_id', $user->departemen_id);
+                    })
+                        ->orWhere('departemen_id', $user->departemen_id);
                 })
                 ->orderByDesc('updated_at')
                 ->get();
         }
 
-        return view('pages-rule.dokumen-final', compact('dokumenfinal', 'jenis', 'tipe', 'departments'));
+        return view('pages-rule.dokumen-final', compact('dokumenfinal', 'kodeProses', 'alldepartmens', 'uniqueDepartemens', 'jenis', 'tipe'));
     }
 
     public function previewsAndDownloadDocFinal(Request $request, $id)

@@ -14,8 +14,8 @@ class DepartemenSeeder extends Seeder
     public function run(): void
     {
         Departemen::create([
-            'code' => 'HR-IRL-GA',
-            'nama_departemen' => 'HR-IRL-GA'
+            'code' => 'AII',
+            'nama_departemen' => 'Aisin Indonesia'
         ]);
         Departemen::create([
             'code' => 'QAS',

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 use App\Traits\AddWatermarkTrait;
+use Carbon\Carbon;
 
 class ValidateRuleController extends Controller
 {
@@ -109,6 +110,78 @@ class ValidateRuleController extends Controller
         // Tampilkan pesan sukses
         return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
     }
+    public function upload_old_doc(Request $request)
+    {
+
+        $file_pdf = $request->file('file');
+        $filename = time() . '_' . $file_pdf->getClientOriginalName();
+        $path = 'final-rule/' . $filename;
+        $file_pdf->storeAs('final-rule', $filename, 'public');
+
+        // Ambil informasi departemen dari input form
+        $departemen_id = $request->input('department');
+        $departemen = Departemen::find($departemen_id);
+        if (!$departemen) {
+            return redirect()->back()->with('error', 'Departemen tidak valid.');
+        }
+
+        $revisi_log = $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0;
+
+        // Ambil rule
+        $rule = RuleCode::find($request->rule_id);
+        if (!$rule) {
+            return redirect()->back()->with('error', 'Rule tidak valid.');
+        }
+        $kode_proses = $rule->kode_proses;
+
+        // Ambil dokumen
+        $document = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
+            ->where('tipe_dokumen', $request->tipe_dokumen)
+            ->first();
+        
+
+        if (!$document) {
+            return redirect()->back()->with('error', 'Jenis dan tipe dokumen tidak valid.');
+        }
+
+        $tipe_dokumen_code = $document->code;
+
+        // Format nomor dokumen
+        $nomor_list = str_pad($request->nomor_list, 3, '0', STR_PAD_LEFT);
+        $nomorDokumen = sprintf(
+            '%s-%s-%s-%s-%02d',
+            strtoupper($tipe_dokumen_code),
+            strtoupper($departemen->code),
+            strtoupper($kode_proses),
+            $nomor_list,
+            $revisi_log
+        );
+
+        // Buat entri baru di tabel IndukDokumen
+        $dokumen = new IndukDokumen();
+        $dokumen->nama_dokumen = $request->nama_dokumen;
+        $dokumen->dokumen_id = $document->id;
+        $dokumen->file_pdf = $path;
+        $dokumen->revisi_log = $revisi_log;
+        $dokumen->nomor_dokumen = $nomorDokumen;
+        $dokumen->tgl_upload = Carbon::now();
+        $dokumen->departemen_id = $departemen_id; // Simpan departemen_id sebagai user_id
+        $dokumen->rule_id = $request->rule_id;
+        $dokumen->status = 'Waiting check by MS';
+        $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
+        $dokumen->save();
+
+        // Jika ada departemen yang dipilih, kaitkan dokumen dengan departemen tersebut
+        if ($request->has('kode_departemen')) {
+            $departemenCodes = $request->input('kode_departemen');
+            $departemens = Departemen::whereIn('code', $departemenCodes)->get();
+            $dokumen->departments()->sync($departemens->pluck('id')); // Menggunakan sync() untuk update relasi
+        }
+
+        // Tampilkan pesan sukses
+        Alert::success('Success', 'Dokumen berhasil diunggah.');
+        return redirect()->back();
+    }
     public function activateDocument(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID
@@ -161,7 +234,6 @@ class ValidateRuleController extends Controller
         // Tampilkan file yang sudah di-watermark di browser
         return response()->file($path, $headers);
     }
-
     public function obsoleteDocument(Request $request, $id)
     {
         // Temukan dokumen berdasarkan ID

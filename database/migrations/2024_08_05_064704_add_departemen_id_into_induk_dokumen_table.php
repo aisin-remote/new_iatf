@@ -12,7 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('induk_dokumen', function (Blueprint $table) {
-            $table->text('active_doc')->after('file_pdf');
+
+            // Add the user_id column
+            $table->unsignedBigInteger('departemen_id')->after('user_id')->nullable();
+
+            // Add the foreign key constraint
+            $table->foreign('departemen_id')->references('id')->on('departemen')->onDelete('cascade');
         });
     }
 
@@ -22,8 +27,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('induk_dokumen', function (Blueprint $table) {
-            // Drop the departemen_id column
-            $table->dropColumn('active_doc');
+            // Drop the foreign key constraint
+            $table->dropForeign(['departemen_id']);
+
+            // Drop the dokumen_id column
+            $table->dropColumn('departemen_id');
         });
     }
 };

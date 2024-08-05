@@ -46,55 +46,55 @@ Route::post('/filter-documents', [HomeController::class, 'filterDocuments'])
     ->name('filter.documents');
 
 // Template Dokumen
-Route::get('/template-dokumen', [DokumenController::class, 'index'])
+Route::get('/template-documents', [DokumenController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.index');
-Route::post('/template-dokumen/add', [DokumenController::class, 'store'])
+Route::post('/template-documents/add', [DokumenController::class, 'store'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.add');
-Route::post('/template-dokumen/edit/{id}', [DokumenController::class, 'edit'])
+Route::post('/template-documents/edit/{id}', [DokumenController::class, 'edit'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.edit');
-Route::get('/template-dokumen/preview/{id}', [DokumenController::class, 'preview'])
+Route::get('/template-documents/preview/{id}', [DokumenController::class, 'preview'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.preview');
-Route::get('/template-dokumen/download/{id}', [DokumenController::class, 'download'])
+Route::get('/template-documents/download/{id}', [DokumenController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.download');
 
 // Document Draft Rule
-Route::get('/dokumen/{jenis}/{tipe}', [RuleController::class, 'index'])
+Route::get('/documents/{jenis}/{tipe}', [RuleController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('rule.index');
-Route::post('/dokumen/draftRule', [RuleController::class, 'store'])
+Route::post('/documents/draftRule', [RuleController::class, 'store'])
     ->middleware(['auth', 'role:guest'])
     ->name('tambah.rule');
-Route::get('/dokumen/{jenis}/{tipe}/download/{id}', [RuleController::class, 'downloadDraft'])
+Route::get('/documents/{jenis}/{tipe}/download/{id}', [RuleController::class, 'downloadDraft'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.rule');
 
 // Validate Rule
-Route::get('/admin/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
+Route::get('/documents/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])
     ->name('rule.validate');
-Route::post('/dokumen/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
+Route::post('/documents/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.approve');
-Route::post('/dokumen/validate/{id}/activate', [ValidateRuleController::class, 'activateDocument'])
+Route::post('/documents/validate/{id}/activate', [ValidateRuleController::class, 'activateDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('activate.document');
-Route::post('/dokumen/validate/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])
+Route::post('/documents/validate/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('obsolete.document');
 
 // Document Final Rule
-Route::get('/dokumen/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
+Route::get('/documents/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.final');
-Route::post('dokumen/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
+Route::post('documents/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
     ->middleware(['auth', 'role:admin'])
     ->name('upload.final');
-Route::get('/document/final/download/{id}', [RuleController::class, 'previewsAndDownloadDocFinal'])
+Route::get('/documents/final/download/{id}', [RuleController::class, 'previewsAndDownloadDocFinal'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.previewsAndDownloadDocFinal');
 Route::get('/documents/final/download-active/{id}', [ValidateRuleController::class, 'previewsAndDownloadActiveDoc'])
@@ -103,12 +103,15 @@ Route::get('/documents/final/download-active/{id}', [ValidateRuleController::cla
 Route::get('/documents/final/download-obsolete/{id}', [ValidateRuleController::class, 'previewsAndDownloadObsoleteDoc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('documents.previewsAndDownloadObsoleteDoc');
+Route::post('/documents/final/upload-oldDocument', [ValidateRuleController::class, 'upload_old_doc'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.oldDoc');
 
 // Document Share
-Route::get('/document/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
+Route::get('/documents/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/document/share/preview-and-download/{id}', [RuleController::class, 'previewsAndDownloadShareDoc'])
+Route::get('/documents/share/preview-and-download/{id}', [RuleController::class, 'previewsAndDownloadShareDoc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('previewsAndDownloadShareDoc');
 
