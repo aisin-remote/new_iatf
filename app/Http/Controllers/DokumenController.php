@@ -16,7 +16,6 @@ class DokumenController extends Controller
 
         return view('dokumen', compact('dokumen'));
     }
-
     public function store(Request $request)
     {
         // Validasi input
@@ -49,7 +48,7 @@ class DokumenController extends Controller
             'template' => $templateName,
         ]);
 
-        Alert::success('Success', 'Template berhasil ditambahkan.');
+        Alert::success('Success', 'Template added successfully.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->route('template.index');
     }
@@ -105,7 +104,7 @@ class DokumenController extends Controller
         // Simpan perubahan
         $template->save();
 
-        Alert::success('Success', 'Template berhasil diubah.');
+        Alert::success('Success', 'Template changed successfully.');
 
         // Redirect kembali dengan pesan sukses
         return redirect()->back();
@@ -117,7 +116,7 @@ class DokumenController extends Controller
 
         // Lakukan validasi atau pengecekan apakah dokumen tersedia
         if (!$document->file_pdf) {
-            abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
+            abort(404, 'Document not found or not available.');
         }
 
         // Path ke file PDF
@@ -125,7 +124,7 @@ class DokumenController extends Controller
 
         // Verifikasi apakah file ada di path yang diharapkan
         if (!file_exists($filePath)) {
-            abort(404, 'File dokumen tidak ditemukan.');
+            abort(404, 'Document file not found.');
         }
 
         // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
@@ -134,7 +133,6 @@ class DokumenController extends Controller
         // Tampilkan file PDF di browser untuk pratinjau
         return response()->file($filePath, ['Content-Disposition' => 'inline; filename="' . $fileName . '"']);
     }
-
     public function download($id)
     {
         // Cari dokumen berdasarkan ID
@@ -142,7 +140,7 @@ class DokumenController extends Controller
 
         // Lakukan validasi atau pengecekan apakah dokumen tersedia
         if (!$document->template) {
-            abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
+            abort(404, 'Document not found or not available.');
         }
 
         // Path ke file template
@@ -150,7 +148,7 @@ class DokumenController extends Controller
 
         // Verifikasi apakah file ada di path yang diharapkan
         if (!file_exists($filePath)) {
-            abort(404, 'File dokumen tidak ditemukan.');
+            abort(404, 'Document file not found.');
         }
 
         // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen

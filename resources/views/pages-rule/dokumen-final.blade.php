@@ -66,23 +66,26 @@
                                             @endif
                                             <td>
                                                 @if ($doc->file_pdf)
+                                                    @php
+                                                        // Menggunakan nama file yang disimpan
+                                                        $fileUrl = asset('storage/' . $doc->file_pdf);
+                                                    @endphp
+
                                                     @if ($doc->statusdoc == 'not yet active')
-                                                        <a href="{{ route('document.previewsAndDownloadDocFinal', ['id' => $doc->id]) }}"
-                                                            class="btn btn-info btn-sm" target="_blank">
-                                                            <i class="fa-solid fa-eye"></i>
+                                                        <a href="{{ $fileUrl }}" target="_blank">
+                                                            <i class="fa-solid fa-eye"></i> Preview Final
                                                         </a>
                                                     @elseif ($doc->statusdoc == 'active')
-                                                        <a href="{{ route('documents.previewsAndDownloadActiveDoc', ['id' => $doc->id]) }}"
-                                                            class="btn btn-info btn-sm" target="_blank">
-                                                            <i class="fa-solid fa-eye"></i>
+                                                        <a href="{{ $fileUrl }}" target="_blank">
+                                                            <i class="fa-solid fa-eye"></i> Preview Active
                                                         </a>
                                                     @elseif ($doc->statusdoc == 'obsolete')
-                                                        <a href="{{ route('documents.previewsAndDownloadObsoleteDoc', ['id' => $doc->id]) }}"
-                                                            class="btn btn-info btn-sm" target="_blank">
-                                                            <i class="fa-solid fa-eye"></i>
+                                                        <a href="{{ $fileUrl }}" target="_blank">
+                                                            <i class="fa-solid fa-eye"></i> Preview Obsolete
                                                         </a>
                                                     @endif
                                                 @endif
+
                                                 @role('admin')
                                                     <!-- Tombol untuk mengaktifkan dokumen -->
                                                     @if ($doc->file_pdf && ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolete'))
@@ -219,7 +222,96 @@
             </div>
         </div>
     </div>
+    <!-- Modal Upload Final Document -->
+    @foreach ($dokumenfinal as $doc)
+        <div class="modal fade" id="uploadFinalModal-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="uploadFinalModalLabel-{{ $doc->id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('upload.final', $doc->id) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="uploadFinalModalLabel-{{ $doc->id }}">Upload Final Document
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="file">Choose File</label>
+                                <input type="file" class="form-control" id="file" name="file" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Upload</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
+    @foreach ($dokumenfinal as $doc)
+        <div class="modal fade" id="activateDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="activateDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('activate.document', ['id' => $doc->id]) }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="activateDokumenLabel-{{ $doc->id }}">Activate Document</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="tgl_efektif">Effective Date</label>
+                                <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Activate</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+    <!-- Modal untuk obsolate dokumen -->
+    @foreach ($dokumenfinal as $doc)
+        <div class="modal fade" id="obsolateDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="obsolateDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('obsolete.document', ['id' => $doc->id]) }}" method="POST">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="obsolateDokumenLabel-{{ $doc->id }}">Obsolate Document</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="tgl_obsolete">Obsolete Date</label>
+                                <input type="date" class="form-control" id="tgl_obsolete" name="tgl_obsolete"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Obsolate</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
     <script>
         document.getElementById('status_dokumen').addEventListener('change', function() {
             var revisiGroup = document.getElementById('revisi_ke_group');

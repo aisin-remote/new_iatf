@@ -99,8 +99,8 @@ class ValidateRuleController extends Controller
 
         // Simpan file di folder final-rule
         $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = 'final-rule/' . $filename;
+        $filename = $file->getClientOriginalName();
+        $path = $filename;
         $file->storeAs('final-rule', $filename, 'public');
 
         // Update path file di database
@@ -110,13 +110,39 @@ class ValidateRuleController extends Controller
         // Tampilkan pesan sukses
         return redirect()->back()->with('success', 'Dokumen berhasil diunggah.');
     }
+    // public function previewFinal($id)
+    // {
+    //     // Cari dokumen berdasarkan ID
+    //     $document = IndukDokumen::findOrFail($id);
+
+    //     // Lakukan validasi atau pengecekan apakah dokumen tersedia
+    //     if (!$document->file_pdf) {
+    //         abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
+    //     }
+
+    //     // Path ke file PDF
+    //     $filePath = storage_path('app/public/final-rule' . $document->file_pdf);
+
+    //     // Verifikasi apakah file ada di path yang diharapkan
+    //     if (!file_exists($filePath)) {
+    //         abort(404, 'File dokumen tidak ditemukan.');
+    //     }
+
+    //     // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
+    //     $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.pdf';
+
+    //     // Tampilkan file PDF di browser untuk pratinjau
+    //     return response()->file($filePath, ['Content-Disposition' => 'inline; filename="' . $fileName . '"']);
+    // }
+
     public function upload_old_doc(Request $request)
     {
-
         $file_pdf = $request->file('file');
-        $filename = time() . '_' . $file_pdf->getClientOriginalName();
-        $path = 'final-rule/' . $filename;
-        $file_pdf->storeAs('final-rule', $filename, 'public');
+        $filename = $file_pdf->getClientOriginalName(); // Hanya nama file
+        $path = $filename; // Hanya nama file
+
+        // Simpan file ke storage tanpa folder tambahan
+        $file_pdf->storeAs('', $filename, 'public'); // Simpan di root storage folder
 
         // Ambil informasi departemen dari input form
         $departemen_id = $request->input('department');
@@ -138,7 +164,6 @@ class ValidateRuleController extends Controller
         $document = Dokumen::where('jenis_dokumen', $request->jenis_dokumen)
             ->where('tipe_dokumen', $request->tipe_dokumen)
             ->first();
-        
 
         if (!$document) {
             return redirect()->back()->with('error', 'Jenis dan tipe dokumen tidak valid.');
@@ -161,14 +186,15 @@ class ValidateRuleController extends Controller
         $dokumen = new IndukDokumen();
         $dokumen->nama_dokumen = $request->nama_dokumen;
         $dokumen->dokumen_id = $document->id;
-        $dokumen->file_pdf = $path;
+        $dokumen->file_pdf = $path; // Hanya nama file
         $dokumen->revisi_log = $revisi_log;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
         $dokumen->departemen_id = $departemen_id; // Simpan departemen_id sebagai user_id
         $dokumen->rule_id = $request->rule_id;
-        $dokumen->status = 'Waiting check by MS';
-        $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
+        $dokumen->status = 'Finish check by MS';
+        $dokumen->statusdoc = 'not yet active';
+        $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been checked.';
         $dokumen->save();
 
         // Jika ada departemen yang dipilih, kaitkan dokumen dengan departemen tersebut
@@ -182,26 +208,24 @@ class ValidateRuleController extends Controller
         Alert::success('Success', 'Dokumen berhasil diunggah.');
         return redirect()->back();
     }
+
     public function activateDocument(Request $request, $id)
     {
-        // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen belum aktif atau sudah obsolete
         if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
-            // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                // Tentukan ukuran gambar watermark
                 $imageWidth = 36; // Lebar gambar watermark
                 $imageHeight = 36; // Tinggi gambar watermark
 
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy', 'stamp_controlled_copy.png', 20, 150, $imageWidth, $imageHeight);
+                // Path ke file yang telah di-watermark
+                $watermarkedPath = 'active/' . basename($dokumen->file_pdf); // Menggunakan folder watermarked
+                $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy', 'stamp_controlled_copy.png', 20, 150, $imageWidth, $imageHeight);
 
-                // Simpan path file yang sudah di-watermark ke kolom active_doc
+                // Simpan path file yang sudah di-watermark
                 $dokumen->active_doc = $watermarkedPath;
             }
 
-            // Set status dokumen
             $dokumen->statusdoc = 'active';
             $dokumen->status = 'Approve by MS';
             $dokumen->comment = 'Dokumen berhasil diaktifkan.';
@@ -215,45 +239,48 @@ class ValidateRuleController extends Controller
         Alert::error('Dokumen tidak dapat diaktifkan.');
         return redirect()->back();
     }
-    public function previewsAndDownloadActiveDoc($id)
-    {
-        // Temukan dokumen berdasarkan ID
-        $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen memiliki file yang sudah di-watermark
-        if (is_null($dokumen->active_doc) || !Storage::disk('public')->exists($dokumen->active_doc)) {
-            Alert::error('File watermark tidak ditemukan.');
-            return redirect()->back();
+    public function previewActive($id)
+    {
+        // Cari dokumen berdasarkan ID
+        $document = Dokumen::findOrFail($id);
+
+        // Lakukan validasi atau pengecekan apakah dokumen tersedia
+        if (!$document->file_pdf) {
+            abort(404, 'Document not found or not available.');
         }
 
-        $path = storage_path('app/public/' . $dokumen->active_doc);
-        $headers = [
-            'Content-Type' => 'application/pdf',
-        ];
+        // Path ke file PDF
+        $filePath = storage_path('app/public/template_dokumen/' . $document->file_pdf);
 
-        // Tampilkan file yang sudah di-watermark di browser
-        return response()->file($path, $headers);
+        // Verifikasi apakah file ada di path yang diharapkan
+        if (!file_exists($filePath)) {
+            abort(404, 'Document file not found.');
+        }
+
+        // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
+        $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.pdf';
+
+        // Tampilkan file PDF di browser untuk pratinjau
+        return response()->file($filePath, ['Content-Disposition' => 'inline; filename="' . $fileName . '"']);
     }
     public function obsoleteDocument(Request $request, $id)
     {
-        // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen belum aktif atau sudah obsolete
         if ($dokumen->statusdoc != 'obsolete') {
-            // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                // Tentukan ukuran gambar watermark
                 $imageWidth = 36; // Lebar gambar watermark
                 $imageHeight = 36; // Tinggi gambar watermark
 
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Obsolete', 'stamp_obsolete.png', 50, 120, $imageWidth, $imageHeight);
+                // Path ke file yang telah di-watermark
+                $watermarkedPath = 'watermarked/' . basename($dokumen->file_pdf); // Menggunakan folder watermarked
+                $this->addWatermarkToPdf($dokumen->file_pdf, 'Obsolete', 'stamp_obsolete.png', 50, 120, $imageWidth, $imageHeight);
 
-                // Simpan path file yang sudah di-watermark ke kolom obsolete_doc
+                // Simpan path file yang sudah di-watermark
                 $dokumen->obsolete_doc = $watermarkedPath;
             }
 
-            // Set status dokumen
             $dokumen->statusdoc = 'obsolete';
             $dokumen->status = 'Obsolete by MS';
             $dokumen->comment = 'Dokumen berhasil di-obsalete-kan.';
@@ -267,111 +294,29 @@ class ValidateRuleController extends Controller
         Alert::error('Dokumen tidak dapat di-obsalete-kan.');
         return redirect()->back();
     }
-    public function previewsAndDownloadObsoleteDoc($id)
-    {
-        // Temukan dokumen berdasarkan ID
-        $dokumen = IndukDokumen::findOrFail($id);
 
-        // Periksa apakah dokumen memiliki file yang sudah di-watermark
-        if (is_null($dokumen->obsolete_doc) || !Storage::disk('public')->exists($dokumen->obsolete_doc)) {
-            Alert::error('File watermark tidak ditemukan.');
-            return redirect()->back();
+    public function previewObsolete($id)
+    {
+        // Cari dokumen berdasarkan ID
+        $document = IndukDokumen::findOrFail($id);
+
+        // Lakukan validasi atau pengecekan apakah dokumen tersedia
+        if (!$document->obsolete_doc) {
+            abort(404, 'Dokumen tidak ditemukan atau tidak tersedia.');
         }
 
-        $path = storage_path('app/public/' . $dokumen->obsolete_doc);
-        $headers = [
-            'Content-Type' => 'application/pdf',
-        ];
+        // Path ke file PDF
+        $filePath = storage_path('app/public/' . $document->obsolete_doc);
 
-        // Tampilkan file yang sudah di-watermark di browser
-        return response()->file($path, $headers);
+        // Verifikasi apakah file ada di path yang diharapkan
+        if (!file_exists($filePath)) {
+            abort(404, 'File dokumen tidak ditemukan.');
+        }
+
+        // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
+        $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.pdf';
+
+        // Tampilkan file PDF di browser untuk pratinjau
+        return response()->file($filePath, ['Content-Disposition' => 'inline; filename="' . $fileName . '"']);
     }
-
-
-    // protected function addWatermarkToPdf($filePath, $watermarkText)
-    // {
-    //     // Buat direktori rule_watermark jika belum ada
-    //     $watermarkDirectory = 'rule_watermark';
-    //     $storagePath = storage_path('app/public/' . $watermarkDirectory);
-
-    //     if (!file_exists($storagePath)) {
-    //         mkdir($storagePath, 0755, true);
-    //     }
-
-    //     // Path lengkap file PDF asli
-    //     $fullPath = storage_path('app/public/' . $filePath);
-
-    //     if (!file_exists($fullPath)) {
-    //         Log::error("File tidak ditemukan: $fullPath");
-    //         return null;
-    //     }
-
-    //     // Path gambar watermark
-    //     $watermarkImagePath = storage_path('app/public/stamp_controlled_copy.png');
-
-    //     if (!file_exists($watermarkImagePath)) {
-    //         Log::error("Gambar watermark tidak ditemukan: $watermarkImagePath");
-    //         return null;
-    //     }
-
-    //     // Buat instance TCPDF dengan FPDI
-    //     $pdf = new TcpdfFpdi();
-    //     $pdf->SetAutoPageBreak(false);
-
-    //     $pageCount = $pdf->setSourceFile($fullPath);
-
-    //     // Proses setiap halaman
-    //     for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-    //         $tplId = $pdf->importPage($pageNo);
-    //         $size = $pdf->getTemplateSize($tplId);
-
-    //         // Tambahkan halaman dengan ukuran yang sama
-    //         $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-
-    //         // Import halaman asli
-    //         $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
-
-    //         // Tambahkan watermark gambar kecil di kiri bawah halaman
-    //         $imageWidth = 36; // Lebar gambar watermark
-    //         $imageHeight = 36; // Tinggi gambar watermark
-    //         $xPos = 10; // Posisi X dari kiri
-    //         $yPos = $size['height'] - $imageHeight - 10; // Posisi Y dari bawah (10mm dari bagian bawah)
-
-    //         // Menggunakan metode "Image" untuk menempatkan gambar
-    //         $pdf->Image($watermarkImagePath, $xPos, $yPos, $imageWidth, $imageHeight, 'PNG');
-
-    //         // Tambahkan watermark teks dengan transparansi abu-abu pada halaman
-    //         $pdf->SetFont('helvetica', 'B', 72); // Ukuran font tetap 72
-    //         $pdf->SetTextColor(150, 150, 150); // Warna abu-abu
-
-    //         // Set opacity (transparansi) untuk teks watermark
-    //         $pdf->SetAlpha(0.3); // Sesuaikan nilai opacity (0.0 sampai 1.0, di mana 1.0 adalah sepenuhnya tidak transparan)
-
-    //         // Menyesuaikan posisi watermark teks
-    //         $textXPos = 20; // Posisi X untuk teks
-    //         $textYPos = 150; // Posisi Y untuk teks tetap
-
-    //         $pdf->StartTransform();
-    //         $pdf->Rotate(45, $textXPos + 50, $textYPos); // Rotasi sekitar titik tengah watermark teks
-    //         $pdf->Text($textXPos, $textYPos, $watermarkText); // Posisi teks dengan rotasi
-    //         $pdf->StopTransform();
-
-    //         // Kembalikan opacity ke default
-    //         $pdf->SetAlpha(1.0);
-    //     }
-
-    //     // Tentukan path file baru
-    //     $watermarkedPath = $watermarkDirectory . '/watermarked_' . uniqid() . '.pdf';
-    //     $fullWatermarkedPath = storage_path('app/public/' . $watermarkedPath);
-
-    //     // Simpan file PDF yang di-watermark
-    //     $pdf->Output($fullWatermarkedPath, 'F');
-
-    //     if (!file_exists($fullWatermarkedPath)) {
-    //         Log::error("File watermark tidak dapat disimpan: $fullWatermarkedPath");
-    //         return null;
-    //     }
-
-    //     return $watermarkedPath;
-    // }
 }

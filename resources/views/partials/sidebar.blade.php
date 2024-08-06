@@ -83,19 +83,19 @@
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('document.final', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
+                            href="{{ route('documents.final', ['jenis' => 'rule', 'tipe' => 'WI']) }}">WI</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('document.final', ['jenis' => 'rule', 'tipe' => 'Prosedur']) }}">Procedure</a>
+                            href="{{ route('documents.final', ['jenis' => 'rule', 'tipe' => 'Prosedur']) }}">Procedure</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('document.final', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standard</a>
+                            href="{{ route('documents.final', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standard</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link"
-                            href="{{ route('document.final', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
+                            href="{{ route('documents.final', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
                     </li>
                 </ul>
             </div>

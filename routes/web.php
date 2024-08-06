@@ -90,19 +90,19 @@ Route::post('/documents/validate/{id}/obsolete', [ValidateRuleController::class,
 // Document Final Rule
 Route::get('/documents/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('document.final');
+    ->name('documents.final');
 Route::post('documents/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
     ->middleware(['auth', 'role:admin'])
     ->name('upload.final');
-Route::get('/documents/final/download/{id}', [RuleController::class, 'previewsAndDownloadDocFinal'])
+Route::get('/documents/final/preview-final/{id}', [ValidateRuleController::class, 'previewFinal'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('document.previewsAndDownloadDocFinal');
-Route::get('/documents/final/download-active/{id}', [ValidateRuleController::class, 'previewsAndDownloadActiveDoc'])
+    ->name('documents.previewFinal');
+Route::get('/documents/final/preview-active/{id}', [ValidateRuleController::class, 'previewActive'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('documents.previewsAndDownloadActiveDoc');
-Route::get('/documents/final/download-obsolete/{id}', [ValidateRuleController::class, 'previewsAndDownloadObsoleteDoc'])
+    ->name('documents.previewActive');
+Route::get('/documents/final/preview-obsolete/{id}', [ValidateRuleController::class, 'previewObsolete'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('documents.previewsAndDownloadObsoleteDoc');
+    ->name('documents.previewObsolete');
 Route::post('/documents/final/upload-oldDocument', [ValidateRuleController::class, 'upload_old_doc'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.oldDoc');

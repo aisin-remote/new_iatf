@@ -58,9 +58,9 @@ class RuleController extends Controller
         // ]);
         // Simpan file
         $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = 'rule/' . $filename;
-        $file->storeAs('rule', $filename, 'public');
+        $filename = $file->getClientOriginalName();
+        $path = 'draft-rule/' . $filename;
+        $file->storeAs($filename, 'public');
 
         // Ambil informasi user
         $userId = auth()->id();
@@ -105,7 +105,7 @@ class RuleController extends Controller
         $dokumen->revisi_log = $revisi_log;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
-        $dokumen->user_id = $request;
+        $dokumen->user_id = $userId;
         $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'Waiting check by MS';
         $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
@@ -153,7 +153,7 @@ class RuleController extends Controller
     public function final_doc($jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login
-        
+
         $kodeProses = RuleCode::all();
         $alldepartmens = Departemen::all();
         $departemens = Departemen::all();
@@ -190,30 +190,6 @@ class RuleController extends Controller
         }
 
         return view('pages-rule.dokumen-final', compact('dokumenfinal', 'kodeProses', 'alldepartmens', 'uniqueDepartemens', 'jenis', 'tipe'));
-    }
-
-    public function previewsAndDownloadDocFinal(Request $request, $id)
-    {
-        // Ambil dokumen berdasarkan ID
-        $doc = IndukDokumen::findOrFail($id);
-
-        // Cek apakah ada file PDF
-        if (!$doc->file_pdf) {
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
-        }
-
-        // Jika permintaan adalah untuk mengunduh file
-        if ($request->input('action') === 'download') {
-            return Storage::disk('public')->download($doc->file_pdf);
-        }
-
-        // Menampilkan pratinjau PDF
-        $filePath = storage_path('app/public/' . $doc->file_pdf);
-        if (!file_exists($filePath)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan.');
-        }
-
-        return response()->file($filePath);
     }
     public function share_document($jenis, $tipe)
     {

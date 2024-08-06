@@ -27,15 +27,11 @@
                 <div class="row w-100 mx-0">
                     <div class="col-lg-4 mx-auto">
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                            <div style="display: flex; align-items: center;">
-                                <div style="margin-right: 116px;">
-                                    <img src="../../images/logo-iatf.png" alt="logo"
-                                        style="height: auto; max-height: 64px;">
-                                </div>
-                                <div>
-                                    <img src="../../images/aisin.png" alt="logo"
-                                        style="height: auto; max-height: 64px;">
-                                </div>
+                            <div class="brand-logo"
+                                style="display: flex; justify-content: space-between; align-items: center;">
+                                <img src="../../images/logo-iatf.png" alt="logo">
+                                <img src="../../images/aisin.png" alt="logo"
+                                    style="width: 96px; height: auto; margin-left: auto;">
                             </div>
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
