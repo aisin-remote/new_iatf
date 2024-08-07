@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('induk_dokumen', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_dokumen');
+            $table->string('nomor_dokumen')->unique();
             $table->string('nama_dokumen');
             $table->date('tgl_upload');
             $table->text('file')->nullable();

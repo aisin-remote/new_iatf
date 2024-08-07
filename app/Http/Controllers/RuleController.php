@@ -51,16 +51,16 @@ class RuleController extends Controller
     public function store(Request $request)
     {
         // dd($request);
-        // $request->validate([
-        //     'file' => 'required|mimes:doc,docx,xls,xlsx|max:2048',
-        // ], [
-        //     'file.mimes' => 'Only Word and Excel files are allowed.',
-        // ]);
+        $request->validate([
+            'file' => 'required|mimes:doc,docx,xls,xlsx|max:10240',
+        ], [
+            'file.mimes' => 'Only Word and Excel files are allowed.',
+        ]);
         // Simpan file
         $file = $request->file('file');
         $filename = $file->getClientOriginalName();
         $path = 'draft-rule/' . $filename;
-        $file->storeAs($filename, 'public');
+        $file->storeAs('draft-rule', $filename, 'public'); // Simpan di direktori 'draft-rule' dalam storage 'public'
 
         // Ambil informasi user
         $userId = auth()->id();
@@ -81,7 +81,7 @@ class RuleController extends Controller
             ->first();
 
         if (!$document) {
-            return redirect()->back()->with('error', 'Jenis dan tipe dokumen tidak valid.');
+            return redirect()->back()->with('error', 'Invalid type and document type.');
         }
 
         $tipe_dokumen_code = $document->code;
@@ -108,7 +108,7 @@ class RuleController extends Controller
         $dokumen->user_id = $userId;
         $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'Waiting check by MS';
-        $dokumen->comment = 'Dokumen "' . $dokumen->nama_dokumen . '" telah diunggah.';
+        $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been uploaded.';
         $dokumen->save();
 
         // Jika ada departemen yang dipilih, kaitkan dokumen dengan departemen tersebut
@@ -119,37 +119,10 @@ class RuleController extends Controller
         }
 
         // Tampilkan pesan sukses
-        Alert::success('Success', 'Dokumen berhasil diunggah.');
+        Alert::success('Success', 'Document uploaded successfully.');
         return redirect()->back();
     }
-    public function downloadDraft($jenis, $tipe, $id)
-    {
-        // Ambil dokumen berdasarkan ID
-        $dokumen = IndukDokumen::find($id);
 
-        if (!$dokumen) {
-            return redirect()->back()->with('error', 'Dokumen tidak ditemukan.');
-        }
-
-        // Tentukan path file draft
-        $path = $dokumen->file;
-
-        // Periksa apakah path tidak null dan merupakan string
-        if (is_null($path) || !is_string($path)) {
-            return redirect()->back()->with('error', 'Path file tidak valid.');
-        }
-
-        // Periksa apakah file ada di storage
-        if (!Storage::disk('public')->exists($path)) {
-            return redirect()->back()->with('error', 'File tidak ditemukan di storage.');
-        }
-
-        // Tentukan nama file untuk download
-        $downloadFilename = $dokumen->nomor_dokumen . '_' . $dokumen->nama_dokumen . '.' . pathinfo($path, PATHINFO_EXTENSION);
-
-        // Lakukan download dengan nama file yang ditentukan
-        return Storage::disk('public')->download($path, $downloadFilename);
-    }
     public function final_doc($jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login

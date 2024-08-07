@@ -7,23 +7,29 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Final Document {{ ucfirst($jenis) }} - {{ ucfirst($tipe) }}</h4>
-                        <div class="d-flex justify-content-between mb-3">
-                            <!-- Tombol Upload Old Documents -->
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploadoldDoc">
-                                Upload Old Documents
-                            </button>
-                            <!-- Group untuk input pencarian dan tombol filter -->
-                            <div class="d-flex">
-                                <!-- Input pencarian -->
-                                <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
-                                    placeholder="Search...">
-                                <!-- Tombol Filter -->
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
-                                    style="background: #56544B">
-                                    Filter
-                                </button>
+                        <div class="container">
+                            <div class="row mb-3">
+                                <!-- Kolom untuk tombol Upload Old Documents -->
+                                <div class="col-md-6 d-flex align-items-center">
+                                    @role('admin')
+                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploadoldDoc">
+                                            Upload Old Documents
+                                        </button>
+                                    @endrole
+                                </div>
+
+                                <!-- Kolom untuk input pencarian dan tombol filter -->
+                                <div class="col-md-6 d-flex justify-content-end align-items-center">
+                                    <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                        placeholder="Search..." style="width: 300px;">
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
+                                        style="background: #56544B">
+                                        Filter
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -65,27 +71,34 @@
                                                 </td>
                                             @endif
                                             <td>
-                                                @if ($doc->file_pdf)
+                                                @if ($doc->statusdoc == 'active' && $doc->active_doc)
                                                     @php
-                                                        // Menggunakan nama file yang disimpan
+                                                        // Menggunakan nama file yang disimpan di kolom active_doc
+                                                        $fileUrl = asset('storage/' . $doc->active_doc);
+                                                    @endphp
+                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                @elseif ($doc->statusdoc == 'obsolete' && $doc->obsolete_doc)
+                                                    @php
+                                                        // Menggunakan nama file yang disimpan di kolom obsolete_doc
+                                                        $fileUrl = asset('storage/' . $doc->obsolete_doc);
+                                                    @endphp
+                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                @elseif ($doc->file_pdf)
+                                                    @php
+                                                        // Menggunakan nama file yang disimpan di kolom file_pdf
                                                         $fileUrl = asset('storage/' . $doc->file_pdf);
                                                     @endphp
-
-                                                    @if ($doc->statusdoc == 'not yet active')
-                                                        <a href="{{ $fileUrl }}" target="_blank">
-                                                            <i class="fa-solid fa-eye"></i> Preview Final
-                                                        </a>
-                                                    @elseif ($doc->statusdoc == 'active')
-                                                        <a href="{{ $fileUrl }}" target="_blank">
-                                                            <i class="fa-solid fa-eye"></i> Preview Active
-                                                        </a>
-                                                    @elseif ($doc->statusdoc == 'obsolete')
-                                                        <a href="{{ $fileUrl }}" target="_blank">
-                                                            <i class="fa-solid fa-eye"></i> Preview Obsolete
-                                                        </a>
-                                                    @endif
+                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
                                                 @endif
-
                                                 @role('admin')
                                                     <!-- Tombol untuk mengaktifkan dokumen -->
                                                     @if ($doc->file_pdf && ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolete'))

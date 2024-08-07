@@ -37,7 +37,7 @@
                                             <td>{{ $doc->nomor_dokumen }}</td>
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>
-                                                @if($doc->user_id)
+                                                @if ($doc->user_id)
                                                     {{ $doc->user->departemen->nama_departemen }}
                                                 @else
                                                     {{ $doc->departemen->nama_departemen }}
@@ -45,10 +45,16 @@
                                             </td>
                                             <td>{{ $doc->statusdoc }}</td>
                                             <td>
-                                                <a href="{{ route('documents.previewsAndDownloadActiveDoc', ['id' => $doc->id]) }}"
-                                                    class="btn btn-info btn-sm" target="_blank">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
+                                                @if ($doc->statusdoc == 'active' && $doc->active_doc)
+                                                    @php
+                                                        // Menggunakan nama file yang disimpan di kolom active_doc
+                                                        $fileUrl = asset('storage/' . $doc->active_doc);
+                                                    @endphp
+                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-eye"></i>
+                                                    </a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty

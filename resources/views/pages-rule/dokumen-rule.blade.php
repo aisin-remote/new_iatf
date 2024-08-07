@@ -6,7 +6,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Document {{ ucfirst($jenis) }} - Tipe: {{ ucfirst($tipe) }}</h4>
+                        <h4 class="card-title">Document</h4>
                         <p class="card-description"></p>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal">
@@ -38,11 +38,8 @@
                                                 <td>{{ $doc->status }}</td>
                                                 <td>
                                                     <!-- Tombol Download -->
-                                                    <a href="{{ route('download.rule', ['jenis' => $jenis, 'tipe' => $tipe, 'id' => $doc->id]) }}"
-                                                        class="btn btn-primary btn-sm">
-                                                        download
-                                                        <i class="fa-solid fa-download"></i>
-                                                    </a>
+                                                    <a href="{{ url('/documents/download', ['id' => $doc->id]) }}"
+                                                        target="_blank" class="btn btn-primary">Download</a>
                                                 </td>
                                             </tr>
                                         @endif

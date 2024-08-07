@@ -7,7 +7,6 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RuleController;
 use App\Http\Controllers\ValidateRuleController;
 use Illuminate\Support\Facades\Route;
-use League\CommonMark\Node\Block\Document;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,15 +68,15 @@ Route::get('/documents/{jenis}/{tipe}', [RuleController::class, 'index'])
 Route::post('/documents/draftRule', [RuleController::class, 'store'])
     ->middleware(['auth', 'role:guest'])
     ->name('tambah.rule');
-Route::get('/documents/{jenis}/{tipe}/download/{id}', [RuleController::class, 'downloadDraft'])
+Route::get('/documents/download/{id}', [RuleController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.rule');
+    ->name('dokumen.download');
 
 // Validate Rule
-Route::get('/documents/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
+Route::get('/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])
     ->name('rule.validate');
-Route::post('/documents/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
+Route::post('/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
     ->middleware(['auth', 'role:admin'])
     ->name('dokumen.approve');
 Route::post('/documents/validate/{id}/activate', [ValidateRuleController::class, 'activateDocument'])
@@ -115,7 +114,5 @@ Route::get('/documents/share/preview-and-download/{id}', [RuleController::class,
     ->middleware(['auth', 'role:admin|guest'])
     ->name('previewsAndDownloadShareDoc');
 
-Route::get('/documents/filter', 'DocumentController@filter')->name('documents.filter');
-
 //notifications
-Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+// Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

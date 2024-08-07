@@ -8,7 +8,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Template Dokumen</h4>
+                        <h4 class="card-title">Document Templates</h4>
                         <div class="d-flex justify-content-end mb-3">
                             @role('admin')
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addtemplate">
@@ -21,8 +21,8 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Nomor Template</th>
-                                        <th>Judul Dokumen</th>
+                                        <th>Template Number</th>
+                                        <th>Document Title</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -91,23 +91,23 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="nomor_template">Nomor Template</label>
+                            <label for="nomor_template">Template Number</label>
                             <input type="text" class="form-control" id="nomor_template" name="nomor_template" required>
                         </div>
                         <div class="form-group">
-                            <label for="tipe_dokumen">Tipe Dokumen</label>
+                            <label for="tipe_dokumen">Document Type</label>
                             <input type="text" class="form-control" id="tipe_dokumen" name="tipe_dokumen" required>
                         </div>
                         <div class="form-group">
-                            <label for="tgl_efektif">Tanggal Efektif</label>
+                            <label for="tgl_efektif">Effective date</label>
                             <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
                         </div>
                         <div class="form-group">
-                            <label for="file">Pilih Pratinjau (.pdf)</label>
+                            <label for="file">Select Preview (.pdf)</label>
                             <input type="file" class="form-control-file" id="file" name="file" required>
                         </div>
                         <div class="form-group">
-                            <label for="template">Pilih Template (.word, .excel)</label>
+                            <label for="template">Select Template (.word, .excel)</label>
                             <input type="file" class="form-control-file" id="template" name="template">
                         </div>
                     </div>
@@ -127,7 +127,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="edittemplateLabel">Edit Template</h5>
+                        <h5 class="modal-title" id="edittemplateLabel">Select Template (.word, .excel)</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -137,20 +137,20 @@
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="nomor_template">Nomor Template</label>
+                                <label for="nomor_template">Template Number</label>
                                 <input type="text" class="form-control" id="nomor_template" name="nomor_template"
                                     value="{{ $doc->nomor_template }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="tgl_efektif">Tanggal Efektif</label>
+                                <label for="tgl_efektif">Effective date</label>
                                 <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
                             </div>
                             <div class="form-group">
-                                <label for="file">Pilih Pratinjau (pdf)</label>
+                                <label for="file">Select Preview (.pdf)</label>
                                 <input type="file" class="form-control-file" id="file" name="file">
                             </div>
                             <div class="form-group">
-                                <label for="template">Pilih Template (.word, .excel)</label>
+                                <label for="template">Select Template (.word, .excel)</label>
                                 <input type="file" class="form-control-file" id="template" name="template">
                             </div>
                         </div>
