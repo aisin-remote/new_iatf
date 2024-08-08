@@ -136,7 +136,7 @@
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('filter.documents') }}" method="POST">
+                    <form action="{{ route('dashboard.rule') }}" method="GET">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="filterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
@@ -150,13 +150,16 @@
                                 <div class="col-4">
                                     <label class="col-form-label">Start Date</label>
                                 </div>
-                                <div class="col">
-                                    <input type="text" name="date_from" class="form-control input"
-                                        placeholder="From">
+                                <div class="col-3">
+                                    <input type="date" name="date_from" class="form-control input"
+                                        value="{{ request('date_from') }}">
                                 </div>
-                                <label class="col-form-label px-3">to</label>
-                                <div class="col">
-                                    <input type="text" name="date_to" class="form-control input" placeholder="To">
+                                <div class="col text-center">
+                                    <label class="col-form-label">to</label>
+                                </div>
+                                <div class="col-3">
+                                    <input type="date" name="date_to" class="form-control input"
+                                        value="{{ request('date_to') }}">
                                 </div>
                             </div>
 
@@ -169,12 +172,14 @@
                                     <select name="tipe_dokumen_id" id="tipe_dokumen_id" class="form-control select2"
                                         style="width: 100%;">
                                         <option value="" selected>Select Document Type</option>
-                                        @foreach ($tipeDokumen as $dokumen)
-                                            <option value="{{ $dokumen->id }}"
-                                                {{ request('tipe_dokumen_id') == $dokumen->id ? 'selected' : '' }}>
-                                                {{ $dokumen->tipe_dokumen }}
-                                            </option>
-                                        @endforeach
+                                        <option value="WI" {{ request('dokumen_id') == '1' ? 'selected' : '' }}>
+                                            WI</option>
+                                        <option value="PROSEDUR" {{ request('dokumen_id') == '2' ? 'selected' : '' }}>
+                                            Prosedur</option>
+                                        <option value="WIS" {{ request('dokumen_id') == '3' ? 'selected' : '' }}>
+                                            WIS</option>
+                                        <option value="STANDAR" {{ request('dokumen_id') == '4' ? 'selected' : '' }}>
+                                            Standar</option>
                                     </select>
                                 </div>
                             </div>
@@ -186,19 +191,76 @@
                                         <label class="col-form-label">Department</label>
                                     </div>
                                     <div class="col">
-                                        <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                        <select name="departemen" id="departemen" class="form-control select2"
                                             style="width: 100%;">
                                             <option value="" selected>Select Department</option>
                                             @foreach ($allDepartemen as $departemen)
-                                                <option value="{{ $departemen->nama_departemen }}"
-                                                    {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
-                                                    {{ $departemen->nama_departemen }}
+                                                <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
                                                 </option>
                                             @endforeach
+                                            {{-- <option value="Aisin Indonesia"
+                                                {{ request('departemen_id') == 'i' ? 'selected' : '' }}>
+                                                Aisin Indonesia</option>
+                                            <option value="Quality Body"
+                                                {{ request('departemen_id') == '2' ? 'selected' : '' }}>
+                                                Quality Body</option>
+                                            <option value="Quality Unit"
+                                                {{ request('departemen_id') == '3' ? 'selected' : '' }}>
+                                                Quality Unit</option>
+                                            <option value="Quality Electric"
+                                                {{ request('departemen_id') == '4' ? 'selected' : '' }}>
+                                                Quality Electric</option>
+                                            <option value="PPIC Receiving"
+                                                {{ request('departemen_id') == '5' ? 'selected' : '' }}>
+                                                PPIC Receiving</option>
+                                            <option value="PPIC Delivery"
+                                                {{ request('departemen_id') == '6' ? 'selected' : '' }}>
+                                                PPIC Delivery</option>
+                                            <option value="PPIC Electric"
+                                                {{ request('departemen_id') == '7' ? 'selected' : '' }}>
+                                                PPIC Electric</option>
+                                            <option value="Engineering Body"
+                                                {{ request('departemen_id') == '8' ? 'selected' : '' }}>
+                                                Engineering Body</option>
+                                            <option value="Engineering Unit"
+                                                {{ request('departemen_id') == '9' ? 'selected' : '' }}>
+                                                Engineering Unit</option>
+                                            <option value="Engineering Electric"
+                                                {{ request('departemen_id') == '10' ? 'selected' : '' }}>
+                                                Engineering Electric</option>
+                                            <option value="Maintenance"
+                                                {{ request('departemen_id') == '11' ? 'selected' : '' }}>
+                                                Maintenance</option>
+                                            <option value="Maintenance Electric"
+                                                {{ request('departemen_id') == '12' ? 'selected' : '' }}>
+                                                Maintenance Electric</option>
+                                            <option value="Production Unit"
+                                                {{ request('departemen_id') == '13' ? 'selected' : '' }}>
+                                                Production Unit</option>
+                                            <option value="Production Body"
+                                                {{ request('departemen_id') == '14' ? 'selected' : '' }}>
+                                                Production Body</option>
+                                            <option value="Production Electric"
+                                                {{ request('departemen_id') == '15' ? 'selected' : '' }}>
+                                                Production Electric</option>
+                                            <option value="Production System Development"
+                                                {{ request('departemen_id') == '16' ? 'selected' : '' }}>
+                                                Production System Development</option>
+                                            <option value="IT Development"
+                                                {{ request('departemen_id') == '17' ? 'selected' : '' }}>
+                                                IT Development</option>
+                                            <option value="Management System"
+                                                {{ request('departemen_id') == '18' ? 'selected' : '' }}>
+                                                Management System</option>
+                                            <option value="Management Representative"
+                                                {{ request('departemen_id') == '19' ? 'selected' : '' }}>
+                                                Management Representative</option> --}}
+
                                         </select>
                                     </div>
                                 </div>
                             @endrole
+
                             <!-- Filter berdasarkan Status Dokumen -->
                             <div class="row my-2">
                                 <div class="col-4">
@@ -230,6 +292,7 @@
                 </div>
             </div>
         </div>
+
 
         <!-- Bagian tabel -->
         <div class="row">
@@ -265,7 +328,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="table-responsive">
-                                    <table class="table table-striped">
+                                    <table class="table table-striped" id="documentTable">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
@@ -285,10 +348,10 @@
                                                     <td>{{ $doc->nama_dokumen }}</td>
                                                     <td>{{ $doc->revisi_log }}</td>
                                                     <td>
-                                                        @if($doc->user_id)
-                                                            {{ $doc->user->departemen->nama_departemen }}
+                                                        @if ($doc->user_id)
+                                                            {{ $doc->departemenUser->departemen->nama_departemen }}
                                                         @else
-                                                            {{ $doc->departemen->nama_departemen }}
+                                                            {{ $doc->departemenDirect->nama_departemen }}
                                                         @endif
                                                     </td>
                                                     <td>{{ $doc->statusdoc }}</td>
@@ -312,6 +375,7 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         function updateDateTime() {
@@ -439,41 +503,24 @@
     </script>
     <script>
         $(document).ready(function() {
-            // Tangkap event saat tombol Apply Filter diklik
-            $('#applyFilter').click(function() {
-                // Ambil nilai input dari modal
-                var date_from = $('input[name="date_from"]').val();
-                var date_to = $('input[name="date_to"]').val();
-                var tipe_dokumen_id = $('#tipe_dokumen_id').val();
-                var departemen_id = $('#departemen_id').val();
-                var statusdoc = $('#statusdoc').val();
-
-                // Kirim data filter ke controller menggunakan Ajax
-                $.ajax({
-                    url: '{{ route('filter.documents') }}', // Ganti dengan route yang sesuai
-                    type: 'GET',
-                    data: {
-                        date_from: date_from,
-                        date_to: date_to,
-                        tipe_dokumen_id: tipe_dokumen_id,
-                        departemen_id: departemen_id,
-                        statusdoc: statusdoc
-                    },
-                    success: function(response) {
-                        // Handle response dari server (misalnya, refresh halaman atau update konten)
-                        console.log(response); // Cetak response ke console untuk debugging
-                        // Anda bisa menambahkan logika untuk meng-update halaman atau bagian tertentu
-                    },
-                    error: function(xhr, status, error) {
-                        // Handle jika terjadi error saat mengirim data
-                        console.error(error); // Cetak error ke console untuk debugging
-                    }
+            // Event handler untuk pencarian
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#documentTableBody tr').each(function() {
+                    var row = $(this);
+                    var text = row.text().toLowerCase();
+                    row.toggle(text.indexOf(value) > -1);
                 });
+            });
 
-                // Tutup modal setelah Apply Filter diklik
-                $('#filterModal').modal('hide');
+            // Menghandle pagination agar pencarian bekerja
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function(data) {
+                    $('#documentTableBody').html($(data).find('#documentTableBody').html());
+                });
             });
         });
     </script>
-
 @endsection

@@ -6,7 +6,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Document</h4>
+                        <h4 class="card-title">Document {{ $jenis }} - {{ $tipe }}</h4>
                         <p class="card-description"></p>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploaddraftModal">
@@ -38,8 +38,10 @@
                                                 <td>{{ $doc->status }}</td>
                                                 <td>
                                                     <!-- Tombol Download -->
-                                                    <a href="{{ url('/documents/download', ['id' => $doc->id]) }}"
-                                                        target="_blank" class="btn btn-primary">Download</a>
+                                                    <a href="{{ route('download.rule', ['id' => $doc->id]) }}"
+                                                        class="btn btn-success btn-sm" target="_blank">
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </a>
                                                 </td>
                                             </tr>
                                         @endif
@@ -77,6 +79,10 @@
                             <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
                         </div>
                         <div class="form-group">
+                            <label for="nomor_list">Number Document</label>
+                            <input type="text" class="form-control" id="nomor_list" name="nomor_list" required>
+                        </div>
+                        <div class="form-group">
                             <label for="status_dokumen">Document Status</label>
                             <select class="form-control" id="status_dokumen" name="status_dokumen" required>
                                 <option value="">Select Document Status</option>
@@ -88,10 +94,7 @@
                             <label for="revisi_ke">Revision Number</label>
                             <input type="number" class="form-control" id="revisi_ke" name="revisi_ke">
                         </div>
-                        <div class="form-group">
-                            <label for="nomor_list">Number Document</label>
-                            <input type="text" class="form-control" id="nomor_list" name="nomor_list" required>
-                        </div>
+                        
                         <div class="form-group">
                             <label for="rule_id">Process Code</label>
                             <select class="form-control" id="rule_id" name="rule_id" required>

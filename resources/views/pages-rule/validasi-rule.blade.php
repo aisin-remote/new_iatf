@@ -52,8 +52,10 @@
                                             <td>
                                                 @if ($doc->status == 'Waiting check by MS')
                                                     <!-- Tombol Download Draft -->
-                                                    <a href="{{ route('dokumen.download', $doc->id) }}"
-                                                        class="btn btn-primary">Download</a>
+                                                    <a href="{{ route('download.rule', ['id' => $doc->id]) }}"
+                                                        class="btn btn-success btn-sm" target="_blank">
+                                                        <i class="fa-solid fa-download"></i>
+                                                    </a>
                                                     <!-- Tombol Approve Draft -->
                                                     <button class="btn btn-success btn-sm" data-toggle="modal"
                                                         data-target="#feedbackDokumen-{{ $doc->id }}">

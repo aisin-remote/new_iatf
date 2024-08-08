@@ -66,6 +66,7 @@ class RuleController extends Controller
         $userId = auth()->id();
         $user = auth()->user();
         $departemen_user_code = $user->departemen->code;
+        $departemen_id = $user->departemen->id;
         $revisi_log = $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0;
 
         // Ambil rule
@@ -107,6 +108,7 @@ class RuleController extends Controller
         $dokumen->tgl_upload = Carbon::now();
         $dokumen->user_id = $userId;
         $dokumen->rule_id = $request->rule_id;
+        $dokumen->departemen_id = $departemen_id;
         $dokumen->status = 'Waiting check by MS';
         $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been uploaded.';
         $dokumen->save();
@@ -122,7 +124,22 @@ class RuleController extends Controller
         Alert::success('Success', 'Document uploaded successfully.');
         return redirect()->back();
     }
+    public function download($id)
+    {
+        // Cari dokumen berdasarkan ID
+        $doc = IndukDokumen::findOrFail($id);
 
+        // Path ke file dokumen
+        $filePath = $doc->file; // Path yang disimpan di database
+
+        // Cek apakah file ada
+        if (!Storage::disk('public')->exists($filePath)) {
+            return redirect()->back()->with('error', 'File tidak ditemukan.');
+        }
+
+        // Mengembalikan response download
+        return Storage::disk('public')->download($filePath);
+    }
     public function final_doc($jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login

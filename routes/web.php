@@ -7,6 +7,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RuleController;
 use App\Http\Controllers\ValidateRuleController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +41,7 @@ Route::get('/notifications', [HomeController::class, 'getNotifications'])
 Route::get('download-excel', [HomeController::class, 'downloadExcel'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.excel');
-Route::post('/filter-documents', [HomeController::class, 'filterDocuments'])
+Route::get('/filter-documents', [HomeController::class, 'filterDocuments'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('filter.documents');
 
@@ -68,10 +69,9 @@ Route::get('/documents/{jenis}/{tipe}', [RuleController::class, 'index'])
 Route::post('/documents/draftRule', [RuleController::class, 'store'])
     ->middleware(['auth', 'role:guest'])
     ->name('tambah.rule');
-Route::get('/documents/download/{id}', [RuleController::class, 'download'])
+Route::get('/download/rule/{id}', [RuleController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('dokumen.download');
-
+    ->name('download.rule');
 // Validate Rule
 Route::get('/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])
@@ -110,9 +110,6 @@ Route::post('/documents/final/upload-oldDocument', [ValidateRuleController::clas
 Route::get('/documents/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-Route::get('/documents/share/preview-and-download/{id}', [RuleController::class, 'previewsAndDownloadShareDoc'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('previewsAndDownloadShareDoc');
 
 //notifications
 // Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

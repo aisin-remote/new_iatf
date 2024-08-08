@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
+use App\Models\IndukDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -135,16 +136,17 @@ class DokumenController extends Controller
     }
     public function download($id)
     {
+        dd($id);
         // Cari dokumen berdasarkan ID
-        $document = Dokumen::findOrFail($id);
+        $document = IndukDokumen::findOrFail($id);
 
         // Lakukan validasi atau pengecekan apakah dokumen tersedia
-        if (!$document->template) {
+        if (!$document->file) {
             abort(404, 'Document not found or not available.');
         }
 
         // Path ke file template
-        $filePath = storage_path('app/public/template_dokumen/' . $document->template);
+        $filePath = storage_path('app/public/draft-rule/' . $document->template);
 
         // Verifikasi apakah file ada di path yang diharapkan
         if (!file_exists($filePath)) {
