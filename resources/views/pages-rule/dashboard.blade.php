@@ -198,64 +198,6 @@
                                                 <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
                                                 </option>
                                             @endforeach
-                                            {{-- <option value="Aisin Indonesia"
-                                                {{ request('departemen_id') == 'i' ? 'selected' : '' }}>
-                                                Aisin Indonesia</option>
-                                            <option value="Quality Body"
-                                                {{ request('departemen_id') == '2' ? 'selected' : '' }}>
-                                                Quality Body</option>
-                                            <option value="Quality Unit"
-                                                {{ request('departemen_id') == '3' ? 'selected' : '' }}>
-                                                Quality Unit</option>
-                                            <option value="Quality Electric"
-                                                {{ request('departemen_id') == '4' ? 'selected' : '' }}>
-                                                Quality Electric</option>
-                                            <option value="PPIC Receiving"
-                                                {{ request('departemen_id') == '5' ? 'selected' : '' }}>
-                                                PPIC Receiving</option>
-                                            <option value="PPIC Delivery"
-                                                {{ request('departemen_id') == '6' ? 'selected' : '' }}>
-                                                PPIC Delivery</option>
-                                            <option value="PPIC Electric"
-                                                {{ request('departemen_id') == '7' ? 'selected' : '' }}>
-                                                PPIC Electric</option>
-                                            <option value="Engineering Body"
-                                                {{ request('departemen_id') == '8' ? 'selected' : '' }}>
-                                                Engineering Body</option>
-                                            <option value="Engineering Unit"
-                                                {{ request('departemen_id') == '9' ? 'selected' : '' }}>
-                                                Engineering Unit</option>
-                                            <option value="Engineering Electric"
-                                                {{ request('departemen_id') == '10' ? 'selected' : '' }}>
-                                                Engineering Electric</option>
-                                            <option value="Maintenance"
-                                                {{ request('departemen_id') == '11' ? 'selected' : '' }}>
-                                                Maintenance</option>
-                                            <option value="Maintenance Electric"
-                                                {{ request('departemen_id') == '12' ? 'selected' : '' }}>
-                                                Maintenance Electric</option>
-                                            <option value="Production Unit"
-                                                {{ request('departemen_id') == '13' ? 'selected' : '' }}>
-                                                Production Unit</option>
-                                            <option value="Production Body"
-                                                {{ request('departemen_id') == '14' ? 'selected' : '' }}>
-                                                Production Body</option>
-                                            <option value="Production Electric"
-                                                {{ request('departemen_id') == '15' ? 'selected' : '' }}>
-                                                Production Electric</option>
-                                            <option value="Production System Development"
-                                                {{ request('departemen_id') == '16' ? 'selected' : '' }}>
-                                                Production System Development</option>
-                                            <option value="IT Development"
-                                                {{ request('departemen_id') == '17' ? 'selected' : '' }}>
-                                                IT Development</option>
-                                            <option value="Management System"
-                                                {{ request('departemen_id') == '18' ? 'selected' : '' }}>
-                                                Management System</option>
-                                            <option value="Management Representative"
-                                                {{ request('departemen_id') == '19' ? 'selected' : '' }}>
-                                                Management Representative</option> --}}
-
                                         </select>
                                     </div>
                                 </div>
@@ -349,9 +291,9 @@
                                                     <td>{{ $doc->revisi_log }}</td>
                                                     <td>
                                                         @if ($doc->user_id)
-                                                            {{ $doc->departemenUser->departemen->nama_departemen }}
+                                                            {{ $doc->departemen->departemen->nama_departemen }}
                                                         @else
-                                                            {{ $doc->departemenDirect->nama_departemen }}
+                                                            {{ $doc->departemen->nama_departemen }}
                                                         @endif
                                                     </td>
                                                     <td>{{ $doc->statusdoc }}</td>

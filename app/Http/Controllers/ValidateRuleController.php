@@ -102,11 +102,12 @@ class ValidateRuleController extends Controller
         // Ambil dokumen berdasarkan ID
         $doc = IndukDokumen::findOrFail($id);
 
-        // Simpan file di folder final-rule
-        $file = $request->file('file');
-        $filename = $file->getClientOriginalName();
-        $path = $filename;
-        $file->storeAs('final-rule', $filename, 'public');
+        // Simpan file di folder public tanpa folder tambahan
+        $file_pdf = $request->file('file');
+        $filename = $file_pdf->getClientOriginalName(); // Ambil nama file asli
+        $path = 'final-rule/' . $filename; // Tentukan path
+        $file_pdf->storeAs('final-rule', $filename, 'public'); // Simpan file dengan nama asli
+
 
         // Update path file di database
         $doc->file_pdf = $path;
@@ -118,12 +119,18 @@ class ValidateRuleController extends Controller
 
     public function upload_old_doc(Request $request)
     {
-        $file_pdf = $request->file('file');
-        $filename = $file_pdf->getClientOriginalName(); // Hanya nama file
-        $path = $filename; // Hanya nama file
+        // Validasi file
+        $request->validate([
+            'file' => 'required|mimes:pdf|max:10240',
+        ], [
+            'file.mimes' => 'Only PDF files are allowed.',
+        ]);
 
-        // Simpan file ke storage tanpa folder tambahan
-        $file_pdf->storeAs('', $filename, 'public'); // Simpan di root storage folder
+        // Simpan file ke direktori public
+        $file_pdf = $request->file('file');
+        $filename = $file_pdf->getClientOriginalName();
+        $path = 'final-rule/' . $filename;
+        $file_pdf->storeAs('final-rule', $filename, 'public'); // Simpan file
 
         // Ambil informasi departemen dari input form
         $departemen_id = $request->input('department');
@@ -167,11 +174,11 @@ class ValidateRuleController extends Controller
         $dokumen = new IndukDokumen();
         $dokumen->nama_dokumen = $request->nama_dokumen;
         $dokumen->dokumen_id = $document->id;
-        $dokumen->file_pdf = $path; // Hanya nama file
+        $dokumen->file_pdf = $path; // Path file yang benar
         $dokumen->revisi_log = $revisi_log;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
-        $dokumen->departemen_id = $departemen_id; // Simpan departemen_id sebagai user_id
+        $dokumen->departemen_id = $departemen_id;
         $dokumen->rule_id = $request->rule_id;
         $dokumen->status = 'Finish check by MS';
         $dokumen->statusdoc = 'not yet active';
@@ -182,27 +189,40 @@ class ValidateRuleController extends Controller
         if ($request->has('kode_departemen')) {
             $departemenCodes = $request->input('kode_departemen');
             $departemens = Departemen::whereIn('code', $departemenCodes)->get();
-            $dokumen->departments()->sync($departemens->pluck('id')); // Menggunakan sync() untuk update relasi
+            $dokumen->departments()->sync($departemens->pluck('id'));
         }
 
         // Tampilkan pesan sukses
         Alert::success('Success', 'Document uploaded successfully.');
         return redirect()->back();
     }
-
     public function activateDocument(Request $request, $id)
     {
+        $id = (int) $id;
+        
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
-
+        
         // Periksa apakah dokumen belum aktif atau sudah obsolete
         if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
-            // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
-            if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Controlled Copy', 'stamp_controlled_copy.png', 20, 150);
 
-                // Simpan path file yang sudah di-watermark ke kolom active_doc
+            // Cek apakah kolom file_pdf tidak null dan file tersebut ada
+            if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
+                // Tambahkan watermark pada PDF
+                $watermarkedPath = $this->addWatermarkToPdf(
+                    $dokumen->file_pdf,
+                    'Controlled Copy',
+                    'stamp_controlled_copy.png',
+                    20,
+                    150
+                );
+                
+                // Perbarui kolom active_doc dengan path file yang sudah di-watermark
                 $dokumen->active_doc = $watermarkedPath;
+            } else {
+                // Jika file_pdf tidak ada, tampilkan pesan kesalahan
+                Alert::error('The document PDF file is missing.');
+                return redirect()->back();
             }
 
             // Set status dokumen
@@ -227,26 +247,35 @@ class ValidateRuleController extends Controller
 
         // Periksa apakah dokumen belum aktif atau sudah obsolete
         if ($dokumen->statusdoc != 'obsolete') {
-            // Tambahkan watermark pada PDF jika kolom pdf_file tidak null
+            // Tambahkan watermark pada PDF jika kolom file_pdf tidak null
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                $watermarkedPath = $this->addWatermarkToPdf($dokumen->file_pdf, 'Obsolete', 'stamp_obsolete.png', 50, 120);
+                $watermarkedPath = $this->addWatermarkToPdf(
+                    $dokumen->file_pdf,
+                    'Obsolete',
+                    'stamp_obsolete.png',
+                    50,
+                    120
+                );
 
                 // Simpan path file yang sudah di-watermark ke kolom obsolete_doc
                 $dokumen->obsolete_doc = $watermarkedPath;
+            } else {
+                Alert::error('The document PDF file is missing.');
+                return redirect()->back();
             }
 
             // Set status dokumen
             $dokumen->statusdoc = 'obsolete';
             $dokumen->status = 'Obsolete by MS';
-            $dokumen->comment = 'The document has been successfully obsolete';
+            $dokumen->comment = 'The document has been successfully marked as obsolete.';
             $dokumen->tgl_efektif = $request->input('obsolete_date');
             $dokumen->save();
 
-            Alert::success('The document has been successfully obsolete.');
+            Alert::success('The document has been successfully marked as obsolete.');
             return redirect()->back();
         }
 
-        Alert::error('Documents cannot be obsolete.');
+        Alert::error('The document cannot be marked as obsolete.');
         return redirect()->back();
     }
 }

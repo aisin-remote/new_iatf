@@ -17,7 +17,6 @@
                                         </button>
                                     @endrole
                                 </div>
-
                                 <!-- Kolom untuk input pencarian dan tombol filter -->
                                 <div class="col-md-6 d-flex justify-content-end align-items-center">
                                     <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
@@ -29,108 +28,99 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="table-responsive">
-                            <table class="table table-striped" id="documentTableBody">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Document Number</th>
-                                        <th>Document Title</th>
-                                        <th>Upload By</th>
-                                        <th>Status</th>
-                                        @if (
-                                            $dokumenfinal->contains(function ($doc) {
-                                                return is_null($doc->file_pdf);
-                                            }))
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="documentTableBody">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Document Number</th>
+                                            <th>Document Title</th>
+                                            <th>Upload By</th>
+                                            <th>Status</th>
                                             <th>Action</th>
-                                        @endif
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($dokumenfinal as $doc)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $doc->nomor_dokumen }}</td>
-                                            <td>{{ $doc->nama_dokumen }}</td>
-                                            <td>
-                                                @if ($doc->user_id)
-                                                    {{ $doc->user->departemen->nama_departemen }}
-                                                @else
-                                                    {{ $doc->departemen->nama_departemen }}
-                                                @endif
-                                            </td>
-                                            <td>{{ $doc->statusdoc }}</td>
-                                            <td>
-                                                @if (is_null($doc->file_pdf))
-                                                    <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                        data-target="#uploadFinalModal-{{ $doc->id }}">
-                                                        Upload Final
-                                                    </button>
-                                                @elseif ($doc->statusdoc == 'active' && $doc->active_doc)
-                                                    @php
-                                                        // Menggunakan nama file yang disimpan di kolom active_doc
-                                                        $fileUrl = asset('storage/' . $doc->active_doc);
-                                                    @endphp
-                                                    <a href="{{ $fileUrl }}" target="_blank"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fa-solid fa-eye"></i>
-                                                    </a>
-                                                @elseif ($doc->statusdoc == 'obsolete' && $doc->obsolete_doc)
-                                                    @php
-                                                        // Menggunakan nama file yang disimpan di kolom obsolete_doc
-                                                        $fileUrl = asset('storage/' . $doc->obsolete_doc);
-                                                    @endphp
-                                                    <a href="{{ $fileUrl }}" target="_blank"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fa-solid fa-eye"></i>
-                                                    </a>
-                                                @elseif ($doc->file_pdf)
-                                                    @php
-                                                        // Menggunakan nama file yang disimpan di kolom file_pdf
-                                                        $fileUrl = asset('storage/' . $doc->file_pdf);
-                                                    @endphp
-                                                    <a href="{{ $fileUrl }}" target="_blank"
-                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fa-solid fa-eye"></i>
-                                                    </a>
-                                                @endif
-
-                                                @role('admin')
-                                                    <!-- Tombol untuk mengaktifkan dokumen -->
-                                                    @if ($doc->file_pdf && ($doc->statusdoc == 'not yet active' || $doc->statusdoc == 'obsolete'))
-                                                        <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                            data-target="#activateDokumen-{{ $doc->id }}">
-                                                            activate
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($dokumenfinal as $doc)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $doc->nomor_dokumen }}</td>
+                                                <td>{{ $doc->nama_dokumen }}</td>
+                                                <td>
+                                                    @if ($doc->user_id)
+                                                        {{ $doc->user->departemen->nama_departemen }}
+                                                    @else
+                                                        {{ $doc->departemen->nama_departemen }}
+                                                    @endif
+                                                </td>
+                                                <td>{{ $doc->statusdoc }}</td>
+                                                <td>
+                                                    @if (is_null($doc->file_pdf))
+                                                        <!-- Tombol Upload Final jika file_pdf kosong -->
+                                                        <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                                            data-target="#uploadFinalModal-{{ $doc->id }}">
+                                                            Upload Final
                                                         </button>
                                                     @else
-                                                        <button class="btn btn-primary btn-sm" disabled>
-                                                            activate
-                                                        </button>
+                                                        @if ($doc->statusdoc == 'not yet active')
+                                                            <!-- Tombol View dari file_pdf, tombol Activate, dan tombol Obsolete -->
+                                                            @php
+                                                                $fileUrl = Storage::url($doc->file_pdf);
+                                                            @endphp
+                                                            <a href="{{ $fileUrl }}" target="_blank"
+                                                                class="btn btn-primary btn-sm">
+                                                                <i class="fa-solid fa-eye"></i>
+                                                            </a>
+                                                            @role('admin')
+                                                                <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                                    data-target="#activateDokumen-{{ $doc->id }}">
+                                                                    Activate
+                                                                </button>
+                                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                                    data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                    Obsolete
+                                                                </button>
+                                                            @endrole
+                                                        @elseif ($doc->statusdoc == 'active')
+                                                            <!-- Tombol View dari active_doc dan tombol Obsolete -->
+                                                            @php $fileUrl = asset('storage/' . $doc->active_doc); @endphp
+                                                            <a href="{{ $fileUrl }}" target="_blank"
+                                                                class="btn btn-primary btn-sm">
+                                                                <i class="fa-solid fa-eye"></i>
+                                                            </a>
+                                                            @role('admin')
+                                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                                    data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                    Obsolete
+                                                                </button>
+                                                            @endrole
+                                                        @elseif ($doc->statusdoc == 'obsolete')
+                                                            <!-- Tombol View dari obsolete_doc dan tombol Activate -->
+                                                            @php $fileUrl = asset('storage/' . $doc->obsolete_doc); @endphp
+                                                            <a href="{{ $fileUrl }}" target="_blank"
+                                                                class="btn btn-primary btn-sm">
+                                                                <i class="fa-solid fa-eye"></i>
+                                                            </a>
+                                                            @role('admin')
+                                                                <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                                    data-target="#activateDokumen-{{ $doc->id }}">
+                                                                    Activate
+                                                                </button>
+                                                            @endrole
+                                                        @endif
                                                     @endif
-                                                    <!-- Tombol untuk mengobsoletkan dokumen -->
-                                                    @if ($doc->file_pdf && ($doc->statusdoc == 'active' || $doc->statusdoc == 'not yet active'))
-                                                        <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                            data-target="#obsolateDokumen-{{ $doc->id }}">
-                                                            obsolate
-                                                        </button>
-                                                    @else
-                                                        <button class="btn btn-danger btn-sm" disabled>
-                                                            obsolate
-                                                        </button>
-                                                    @endif
-                                                @endrole
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center">No data available</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center">No data available</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -139,7 +129,7 @@
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="{{ route('filter.documents') }}" method="GET">
+                    <form action="{{ route('documents.final', ['jenis' => $jenis, 'tipe' => $tipe]) }}" method="GET">
                         @csrf
                         <div class="modal-header">
                             <h5 class="modal-title" id="filterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
@@ -176,63 +166,10 @@
                                         <select name="departemen" id="departemen" class="form-control select2"
                                             style="width: 100%;">
                                             <option value="" selected>Select Department</option>
-                                            <option value="Aisin Indonesia"
-                                                {{ request('departemen_id') == 'i' ? 'selected' : '' }}>
-                                                Aisin Indonesia</option>
-                                            <option value="Quality Body"
-                                                {{ request('departemen_id') == '2' ? 'selected' : '' }}>
-                                                Quality Body</option>
-                                            <option value="Quality Unit"
-                                                {{ request('departemen_id') == '3' ? 'selected' : '' }}>
-                                                Quality Unit</option>
-                                            <option value="Quality Electric"
-                                                {{ request('departemen_id') == '4' ? 'selected' : '' }}>
-                                                Quality Electric</option>
-                                            <option value="PPIC Receiving"
-                                                {{ request('departemen_id') == '5' ? 'selected' : '' }}>
-                                                PPIC Receiving</option>
-                                            <option value="PPIC Delivery"
-                                                {{ request('departemen_id') == '6' ? 'selected' : '' }}>
-                                                PPIC Delivery</option>
-                                            <option value="PPIC Electric"
-                                                {{ request('departemen_id') == '7' ? 'selected' : '' }}>
-                                                PPIC Electric</option>
-                                            <option value="Engineering Body"
-                                                {{ request('departemen_id') == '8' ? 'selected' : '' }}>
-                                                Engineering Body</option>
-                                            <option value="Engineering Unit"
-                                                {{ request('departemen_id') == '9' ? 'selected' : '' }}>
-                                                Engineering Unit</option>
-                                            <option value="Engineering Electric"
-                                                {{ request('departemen_id') == '10' ? 'selected' : '' }}>
-                                                Engineering Electric</option>
-                                            <option value="Maintenance"
-                                                {{ request('departemen_id') == '11' ? 'selected' : '' }}>
-                                                Maintenance</option>
-                                            <option value="Maintenance Electric"
-                                                {{ request('departemen_id') == '12' ? 'selected' : '' }}>
-                                                Maintenance Electric</option>
-                                            <option value="Production Unit"
-                                                {{ request('departemen_id') == '13' ? 'selected' : '' }}>
-                                                Production Unit</option>
-                                            <option value="Production Body"
-                                                {{ request('departemen_id') == '14' ? 'selected' : '' }}>
-                                                Production Body</option>
-                                            <option value="Production Electric"
-                                                {{ request('departemen_id') == '15' ? 'selected' : '' }}>
-                                                Production Electric</option>
-                                            <option value="Production System Development"
-                                                {{ request('departemen_id') == '16' ? 'selected' : '' }}>
-                                                Production System Development</option>
-                                            <option value="IT Development"
-                                                {{ request('departemen_id') == '17' ? 'selected' : '' }}>
-                                                IT Development</option>
-                                            <option value="Management System"
-                                                {{ request('departemen_id') == '18' ? 'selected' : '' }}>
-                                                Management System</option>
-                                            <option value="Management Representative"
-                                                {{ request('departemen_id') == '19' ? 'selected' : '' }}>
-                                                Management Representative</option>
+                                            @foreach ($alldepartmens as $departemen)
+                                                <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -519,7 +456,7 @@
                         row.toggle(text.indexOf(value) > -1);
                     });
                 });
-        
+
                 // Menghandle pagination agar pencarian bekerja
                 $(document).on('click', '.pagination a', function(e) {
                     e.preventDefault();

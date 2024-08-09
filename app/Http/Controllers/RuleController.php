@@ -27,8 +27,7 @@ class RuleController extends Controller
             ->whereHas('indukDokumen.user.departemen', function ($query) use ($departemen_user) {
                 $query->where('nama_departemen', $departemen_user);
             })
-            ->whereHas('indukDokumen', function ($query) {
-            })
+            ->whereHas('indukDokumen', function ($query) {})
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -140,72 +139,97 @@ class RuleController extends Controller
         // Mengembalikan response download
         return Storage::disk('public')->download($filePath);
     }
-    public function final_doc($jenis, $tipe)
+
+    public function final_doc(Request $request, $jenis, $tipe)
     {
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
+        // Ambil data untuk filter dropdown
         $kodeProses = RuleCode::all();
         $alldepartmens = Departemen::all();
         $departemens = Departemen::all();
-
         $uniqueDepartemens = $departemens->unique('code');
 
-        // Jika user adalah admin, mengambil semua dokumen final approved
+        // Mulai dengan query dasar
+        $query = IndukDokumen::query()
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->select('induk_dokumen.*') // Pilih kolom yang ada di induk_dokumen
+            ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
+                $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
+                    ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
+            });
+
+        // Sesuaikan filter berdasarkan peran pengguna
         if ($user->hasRole('admin')) {
-            $dokumenfinal = IndukDokumen::whereIn('status', ['Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
-                ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
-                    $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
-                        ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
-                })
-                ->orderByDesc('updated_at')
-                ->get();
+            $query->whereIn('induk_dokumen.status', ['Finish check by MS', 'Approve by MS', 'Obsolete by MS']);
         } else {
-            // Jika user bukan admin, mengambil dokumen final approved yang terkait dengan departemen user
-            $dokumenfinal = IndukDokumen::whereIn('status', ['Approve by MS', 'Obsolete by MS'])
-                ->whereHas('dokumen', function ($query) use ($jenis, $tipe) {
-                    $query->where('jenis_dokumen', $jenis) // Filter berdasarkan jenis_dokumen
-                        ->where('tipe_dokumen', $tipe); // Filter berdasarkan tipe_dokumen
-                })
-                ->whereIn('statusdoc', ['active', 'obsolete']) // Tambahkan kondisi untuk statusdoc
-                ->whereNotNull('file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
+            $query->whereIn('induk_dokumen.status', ['Approve by MS', 'Obsolete by MS'])
+                ->whereIn('induk_dokumen.statusdoc', ['active', 'obsolete']) // Tambahkan kondisi untuk statusdoc
+                ->whereNotNull('induk_dokumen.file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
                 ->where(function ($query) use ($user) {
-                    // Filter berdasarkan departemen user_id dan departemen_id
-                    $query->whereHas('user', function ($query) use ($user) {
-                        $query->where('departemen_id', $user->departemen_id);
-                    })
-                        ->orWhere('departemen_id', $user->departemen_id);
-                })
-                ->orderByDesc('updated_at')
-                ->get();
+                    $query->where('induk_dokumen.departemen_id', $user->departemen_id);
+                });
         }
+
+        // Terapkan filter dari query string
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $query->whereBetween('induk_dokumen.tgl_upload', [$request->date_from, $request->date_to]);
+        }
+
+        if ($request->filled('tipe_dokumen_id')) {
+            $query->where('dokumen.tipe_dokumen', $request->tipe_dokumen_id);
+        }
+
+        if ($request->filled('statusdoc')) {
+            $query->where('induk_dokumen.statusdoc', $request->statusdoc);
+        }
+
+        $departemen = (int) $request->input('departemen', 0);
+
+        // Filter berdasarkan Departemen (Hanya untuk admin)
+        if ($departemen > 0 && $user->hasRole('admin')) { // Pastikan hanya memfilter jika departemen_id valid dan user admin
+            $query->where('induk_dokumen.departemen_id', $departemen);
+        }
+
+        // Ambil hasil query
+        $dokumenfinal = $query->orderBy('induk_dokumen.updated_at', 'desc')->get();
 
         return view('pages-rule.dokumen-final', compact('dokumenfinal', 'kodeProses', 'alldepartmens', 'uniqueDepartemens', 'jenis', 'tipe'));
     }
-    public function share_document($jenis, $tipe)
+
+    public function share_document(Request $request, $jenis, $tipe)
     {
         $user = auth()->user();
-        $departments = Departemen::all();
-        // Jika user adalah admin, mengambil semua dokumen dengan status 'active' sesuai jenis dan tipe
-        if ($user->hasRole('admin')) {
-            $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
-                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-                ->where('dokumen.jenis_dokumen', $jenis)
-                ->where('dokumen.tipe_dokumen', $tipe)
-                ->where('induk_dokumen.statusdoc', 'active')
-                ->orderBy('induk_dokumen.updated_at', 'desc')
-                ->get();
-        } else {
-            // Jika user bukan admin, mengambil dokumen yang terkait dengan departemen user dan memiliki status 'active' sesuai jenis dan tipe
-            $sharedDocuments = IndukDokumen::select('induk_dokumen.*')
-                ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-                ->join('document_departement', 'induk_dokumen.id', '=', 'document_departement.induk_dokumen_id')
-                ->where('document_departement.departemen_id', $user->departemen_id)
-                ->where('dokumen.jenis_dokumen', $jenis)
-                ->where('dokumen.tipe_dokumen', $tipe)
-                ->where('induk_dokumen.statusdoc', 'active')
-                ->orderBy('induk_dokumen.updated_at', 'desc')
-                ->get();
+        $departments = Departemen::all(); // Ambil semua departemen untuk dropdown
+
+        // Mulai dengan query dasar
+        $query = IndukDokumen::query()
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->select('induk_dokumen.*') // Pilih kolom yang ada di induk_dokumen
+            ->where('dokumen.jenis_dokumen', $jenis)
+            ->where('dokumen.tipe_dokumen', $tipe)
+            ->where('induk_dokumen.statusdoc', 'active')
+            ->orderBy('induk_dokumen.updated_at', 'desc');
+
+        // Sesuaikan filter berdasarkan peran pengguna
+        if (!$user->hasRole('admin')) {
+            // Jika user bukan admin, ambil dokumen terkait dengan departemen user
+            $query->join('document_departement', 'induk_dokumen.id', '=', 'document_departement.induk_dokumen_id')
+                ->where('document_departement.departemen_id', $user->departemen_id);
         }
+
+        // Terapkan filter dari query string
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            // Pastikan format tanggal sesuai dengan format di database (YYYY-MM-DD)
+            $query->whereBetween('induk_dokumen.tgl_upload', [$request->date_from, $request->date_to]);
+        }
+
+        if ($request->filled('departemen_id')) {
+            $query->where('induk_dokumen.departemen_id', $request->departemen_id);
+        }
+
+        // Ambil hasil query
+        $sharedDocuments = $query->get();
 
         return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe', 'departments'));
     }

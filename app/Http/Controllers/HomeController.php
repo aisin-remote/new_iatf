@@ -175,52 +175,52 @@ class HomeController extends Controller
         // Export data ke file Excel dan langsung download
         return Excel::download(new IndukDokumenExport($dokumen, $columns), $fileName);
     }
-    public function filterDocuments(Request $request)
-    {
-        $query = IndukDokumen::query();
+    // public function filterDocuments(Request $request)
+    // {
+    //     $query = IndukDokumen::query();
 
-        // Konversi departemen_id dari string ke integer
-        $departemen = (int) $request->input('departemen', 0);
+    //     // Konversi departemen_id dari string ke integer
+    //     $departemen = (int) $request->input('departemen', 0);
 
-        // Join dengan tabel dokumen
-        $query->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id');
+    //     // Join dengan tabel dokumen
+    //     $query->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id');
 
-        // Jika diperlukan, tambahkan join dengan tabel departemen jika ingin menggunakan kolom dari tabel departemen
-        // $query->join('departemen', 'induk_dokumen.departemen_id', '=', 'departemen.id');
+    //     // Jika diperlukan, tambahkan join dengan tabel departemen jika ingin menggunakan kolom dari tabel departemen
+    //     // $query->join('departemen', 'induk_dokumen.departemen_id', '=', 'departemen.id');
 
-        // Filter berdasarkan Tanggal Upload
-        if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->whereBetween('tgl_upload', [$request->date_from, $request->date_to]);
-        }
+    //     // Filter berdasarkan Tanggal Upload
+    //     if ($request->filled('date_from') && $request->filled('date_to')) {
+    //         $query->whereBetween('tgl_upload', [$request->date_from, $request->date_to]);
+    //     }
 
-        // Filter berdasarkan Tipe Dokumen
-        if ($request->filled('tipe_dokumen_id')) {
-            $query->where('dokumen.tipe_dokumen', $request->tipe_dokumen_id);
-        }
+    //     // Filter berdasarkan Tipe Dokumen
+    //     if ($request->filled('tipe_dokumen_id')) {
+    //         $query->where('dokumen.tipe_dokumen', $request->tipe_dokumen_id);
+    //     }
 
-        // Filter berdasarkan Departemen (Hanya untuk admin)
-        if ($departemen > 0) { // Pastikan hanya memfilter jika departemen_id valid
-            $query->where('induk_dokumen.departemen_id', $departemen);
-        }
+    //     // Filter berdasarkan Departemen (Hanya untuk admin)
+    //     if ($departemen > 0) { // Pastikan hanya memfilter jika departemen_id valid
+    //         $query->where('induk_dokumen.departemen_id', $departemen);
+    //     }
 
-        // Filter berdasarkan Status Dokumen
-        if ($request->filled('statusdoc')) {
-            $query->where('statusdoc', $request->statusdoc);
-        }
+    //     // Filter berdasarkan Status Dokumen
+    //     if ($request->filled('statusdoc')) {
+    //         $query->where('statusdoc', $request->statusdoc);
+    //     }
 
-        // Paginasi
-        $dokumenall = $query->paginate($request->get('per_page', 10));
+    //     // Paginasi
+    //     $dokumenall = $query->paginate($request->get('per_page', 10));
 
-        // Simpan hasil filter dalam sesi
-        session()->flash('dokumenall', $dokumenall);
+    //     // Simpan hasil filter dalam sesi
+    //     session()->flash('dokumenall', $dokumenall);
 
-        // Buat URL dengan parameter query string
-        $queryParams = $request->except('_token');
-        $queryString = http_build_query($queryParams);
-        $url = route('dashboard.rule') . '?' . $queryString;
+    //     // Buat URL dengan parameter query string
+    //     $queryParams = $request->except('_token');
+    //     $queryString = http_build_query($queryParams);
+    //     $url = route('dashboard.rule') . '?' . $queryString;
 
-        return redirect($url);
-    }
+    //     return redirect($url);
+    // }
 
     // Fungsi untuk menghitung jumlah dokumen berdasarkan tipe
     private function getDocumentCounts()

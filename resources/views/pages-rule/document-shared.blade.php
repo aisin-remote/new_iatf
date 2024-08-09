@@ -33,7 +33,7 @@
                                 <tbody>
                                     @forelse ($sharedDocuments as $doc)
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $iteration->id }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>
@@ -74,7 +74,7 @@
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="" method="GET">
+                <form action="{{ route('document.share', ['jenis' => $jenis, 'tipe' => $tipe]) }}" method="GET">
                     <div class="modal-header">
                         <h5 class="modal-title" id="filterModalLabel">Filter Documents</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">

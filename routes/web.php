@@ -106,6 +106,7 @@ Route::post('/documents/final/upload-oldDocument', [ValidateRuleController::clas
     ->middleware(['auth', 'role:admin'])
     ->name('add.oldDoc');
 
+
 // Document Share
 Route::get('/documents/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
