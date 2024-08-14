@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\masterDataController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RuleController;
 use App\Http\Controllers\ValidateRuleController;
@@ -48,6 +49,35 @@ Route::get('/filter-documents', [HomeController::class, 'filterDocuments'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('filter.documents');
 
+//master data
+Route::get('/master-data', [masterDataController::class, 'index'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata');
+Route::get('/master-data/departemen', [masterDataController::class, 'index_departemen'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.departemen');
+Route::get('/master-data/process-code', [masterDataController::class, 'index_prosescode'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.proseskode');
+Route::post('/master-data/departemen/upload', [masterDataController::class, 'store_departemen'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.departemen');
+Route::post('/master-data/process-code/upload', [masterDataController::class, 'store_kodeproses'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.proseskode');
+Route::post('/master-data/departemen/update/{id}', [masterDataController::class, 'update_departemen'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.departemen');
+Route::post('/master-data/process-code/update/{id}', [masterDataController::class, 'update_kodeproses'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.kodeproses');
+Route::delete('/master-data/departemen/delete/{id}', [masterDataController::class, 'delete_departemen'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('delete.departemen');
+Route::delete('/master-data/process-code/delete/{id}', [masterDataController::class, 'delete_kodeproses'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('delete.kodeproses');
+
 // Template Dokumen
 Route::get('/template-documents', [DokumenController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
@@ -75,6 +105,7 @@ Route::post('/documents/draftRule', [RuleController::class, 'store'])
 Route::get('/download/rule/{id}', [RuleController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.rule');
+
 // Validate Rule
 Route::get('/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
     ->middleware(['auth', 'role:admin'])

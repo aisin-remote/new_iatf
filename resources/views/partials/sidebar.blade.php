@@ -7,12 +7,14 @@
                 <span class="menu-title"> Dashboard</span>
             </a>
         </li>
-        {{-- <li class="nav-item">
-            <a class="nav-link">
-                <i class="fa-solid fa-file-pen" style="margin-right: 8px"></i>
-                <span class="menu-title"> Master Data</span>
-            </a>
-        </li> --}}
+        @role('admin')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('masterdata') }}">
+                    <i class="fa-solid fa-database" style="margin-right: 8px"></i>
+                    <span class="menu-title"> Master Data</span>
+                </a>
+            </li>
+        @endrole
         <li class="nav-item">
             <a class="nav-link" href="{{ route('template.index') }}">
                 <i class="fa-solid fa-file-pen" style="margin-right: 8px"></i>
