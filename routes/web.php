@@ -30,6 +30,9 @@ Route::post('/login-proses', [AuthController::class, 'login_proses'])->name('log
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register', [AuthController::class, 'register_form'])->name('register');
 Route::post('/register-proses', [AuthController::class, 'register_proses'])->name('register.proses');
+Route::get('/comingsoon', function () {
+    return view('comingsoon');
+})->name('comingsoon');
 
 // Dashboard rule
 Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])

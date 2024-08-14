@@ -95,17 +95,19 @@
 
                         <div class="col-md-6">
                             <div class="card tale-bg">
-                                <div class="card-people mt-auto"
-                                    style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
-                                    <img src="{{ asset('images/select-dashboard-2.jpg') }}" alt="rule"
-                                        style="width: 100%; height: 100%; object-fit: cover;">
-                                    <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
-                                        <div class="d-flex align-items-center justify-content-center">
-                                            <h2 class="mb-0 font-weight-bold text-white"><i
-                                                    class="icon-sun mr-2"></i>Dashboard Process</h2>
+                                <a href="{{ route('comingsoon') }}" style="text-decoration: none;">
+                                    <div class="card-people mt-auto"
+                                        style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
+                                        <img src="{{ asset('images/select-dashboard-2.jpg') }}" alt="rule"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <h2 class="mb-0 font-weight-bold text-white"><i
+                                                        class="icon-sun mr-2"></i>Dashboard Process</h2>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>
