@@ -20,42 +20,78 @@ class AuthController extends Controller
         return view('auth.login');
     }
     public function select_dashboard()
-    {
-        return view('select-dashboard');
+{
+    // Ambil departemen dari session
+    $departmens = session('departmens', []);
+
+    // Jika hanya ada satu departemen, langsung set sebagai default dan redirect ke dashboard
+    if (count($departmens) == 1) {
+        $departmen = $departmens->first();
+        session(['active_departemen_id' => $departmen->id]);
+        return redirect()->route('dashboard');
     }
-    public function login_proses(Request $request)
-    {
-        // Validasi input
-        $request->validate([
-            'npk' => 'required|string',
-            'password' => 'required|string',
-        ]);
 
-        $credentials = $request->only('npk', 'password');
+    // Jika lebih dari satu, tampilkan pilihan departemen di select-dashboard
+    return view('select-dashboard', compact('departmens'));
+}
+public function switchDepartemen($id)
+{
+    $user = Auth::user();
+    $departmen = $user->departmens()->find($id);
 
-        // Rate Limiting
-        $attemptsKey = 'login_attempts_' . $request->ip();
-        $lockoutKey = 'login_lockout_' . $request->ip();
+    if ($departmen) {
+        $user->selected_departemen_id = $departmen->id;
+        $user->save();
+    }
 
-        if (RateLimiter::tooManyAttempts($attemptsKey, 3)) {
-            $seconds = RateLimiter::availableIn($attemptsKey);
-            return back()->withErrors(['lockout' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam ' . ceil($seconds / 60) . ' menit.']);
-        }
+    return redirect()->back();
+}
+public function login_proses(Request $request)
+{
+    $request->validate([
+        'npk' => 'required|string',
+        'password' => 'required|string',
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            // Reset the rate limiter on successful login
-            RateLimiter::clear($attemptsKey);
+    $credentials = $request->only('npk', 'password');
+
+    if (Auth::attempt($credentials)) {
+        $user = Auth::user();
+
+        // Pastikan departmens tidak null
+        $departmens = $user->departmens ?? collect();
+
+        // Simpan daftar departemen di session
+        session(['departmens' => $departmens]);
+
+        // Jika pengguna tidak memiliki departemen, arahkan ke halaman select-dashboard
+        if ($departmens->isEmpty()) {
             return redirect()->route('select.dashboard');
+        } elseif ($departmens->count() > 1) {
+            return redirect()->route('select.dashboard');
+        } else {
+            // Jika hanya ada satu departemen, arahkan langsung ke dashboard
+            $departmen = $departmens->first();
+
+            if ($departmen) {
+                $user->selected_departemen_id = $departmen->id;
+                $user->save();
+                return redirect()->route('dashboard.rule');
+            } else {
+                // Jika tidak ada departemen yang ditemukan
+                return redirect()->route('select.dashboard')->withErrors(['departmen' => 'Departemen tidak ditemukan.']);
+            }
         }
-
-        // Increment login attempts
-        RateLimiter::hit($attemptsKey, 60); // Set 1-minute expiration for attempts
-
-        return back()->withErrors([
-            'npk' => 'NPK atau Password salah.',
-            'password' => 'NPK atau Password salah.',
-        ])->withInput();
     }
+
+    return back()->withErrors([
+        'npk' => 'NPK atau Password salah.',
+        'password' => 'NPK atau Password salah.',
+    ])->withInput();
+}
+
+
+
     public function register_form()
     {
         $departemens = Departemen::all();
@@ -72,15 +108,15 @@ class AuthController extends Controller
             'name.required' => 'Nama tidak boleh kosong.',
             'password.required' => 'Password tidak boleh kosong.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'password.size' => 'Password harus memiliki tepat 8 karakter.', // Pesan kesalahan untuk panjang tepat 8 karakter
+            'password.size' => 'Password harus memiliki tepat 8 karakter.',
         ];
 
         $validator = Validator::make($request->all(), [
             'npk' => 'required|string|max:255|unique:users',
-            'departemen' => 'required|array', // Validasi sebagai array
-            'departemen.*' => 'exists:departemen,id', // Pastikan semua departemen yang dipilih ada
+            'departemen' => 'required|array',
+            'departemen.*' => 'exists:departemen,id',
             'name' => 'required|string|max:255',
-            'password' => 'required|string|size:8|confirmed', // Mengatur panjang tepat 8 karakter
+            'password' => 'required|string|size:8|confirmed',
         ], $message);
 
         if ($validator->fails()) {
@@ -100,7 +136,7 @@ class AuthController extends Controller
         ]);
 
         // Simpan relasi user dengan departemen
-        $user->departments()->sync($request->departemen);
+        $user->departmens()->sync($request->departemen);
 
         // Assign role ke user jika role ditemukan
         if ($role) {
@@ -109,14 +145,20 @@ class AuthController extends Controller
 
         Auth::login($user);
 
+        // Tentukan departemen default dan simpan dalam session
+        $departemen = $user->departmens->first();
+        if ($departemen) {
+            session(['active_departemen_id' => $departemen->id]);
+        }
+
         Alert::success('Success', 'Registration successful! Please login.');
         return redirect()->route('login');
     }
 
-
     public function logout()
     {
         Auth::logout();
+        session()->forget('active_departemen_id'); // Hapus departemen aktif dari session
         return redirect()->route('login')->with('success', 'you have successfully logged out!');
     }
 }

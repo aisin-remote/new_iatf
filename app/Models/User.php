@@ -21,10 +21,7 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $fillable = [
-        'npk',
-        'departemen_id',
-        'password',
-        'name',
+        'npk', 'name', 'password', 'selected_departemen_id'
     ];
 
     /**
@@ -48,9 +45,9 @@ class User extends Authenticatable
     ];
 
     public function departments()
-    {
-        return $this->belongsToMany(Departemen::class, 'departemen_user', 'user_id', 'departemen_id');
-    }
+{
+    return $this->belongsToMany(Departemen::class, 'departemen_user', 'user_id', 'departemen_id');
+}
 
     // Relasi dengan dokumen
     public function dokumen()
@@ -61,4 +58,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(IndukDokumen::class);
     }
+    public function selectedDepartmen()
+{
+    return $this->belongsTo(Departemen::class, 'selected_departemen_id');
+}
 }

@@ -35,6 +35,9 @@ Route::post('/register-proses', [AuthController::class, 'register_proses'])->nam
 Route::get('/comingsoon', function () {
     return view('comingsoon');
 })->name('comingsoon');
+Route::get('/switch-departemen/{id}', [AuthController::class, 'switchDepartemen'])->name('switch.departemen');
+Route::post('/switchdepartemens', [HomeController::class, 'switchDepartemen'])->name('home.switch.departemen');
+
 
 // Dashboard rule
 Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])

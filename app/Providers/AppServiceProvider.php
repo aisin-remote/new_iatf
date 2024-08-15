@@ -26,8 +26,10 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('partials.notifications', function ($view) {
             $user = Auth::user();
-            $departemen_user = $user->departemen->nama_departemen;
-
+        
+            // Pastikan departemen ada sebelum mengakses propertinya
+            $departemen_user = $user->selectedDepartmen ? $user->selectedDepartmen->nama_departemen : null;
+        
             if ($user->hasRole('admin')) {
                 $documents = IndukDokumen::with(['user.departemen'])
                     ->where(function ($query) {
@@ -47,23 +49,25 @@ class AppServiceProvider extends ServiceProvider
                         })->whereNotIn('statusdoc', ['active', 'obsolete']);
                     });
                 })
-                    ->orderByDesc('created_at')
-                    ->get();
-            }
-
-            $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
-                $query->where('nama_departemen', $departemen_user);
-            })
-                ->where('statusdoc', 'active')
-                ->whereNotNull('file_pdf')
                 ->orderByDesc('created_at')
-                ->get()
-                ->each(function ($doc) {
-                    $doc->is_shared = true;
-                });
-
+                ->get();
+            }
+        
+            $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
+                if ($departemen_user) {
+                    $query->where('nama_departemen', $departemen_user);
+                }
+            })
+            ->where('statusdoc', 'active')
+            ->whereNotNull('file_pdf')
+            ->orderByDesc('created_at')
+            ->get()
+            ->each(function ($doc) {
+                $doc->is_shared = true;
+            });
+        
             $allDocuments = $documents->merge($sharedDocuments)->sortByDesc('created_at');
-
+        
             $paginatedDocuments = new \Illuminate\Pagination\LengthAwarePaginator(
                 $allDocuments->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
                 $allDocuments->count(),
@@ -71,11 +75,12 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Pagination\Paginator::resolveCurrentPage(),
                 ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
             );
-
+        
             $notificationCount = $allDocuments->count();
-
+        
             $view->with('documents', $paginatedDocuments);
             $view->with('notificationCount', $notificationCount);
         });
+        
     }
 }

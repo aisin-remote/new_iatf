@@ -17,15 +17,41 @@
 
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                    {{ Auth::User()->departemen->nama_departemen }} <i class="fa-solid fa-sort-down"></i>
+                    {{ Auth::user()->selectedDepartment ? Auth::user()->selectedDepartment->nama_departemen : 'No Department Assigned' }}
+                    <i class="fa-solid fa-sort-down"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
+                    <!-- Formulir untuk mengganti departemen -->
+                    @if (Auth::user()->departments && Auth::user()->departments->count() > 0)
+                        <form action="{{ route('home.switch.departemen') }}" method="POST">
+                            @csrf
+                            <div class="dropdown-item">
+                                <select name="department_id" class="form-control" onchange="this.form.submit()">
+                                    @foreach (Auth::user()->departments as $department)
+                                        <option value="{{ $department->id }}"
+                                            {{ $department->id == Auth::user()->selectedDepartment?->id ? 'selected' : '' }}>
+                                            {{ $department->nama_departemen }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </form>
+                    @else
+                        <div class="dropdown-item">
+                            No Departments Available
+                        </div>
+                    @endif
+
+                    <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('logout') }}">
                         <i class="ti-power-off text-primary"></i>
                         Logout
                     </a>
                 </div>
             </li>
+
+
+
             <li class="nav-item nav-settings d-none d-lg-flex">
                 <a class="nav-link" href="#">
                     <i class="icon-ellipsis"></i>
