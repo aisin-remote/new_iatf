@@ -94,7 +94,7 @@
                             <label for="revisi_ke">Revision Number</label>
                             <input type="number" class="form-control" id="revisi_ke" name="revisi_ke">
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="rule_id">Process Code</label>
                             <select class="form-control" id="rule_id" name="rule_id" required>

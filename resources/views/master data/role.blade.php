@@ -11,7 +11,7 @@
                         <h4 class="card-title">Master Data Departemen</h4>
                         <div class="d-flex justify-content-end mb-3">
                             @role('admin')
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#adddepartemen">
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addrole">
                                     Add New
                                 </button>
                             @endrole
@@ -22,25 +22,17 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Template Number</th>
-                                        <th>Document Title</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($departemen as $d)
+                                    @foreach ($roles as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->code }}</td>
-                                            <td>{{ $d->nama_departemen }}</td>
+                                            <td>{{ $d->name }}</td>
                                             <td>
-                                                <!-- Tombol Edit -->
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editdepartemen-{{ $d->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button>
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deletedepartemen-{{ $d->id }}">
+                                                    data-target="#deleterole-{{ $d->id }}">
                                                     Delete
                                                     <i class="fa-solid fa-trash-alt"></i>
                                                 </button>
@@ -57,12 +49,12 @@
     </div>
 
     {{-- Modal Add Template --}}
-    <div class="modal fade" id="adddepartemen" tabindex="-1" role="dialog" aria-labelledby="adddepartemenLabel"
+    <div class="modal fade" id="addrole" tabindex="-1" role="dialog" aria-labelledby="addroleLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddepartemenLabel">Add Template</h5>
+                    <h5 class="modal-title" id="addroleLabel">Add Template</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -71,12 +63,8 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="code">Code</label>
-                            <input type="text" class="form-control" id="code" name="code" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="nama_departemen">Nama Departemen</label>
-                            <input type="text" class="form-control" id="nama_departemen" name="nama_departemen" required>
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -88,42 +76,9 @@
         </div>
     </div>
 
-    {{-- Modal Edit Template --}}
-    @foreach ($departemen as $d)
-        <div class="modal fade" id="editdepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="editdepartemenLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editdepartemenLabel">Update Departemen</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form action="{{ route('update.departemen', ['id' => $d->id]) }}" method="post">
-                        @csrf
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="code">Code</label>
-                                <input type="text" class="form-control" id="code" name="code"
-                                    value="{{ old('code', $d->code) }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="nama_departemen">Nama Departemen</label>
-                                <input type="text" class="form-control" id="nama_departemen" name="nama_departemen"
-                                    value="{{ old('nama_departemen', $d->nama_departemen) }}" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Upload</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+    @foreach ($roles as $d)
         <!-- Modal Delete -->
-        <div class="modal fade" id="deletedepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
+        <div class="modal fade" id="deleterole-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -134,10 +89,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete this department?
+                        Are you sure you want to delete this role?
                     </div>
                     <div class="modal-footer">
-                        <form action="{{ route('delete.departemen', $d->id) }}" method="POST">
+                        <form action="{{ route('delete.role', $d->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

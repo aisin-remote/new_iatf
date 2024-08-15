@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Master Data Departemen')
+@section('title', 'Master Data Process Code')
 
 @section('content')
     <div class="content-wrapper">
@@ -8,13 +8,11 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Master Data Departemen</h4>
+                        <h4 class="card-title">Master Data Process Code</h4>
                         <div class="d-flex justify-content-end mb-3">
-                            @role('admin')
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#adddepartemen">
-                                    Add New
-                                </button>
-                            @endrole
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addrulecode">
+                                Add New
+                            </button>
                         </div>
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -35,11 +33,15 @@
                                             <td>
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#edittemplate-{{ $d->id }}">
+                                                    data-target="#editrulecode-{{ $d->id }}">
                                                     Edit
                                                     <i class="fa-solid fa-edit"></i>
                                                 </button>
-                                                <!-- Tombol Download -->
+                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                    data-target="#deleterulecode-{{ $d->id }}">
+                                                    Delete
+                                                    <i class="fa-solid fa-trash-alt"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -52,18 +54,18 @@
         </div>
     </div>
 
-    {{-- Modal Add Template --}}
-    <div class="modal fade" id="adddepartemen" tabindex="-1" role="dialog" aria-labelledby="adddepartemenLabel"
+    {{-- Modal Add rulecode --}}
+    <div class="modal fade" id="addrulecode" tabindex="-1" role="dialog" aria-labelledby="addrulecodeLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddepartemenLabel">Add Departemen</h5>
+                    <h5 class="modal-title" id="addrulecodeLabel">Add Departemen</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('add.rulecode') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('add.kodeproses') }}" method="post">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
@@ -84,38 +86,30 @@
         </div>
     </div>
 
-    {{-- Modal Edit Template --}}
+    {{-- Modal Edit rulecode --}}
     @foreach ($kode_proses as $d)
-        <div class="modal fade" id="edittemplate-{{ $d->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="edittemplateLabel" aria-hidden="true">
+        <div class="modal fade" id="editrulecode-{{ $d->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editrulecodeLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="edittemplateLabel">Select Template (.word, .excel)</h5>
+                        <h5 class="modal-title" id="editrulecodeLabel">Select rulecode (.word, .excel)</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ route('template.edit', ['id' => $d->id]) }}" method="post"
-                        enctype="multipart/form-data">
+                    <form action="{{ route('update.kodeproses', ['id' => $d->id]) }}" method="post">
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="nomor_template">Template Number</label>
-                                <input type="text" class="form-control" id="nomor_template" name="nomor_template"
-                                    value="{{ $d->nomor_template }}" required>
+                                <label for="kode_proses">Code</label>
+                                <input type="text" class="form-control" id="kode_proses" name="kode_proses"
+                                    value="{{ old('kode_proses', $d->kode_proses) }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="tgl_efektif">Effective date</label>
-                                <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="file">Select Preview (.pdf)</label>
-                                <input type="file" class="form-control-file" id="file" name="file">
-                            </div>
-                            <div class="form-group">
-                                <label for="template">Select Template (.word, .excel)</label>
-                                <input type="file" class="form-control-file" id="template" name="template">
+                                <label for="nama_proses">Process Name</label>
+                                <input type="text" class="form-control" id="nama_proses" name="nama_proses"
+                                    value="{{ old('nama_proses', $d->nama_proses) }}" required>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -123,6 +117,30 @@
                             <button type="submit" class="btn btn-primary">Upload</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="deleterulecode-{{ $d->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="deleterulecodeModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleterulecodeModalLabel">Delete Confirmation</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to delete this process code?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{{ route('delete.kodeproses', $d->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

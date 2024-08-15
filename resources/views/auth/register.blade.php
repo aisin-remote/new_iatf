@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
     <!-- endinject -->
     <link rel="shortcut icon" href="../../images/favicon.png" />
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
 </head>
 
 <body>
@@ -53,18 +54,15 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control form-control-lg" id="exampleFormControlSelect2"
-                                        style="padding-left: 28px; color:black " name="departemen">
-                                        <option value="" style="color:gray !important">Departemen</option>
+                                    <label for="departemen">Assign to Departments:</label>
+                                    <select class="form-control select2" id="departemen" name="departemen[]" multiple>
                                         @foreach ($departemens as $departemen)
-                                            <option value="{{ $departemen->id }}" style="color:black">
-                                                {{ $departemen->nama_departemen }} </option>
+                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
+                                            </option>
                                         @endforeach
                                     </select>
-                                    @error('departemen')
-                                        <span class="text-danger">{{ $message }}</span>
-                                    @enderror
                                 </div>
+
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
                                         id="exampleInputpassword1" placeholder="Password" name="password">
@@ -112,6 +110,12 @@
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('css/select2.min.js') }}"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+    </script>
 </body>
 <!-- endinject -->
 </body>

@@ -9,10 +9,15 @@ class Departemen extends Model
 {
     use HasFactory;
     protected $table = 'departemen';
+    protected $fillable = [
+        'nama_departemen',
+        'code',  // Tambahkan 'code' di sini
+        // Properti lainnya
+    ];
 
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class, 'departemen_user', 'departemen_id', 'user_id');
     }
 
     // Relasi dengan dokumen (melalui pengguna)

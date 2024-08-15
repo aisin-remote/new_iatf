@@ -47,9 +47,9 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function departemen()
+    public function departments()
     {
-        return $this->belongsTo(Departemen::class);
+        return $this->belongsToMany(Departemen::class, 'departemen_user', 'user_id', 'departemen_id');
     }
 
     // Relasi dengan dokumen

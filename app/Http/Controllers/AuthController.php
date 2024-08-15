@@ -77,7 +77,8 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'npk' => 'required|string|max:255|unique:users',
-            'departemen' => 'required|exists:departemen,id',
+            'departemen' => 'required|array', // Validasi sebagai array
+            'departemen.*' => 'exists:departemen,id', // Pastikan semua departemen yang dipilih ada
             'name' => 'required|string|max:255',
             'password' => 'required|string|size:8|confirmed', // Mengatur panjang tepat 8 karakter
         ], $message);
@@ -91,13 +92,17 @@ class AuthController extends Controller
         $defaultRoleName = 'guest';
         $role = Role::where('name', $defaultRoleName)->first();
 
+        // Buat user baru
         $user = User::create([
             'npk' => $request->npk,
-            'departemen_id' => $request->departemen,
             'name' => $request->name,
             'password' => Hash::make($request->password),
         ]);
 
+        // Simpan relasi user dengan departemen
+        $user->departments()->sync($request->departemen);
+
+        // Assign role ke user jika role ditemukan
         if ($role) {
             $user->assignRole($role);
         }
@@ -107,6 +112,7 @@ class AuthController extends Controller
         Alert::success('Success', 'Registration successful! Please login.');
         return redirect()->route('login');
     }
+
 
     public function logout()
     {

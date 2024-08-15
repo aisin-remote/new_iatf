@@ -5,13 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Departemen;
 use App\Models\RuleCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
+use Spatie\Permission\Models\Role;
 
 class masterDataController extends Controller
 {
     public function index()
     {
-        return view('master data.index');
+        $departemenCount = Departemen::count();
+        $rulecodeCount = RuleCode::count();
+        $roleCount = Role::count();
+
+        return view('master data.index', compact('departemenCount', 'rulecodeCount', 'roleCount'));
     }
     public function index_departemen()
     {
@@ -94,5 +100,31 @@ class masterDataController extends Controller
 
         Alert::success('Success', 'Process code has been deleted successfully.');
         return redirect()->back();
+    }
+    public function index_role()
+    {
+        $roles = Role::all();
+        return view('master data.role', compact('roles'));
+    }
+
+    public function store_role(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:roles',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        Role::create($request->only('name', 'guard_name'));
+
+        return redirect()->route('masterdata.role');
+    }
+    
+    public function delete_role(Role $role)
+    {
+        $role->delete();
+        return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }
 }

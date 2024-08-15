@@ -5,6 +5,7 @@ use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\masterDataController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReminderAuditController;
 use App\Http\Controllers\RuleController;
 use App\Http\Controllers\ValidateRuleController;
 use Illuminate\Support\Facades\Route;
@@ -58,13 +59,19 @@ Route::get('/master-data/departemen', [masterDataController::class, 'index_depar
     ->name('masterdata.departemen');
 Route::get('/master-data/process-code', [masterDataController::class, 'index_prosescode'])
     ->middleware(['auth', 'role:admin'])
-    ->name('masterdata.proseskode');
-Route::post('/master-data/departemen/upload', [masterDataController::class, 'store_departemen'])
+    ->name('masterdata.kodeproses');
+Route::get('/master-data/role', [masterDataController::class, 'index_role'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.role');
+Route::post('/master-data/departemen/add', [masterDataController::class, 'store_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.departemen');
-Route::post('/master-data/process-code/upload', [masterDataController::class, 'store_kodeproses'])
+Route::post('/master-data/process-code/add', [masterDataController::class, 'store_kodeproses'])
     ->middleware(['auth', 'role:admin'])
-    ->name('add.proseskode');
+    ->name('add.kodeproses');
+Route::post('/master-data/role/add', [masterDataController::class, 'store_role'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.role');
 Route::post('/master-data/departemen/update/{id}', [masterDataController::class, 'update_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.departemen');
@@ -77,6 +84,13 @@ Route::delete('/master-data/departemen/delete/{id}', [masterDataController::clas
 Route::delete('/master-data/process-code/delete/{id}', [masterDataController::class, 'delete_kodeproses'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.kodeproses');
+Route::delete('/master-data/role/delete/{id}', [masterDataController::class, 'delete_role'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('delete.role');
+Route::get('/reminder', [ReminderAuditController::class, 'reminder'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('reminder');
+
 
 // Template Dokumen
 Route::get('/template-documents', [DokumenController::class, 'index'])
