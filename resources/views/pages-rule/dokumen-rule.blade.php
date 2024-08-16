@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('title', 'Document Rule')
 @section('content')
+    {{-- @php
+        dd(session('active_departemen_name'));
+    @endphp --}}
     <div class="content-wrapper">
         <div class="row">
             <div class="col-lg-12 grid-margin stretch-card">

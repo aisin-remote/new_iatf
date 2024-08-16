@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->unsignedBigInteger('selected_departemen_id')->nullable()->after('password');
-    
+
             // Tambahkan foreign key constraint jika perlu
             $table->foreign('selected_departemen_id')
-                  ->references('id')
-                  ->on('departemen')
-                  ->onDelete('set null');
+                ->references('id')
+                ->on('departemen')
+                ->onDelete('set null');
         });
     }
 

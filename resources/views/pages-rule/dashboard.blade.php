@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
 @section('content')
+    {{-- @php
+        dd(session('active_departemen_name'));
+    @endphp --}}
     <div class="content-wrapper">
         <div class="row">
             <div class="col-md-12 grid-margin">
@@ -8,8 +11,7 @@
                     <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                         <h3 class="font-weight-bold">
                             Welcome
-                            {{ Auth::user()->selectedDepartmen ? Auth::user()->selectedDepartmen->nama_departemen : 'No Department Assigned' }}
-                        </h3>
+                            {{ session('active_departemen_name', 'Tidak Ada Departemen') }} </h3>
                     </div>
                     <div class="col-12 col-xl-4">
                         <div class="justify-content-end d-flex">

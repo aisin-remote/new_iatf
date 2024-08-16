@@ -111,6 +111,10 @@ Route::get('/template-documents/preview/{id}', [DokumenController::class, 'previ
 Route::get('/template-documents/download/{id}', [DokumenController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.download');
+Route::delete('/template-documents/delete/{id}', [DokumenController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.delete');
+
 
 // Document Draft Rule
 Route::get('/documents/{jenis}/{tipe}', [RuleController::class, 'index'])

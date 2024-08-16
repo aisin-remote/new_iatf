@@ -17,7 +17,7 @@
 
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                    {{ Auth::user()->selectedDepartment ? Auth::user()->selectedDepartment->nama_departemen : 'No Department Assigned' }}
+                    {{ session('active_departemen_name') ? session('active_departemen_name') : 'No Department Assigned' }}
                     <i class="fa-solid fa-sort-down"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
@@ -29,17 +29,13 @@
                                 <select name="department_id" class="form-control" onchange="this.form.submit()">
                                     @foreach (Auth::user()->departments as $department)
                                         <option value="{{ $department->id }}"
-                                            {{ $department->id == Auth::user()->selectedDepartment?->id ? 'selected' : '' }}>
+                                            {{ $department->nama_departemen == session('active_departemen_name') ? 'selected' : '' }}>
                                             {{ $department->nama_departemen }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                         </form>
-                    @else
-                        <div class="dropdown-item">
-                            No Departments Available
-                        </div>
                     @endif
 
                     <div class="dropdown-divider"></div>
@@ -49,8 +45,6 @@
                     </a>
                 </div>
             </li>
-
-
 
             <li class="nav-item nav-settings d-none d-lg-flex">
                 <a class="nav-link" href="#">
