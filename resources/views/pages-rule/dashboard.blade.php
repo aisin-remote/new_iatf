@@ -13,6 +13,7 @@
                             Welcome {{ Auth::user()->departemen->nama_departemen }}
                         </h3>
                     </div>
+
                     <div class="col-12 col-xl-4">
                         <div class="justify-content-end d-flex">
                             <div class="justify-content-end d-flex">

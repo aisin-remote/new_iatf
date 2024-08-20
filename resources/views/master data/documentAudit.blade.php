@@ -8,10 +8,10 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Master Data Departemen</h4>
+                        <h4 class="card-title">Master Data Document Audit</h4>
                         <div class="d-flex justify-content-end mb-3">
                             @role('admin')
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#adddepartemen">
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#adddocaudit">
                                     Add New
                                 </button>
                             @endrole
@@ -27,7 +27,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($departemen as $d)
+                                    @foreach ($documentaudit as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->code }}</td>
@@ -57,12 +57,12 @@
     </div>
 
     {{-- Modal Add Template --}}
-    <div class="modal fade" id="adddepartemen" tabindex="-1" role="dialog" aria-labelledby="adddepartemenLabel"
+    <div class="modal fade" id="adddocaudit" tabindex="-1" role="dialog" aria-labelledby="adddocauditLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddepartemenLabel">Add Template</h5>
+                    <h5 class="modal-title" id="adddocauditLabel">Add Template</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -89,7 +89,7 @@
     </div>
 
     {{-- Modal Edit Template --}}
-    @foreach ($departemen as $d)
+    @foreach ($documentaudit as $d)
         <div class="modal fade" id="editdepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="editdepartemenLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -116,7 +116,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Upload</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
                         </div>
                     </form>
                 </div>

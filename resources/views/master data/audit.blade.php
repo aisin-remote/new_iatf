@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Master Data Departemen')
+@section('title', 'Master Data Audit')
 
 @section('content')
     <div class="content-wrapper">
@@ -21,8 +21,8 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Template Number</th>
-                                        <th>Document Title</th>
+                                        <th>Audit Name</th>
+                                        <th>Audit Date</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -30,17 +30,17 @@
                                     @foreach ($audit as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->nama }}</td>
+                                            <td>{{ $d->name }}</td>
                                             <td>{{ $d->tanggal_audit }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editdepartemen-{{ $d->id }}">
+                                                    data-target="#editaudit-{{ $d->id }}">
                                                     Edit
                                                     <i class="fa-solid fa-edit"></i>
                                                 </button>
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deletedepartemen-{{ $d->id }}">
+                                                    data-target="#deleteaudit-{{ $d->id }}">
                                                     Delete
                                                     <i class="fa-solid fa-trash-alt"></i>
                                                 </button>
@@ -61,7 +61,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addauditLabel">Add Template</h5>
+                    <h5 class="modal-title" id="addauditLabel">Add Audit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -75,12 +75,12 @@
                         </div>
                         <div class="form-group">
                             <label for="tanggal_audit">Audit Date</label>
-                            <input type="text" class="form-control" id="tanggal_audit" name="tanggal_audit" required>
+                            <input type="date" class="form-control" id="tanggal_audit" name="tanggal_audit" required>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </form>
             </div>
@@ -88,41 +88,41 @@
     </div>
 
     {{-- Modal Edit Template --}}
-    {{-- @foreach ($departemen as $d)
-        <div class="modal fade" id="editdepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="editdepartemenLabel" aria-hidden="true">
+    @foreach ($audit as $d)
+        <div class="modal fade" id="editaudit-{{ $d->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editauditLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editdepartemenLabel">Update Departemen</h5>
+                        <h5 class="modal-title" id="editauditLabel">Update Audit</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{{ route('update.departemen', ['id' => $d->id]) }}" method="post">
+                    <form action="{{ route('update.audit', ['id' => $d->id]) }}" method="post">
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="code">Code</label>
-                                <input type="text" class="form-control" id="code" name="code"
-                                    value="{{ old('code', $d->code) }}" required>
+                                <div class="form-group">
+                                    <label for="nama">Audit Name</label>
+                                    <input type="text" class="form-control" id="nama" name="nama" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tanggal_audit">Audit Date</label>
+                                    <input type="date" class="form-control" id="tanggal_audit" name="tanggal_audit"
+                                        required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="nama_departemen">Nama Departemen</label>
-                                <input type="text" class="form-control" id="nama_departemen" name="nama_departemen"
-                                    value="{{ old('nama_departemen', $d->nama_departemen) }}" required>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Upload</button>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Upload</button>
-                        </div>
                     </form>
                 </div>
             </div>
         </div>
         <!-- Modal Delete -->
-        <div class="modal fade" id="deletedepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
+        <div class="modal fade" id="deleteaudit-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -136,7 +136,7 @@
                         Are you sure you want to delete this department?
                     </div>
                     <div class="modal-footer">
-                        <form action="{{ route('delete.departemen', $d->id) }}" method="POST">
+                        <form action="" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -146,5 +146,5 @@
                 </div>
             </div>
         </div>
-    @endforeach --}}
+    @endforeach
 @endsection

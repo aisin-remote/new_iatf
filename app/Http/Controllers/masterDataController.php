@@ -136,7 +136,6 @@ class masterDataController extends Controller
     }
     public function store_audit(Request $request)
     {
-
         Audit::create([
             'nama' => $request->input('nama'),
             'tanggal_upload' => $request->input('tangga_upload'),
@@ -145,10 +144,33 @@ class masterDataController extends Controller
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->route('masterdata.audit');
     }
+    public function update_audit(Request $request, $id){
+        $audit = Audit::findOrFail($id);
+        $audit->nama = $request->nama;
+        $audit->tanggal_audit = $request->tanggal_audit;
+        $audit->save();
+        Alert::success('Success', 'Audit code changed succesfully.');
+        return redirect()->back();
+    }
+    public function delete_audit($id) {
+        $audit = Audit::findOrFail($id);
+        $audit->delete();
+
+        Alert::success('Success', 'Audit has been deleted successfully.');
+        return redirect()->back();
+    }
     public function index_documentAudit()
     {
         $documentaudit = DocumentAudit::all();
         return view('master data.documentAudit', compact('documentaudit'));
+    }
+    public function update_documentAudit(Request $request, $id) {
+        $documentAudit = DocumentAudit::findOrFail($id);
+        $documentAudit->nama_dokumen = $request->nama_dokumen;
+        $documentAudit->audit_id = $request->audit_id;
+        $documentAudit->save();
+        Alert::success('Success', 'Document Audit changed succesfully.');
+        return redirect()->back();
     }
     public function index_auditControl()
     {

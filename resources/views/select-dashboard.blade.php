@@ -36,18 +36,11 @@
                 <ul class="navbar-nav navbar-nav-right">
                     <li class="nav-item nav-profile dropdown">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                            {{ Auth::user()->selectedDepartmen ? Auth::user()->selectedDepartmen->nama_departemen : 'No Department Assigned' }}
-
+                            {{ Auth::user()->departemen->nama_departemen ?? 'No Department Assigned' }}
                             <i class="fa-solid fa-sort-down"></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
                             aria-labelledby="profileDropdown">
-                            @foreach (Auth::user()->departmens ?? [] as $departmen)
-                                <a class="dropdown-item" href="{{ route('switch.departemen', $departmen->id) }}">
-                                    {{ $departmen->nama_departemen }}
-                                </a>
-                            @endforeach
-                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ route('logout') }}">
                                 <i class="ti-power-off text-primary"></i>
                                 Logout
