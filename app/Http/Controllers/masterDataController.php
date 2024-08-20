@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audit;
 use App\Models\Departemen;
+use App\Models\DocumentAudit;
 use App\Models\RuleCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -121,10 +123,36 @@ class masterDataController extends Controller
 
         return redirect()->route('masterdata.role');
     }
-    
+
     public function delete_role(Role $role)
     {
         $role->delete();
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
+    }
+    public function index_audit()
+    {
+        $audit = Audit::all();
+        return view('master data.audit', compact('audit'));
+    }
+    public function store_audit(Request $request)
+    {
+
+        Audit::create([
+            'nama' => $request->input('nama'),
+            'tanggal_upload' => $request->input('tangga_upload'),
+        ]);
+        Alert::success('Success', 'Audit added successfully.');
+        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->route('masterdata.audit');
+    }
+    public function index_documentAudit()
+    {
+        $documentaudit = DocumentAudit::all();
+        return view('master data.documentAudit', compact('documentaudit'));
+    }
+    public function index_auditControl()
+    {
+        $auditcontrol = Audit::all();
+        return view('master data.AuditControl', compact('auditcontrol'));
     }
 }

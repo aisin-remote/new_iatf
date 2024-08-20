@@ -54,15 +54,13 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <label for="departemen">Assign to Departments:</label>
-                                    <select class="form-control select2" id="departemen" name="departemen[]" multiple>
+                                    <select class="form-control" id="departemen" name="departemen" style="padding-left: 24px;">
+                                        <option value="" selected>Select Department</option>
                                         @foreach ($departemens as $departemen)
-                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
-                                            </option>
+                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-lg"
                                         id="exampleInputpassword1" placeholder="Password" name="password">

@@ -16,17 +16,12 @@ class HomeController extends Controller
     public function dashboard_rule(Request $request)
     {
         $user = auth()->user();
-        $departemen_user = $user->departemen->nama_departemen;
+        $userDepartemenId = $user->departemen_id; // Ambil ID departemen pengguna
+
         $allDepartemen = Departemen::all();
 
         // Tampilkan form filter tipe dokumen
         $tipeDokumen = Dokumen::all();
-
-        // Filter berdasarkan departemen
-        $departemenFilter = $request->input('departemen_id');
-        if ($departemenFilter) {
-            $departemen_user = $departemenFilter;
-        }
 
         // Jumlah item per halaman
         $perPage = $request->input('per_page', 10);
@@ -40,17 +35,9 @@ class HomeController extends Controller
             $query->whereIn('statusdoc', ['active', 'obsolete', 'not yet active']);
         }
 
-        // Filter berdasarkan departemen user jika bukan admin
+        // Filter berdasarkan departemen pengguna jika bukan admin
         if (!$user->hasRole('admin')) {
-            $query->where(function ($query) use ($departemen_user) {
-                $query->whereHas('user', function ($query) use ($departemen_user) {
-                    $query->whereHas('departemen', function ($query) use ($departemen_user) {
-                        $query->where('nama_departemen', $departemen_user);
-                    });
-                })->orWhereHas('departemen', function ($query) use ($departemen_user) {
-                    $query->where('nama_departemen', $departemen_user);
-                });
-            });
+            $query->where('induk_dokumen.departemen_id', $userDepartemenId);
         }
 
         // Terapkan filter dari query string
@@ -64,13 +51,6 @@ class HomeController extends Controller
 
         if ($request->filled('statusdoc')) {
             $query->where('statusdoc', $request->statusdoc);
-        }
-
-        $departemen = (int) $request->input('departemen', 0);
-
-        // Filter berdasarkan Departemen (Hanya untuk admin)
-        if ($departemen > 0) { // Pastikan hanya memfilter jika departemen_id valid
-            $query->where('induk_dokumen.departemen_id', $departemen);
         }
 
         // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
@@ -115,7 +95,6 @@ class HomeController extends Controller
             'perPage'
         ));
     }
-
 
     public function getNotifications()
     {

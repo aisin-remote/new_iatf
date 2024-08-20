@@ -77,8 +77,7 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'npk' => 'required|string|max:255|unique:users',
-            'departemen' => 'required|array', // Validasi sebagai array
-            'departemen.*' => 'exists:departemen,id', // Pastikan semua departemen yang dipilih ada
+            'departemen' => 'required|exists:departemen,id', // Validasi sebagai satu value, bukan array
             'name' => 'required|string|max:255',
             'password' => 'required|string|size:8|confirmed', // Mengatur panjang tepat 8 karakter
         ], $message);
@@ -86,7 +85,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return redirect()->route('register')
                 ->withErrors($validator)
-                ->withInput($request->except('password'));
+                ->withInput($request->except(['password', 'password_confirmation']));
         }
 
         $defaultRoleName = 'guest';
@@ -97,10 +96,8 @@ class AuthController extends Controller
             'npk' => $request->npk,
             'name' => $request->name,
             'password' => Hash::make($request->password),
+            'departemen_id' => $request->departemen, // Menyimpan ID departemen langsung
         ]);
-
-        // Simpan relasi user dengan departemen
-        $user->departments()->sync($request->departemen);
 
         // Assign role ke user jika role ditemukan
         if ($role) {

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('departemen_user', function (Blueprint $table) {
+        Schema::create('document_audit', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('departemen_id')->constrained('departemen')->onDelete('cascade');
+            $table->string('nama_dokumen')->nullable();
+            $table->foreignId('audit_id')->constrained('audit')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('departemen_user');
+        Schema::dropIfExists('document_audit');
     }
 };

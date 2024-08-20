@@ -63,6 +63,15 @@ Route::get('/master-data/process-code', [masterDataController::class, 'index_pro
 Route::get('/master-data/role', [masterDataController::class, 'index_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.role');
+Route::get('/master-data/audit', [masterDataController::class, 'index_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.audit');
+Route::get('/master-data/documentaudit', [masterDataController::class, 'index_documentAudit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.documentAudit');
+Route::get('/master-data/auditcontrol', [masterDataController::class, 'index_auditControl'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.auditControl');
 Route::post('/master-data/departemen/add', [masterDataController::class, 'store_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.departemen');
@@ -72,6 +81,9 @@ Route::post('/master-data/process-code/add', [masterDataController::class, 'stor
 Route::post('/master-data/role/add', [masterDataController::class, 'store_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.role');
+Route::post('/master-data/audit/add', [masterDataController::class, 'store_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.audit');
 Route::post('/master-data/departemen/update/{id}', [masterDataController::class, 'update_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.departemen');
