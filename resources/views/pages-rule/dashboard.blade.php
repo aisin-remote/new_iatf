@@ -1,6 +1,9 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
 @section('content')
+    {{-- @php
+        dd(session('active_departemen_name'));
+    @endphp --}}
     <div class="content-wrapper">
         <div class="row">
             <div class="col-md-12 grid-margin">

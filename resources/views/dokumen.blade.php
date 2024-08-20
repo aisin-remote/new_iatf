@@ -64,6 +64,17 @@
                                                         <i class="fa-solid fa-download"></i>
                                                     </button>
                                                 @endif
+                                                @role('admin')
+                                                    <form action="{{ route('template.delete', $doc->id) }}" method="POST"
+                                                        style="display:inline;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                            onclick="return confirm('Are you sure you want to delete this item?')">
+                                                            <i class="fa-solid fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @endrole
                                             </td>
                                         </tr>
                                     @endforeach
@@ -99,12 +110,16 @@
                             <input type="text" class="form-control" id="tipe_dokumen" name="tipe_dokumen" required>
                         </div>
                         <div class="form-group">
+                            <label for="code">Document Code</label>
+                            <input type="text" class="form-control" id="code" name="code" required>
+                        </div>
+                        <div class="form-group">
                             <label for="tgl_efektif">Effective date</label>
                             <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
                         </div>
                         <div class="form-group">
-                            <label for="file">Select Preview (.pdf)</label>
-                            <input type="file" class="form-control-file" id="file" name="file" required>
+                            <label for="file_pdf">Select Preview (.pdf)</label>
+                            <input type="file" class="form-control-file" id="file_pdf" name="file_pdf" required>
                         </div>
                         <div class="form-group">
                             <label for="template">Select Template (.word, .excel)</label>

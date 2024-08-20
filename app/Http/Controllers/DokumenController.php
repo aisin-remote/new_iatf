@@ -20,17 +20,18 @@ class DokumenController extends Controller
     public function store(Request $request)
     {
         // Validasi input
-        $request->validate([
-            'nomor_template' => 'required|string|max:255',
-            'jenis_dokumen' => 'required|string|in:Rule,Process', // Sesuaikan dengan jenis dokumen yang tersedia
-            'tipe_dokumen' => 'required|string|max:255',
-            'file' => 'required|mimes:pdf|max:2048',
-            'tgl_efektif' => 'required',
-            'template' => 'required|mimes:xlsx,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
-        ]);
+        // $request->validate([
+        //     'nomor_template' => 'required|string|max:255',
+        //     'jenis_dokumen' => 'required|string|in:Rule,Process', // Sesuaikan dengan jenis dokumen yang tersedia
+        //     'tipe_dokumen' => 'required|string|max:255',
+        //     'file' => 'required|mimes:pdf|max:2048',
+        //     'tgl_efektif' => 'required',
+        //     'template' => 'required|mimes:xlsx,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
+        // ]);
 
         // Simpan file yang diunggah ke storage disk
-        $file = $request->file('file');
+        $file = $request->file('file_pdf');
+        // dd($file);
         $fileName = time() . '_file_' . $file->getClientOriginalName();
         $file->storeAs('template_dokumen', $fileName, 'public');
 
@@ -43,9 +44,10 @@ class DokumenController extends Controller
         Dokumen::create([
             'nomor_template' => $request->input('nomor_template'),
             'tipe_dokumen' => $request->input('tipe_dokumen'),
+            'code' => $request->input('code'),
             'jenis_dokumen' => 'rule',
             'tgl_efektif' => $request->input('tgl_efektif'),
-            'file' => $fileName,
+            'file_pdf' => $fileName,
             'template' => $templateName,
         ]);
 
@@ -136,17 +138,16 @@ class DokumenController extends Controller
     }
     public function download($id)
     {
-        dd($id);
         // Cari dokumen berdasarkan ID
-        $document = IndukDokumen::findOrFail($id);
+        $document = Dokumen::findOrFail($id);
 
         // Lakukan validasi atau pengecekan apakah dokumen tersedia
-        if (!$document->file) {
+        if (!$document->template) {
             abort(404, 'Document not found or not available.');
         }
 
-        // Path ke file template
-        $filePath = storage_path('app/public/draft-rule/' . $document->template);
+        // Path ke file PDF
+        $filePath = storage_path('app/public/template_dokumen/' . $document->template);
 
         // Verifikasi apakah file ada di path yang diharapkan
         if (!file_exists($filePath)) {
@@ -156,7 +157,29 @@ class DokumenController extends Controller
         // Mendapatkan nama file berdasarkan jenis_dokumen dan tipe_dokumen
         $fileName = $document->jenis_dokumen . '_' . $document->tipe_dokumen . '.' . pathinfo($document->template, PATHINFO_EXTENSION);
 
-        // Kembalikan file untuk diunduh
+        // Tampilkan file PDF di browser untuk pratinjau
         return response()->download($filePath, $fileName);
+    }
+    public function destroy($id)
+    {
+        // Cari dokumen berdasarkan ID
+        $document = Dokumen::findOrFail($id);
+
+        // Hapus file yang terkait jika ada
+        if ($document->file_pdf) {
+            Storage::disk('public')->delete('template_dokumen/' . $document->file_pdf);
+        }
+        if ($document->template) {
+            Storage::disk('public')->delete('template_dokumen/' . $document->template);
+        }
+
+        // Hapus entri dari database
+        $document->delete();
+
+        // Tampilkan pesan sukses
+        Alert::success('Success', 'Document deleted successfully.');
+
+        // Redirect ke halaman sebelumnya
+        return redirect()->route('template.index');
     }
 }

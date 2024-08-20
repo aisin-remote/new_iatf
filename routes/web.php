@@ -35,6 +35,9 @@ Route::post('/register-proses', [AuthController::class, 'register_proses'])->nam
 Route::get('/comingsoon', function () {
     return view('comingsoon');
 })->name('comingsoon');
+Route::get('/switch-departemen/{id}', [AuthController::class, 'switchDepartemen'])->name('switch.departemen');
+Route::post('/switchdepartemens', [HomeController::class, 'switchDepartemen'])->name('home.switch.departemen');
+
 
 // Dashboard rule
 Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])
@@ -120,6 +123,10 @@ Route::get('/template-documents/preview/{id}', [DokumenController::class, 'previ
 Route::get('/template-documents/download/{id}', [DokumenController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.download');
+Route::delete('/template-documents/delete/{id}', [DokumenController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.delete');
+
 
 // Document Draft Rule
 Route::get('/documents/{jenis}/{tipe}', [RuleController::class, 'index'])

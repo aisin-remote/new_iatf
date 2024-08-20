@@ -12,11 +12,12 @@ class Dokumen extends Model
     protected $table = 'dokumen';
 
     protected $fillable = [
+        'code',
         'nomor_template', // Tambahkan 'nomor_template' ke sini
         'jenis_dokumen',
         'tipe_dokumen',
         'tgl_efektif',
-        'file',
+        'file_pdf',
         'template',
         // tambahkan kolom lainnya sesuai kebutuhan
     ];

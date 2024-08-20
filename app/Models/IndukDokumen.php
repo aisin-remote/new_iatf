@@ -51,6 +51,10 @@ class IndukDokumen extends Model
     {
         return $this->belongsToMany(Departemen::class, 'document_departement', 'induk_dokumen_id', 'departemen_id');
     }
+    public function departemens()
+    {
+        return $this->belongsToMany(Departemen::class, 'departemen_user', 'dokumen_id', 'departemen_id');
+    }
     // Metode untuk mendapatkan nama departemen yang tersebar
     public function getDepartemenTersebar()
     {
