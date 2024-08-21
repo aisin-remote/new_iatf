@@ -30,7 +30,7 @@
                                     @foreach ($audit as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->name }}</td>
+                                            <td>{{ $d->nama }}</td>
                                             <td>{{ $d->tanggal_audit }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
@@ -86,7 +86,6 @@
             </div>
         </div>
     </div>
-
     {{-- Modal Edit Template --}}
     @foreach ($audit as $d)
         <div class="modal fade" id="editaudit-{{ $d->id }}" tabindex="-1" role="dialog"
@@ -103,20 +102,20 @@
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
-                                <div class="form-group">
-                                    <label for="nama">Audit Name</label>
-                                    <input type="text" class="form-control" id="nama" name="nama" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="tanggal_audit">Audit Date</label>
-                                    <input type="date" class="form-control" id="tanggal_audit" name="tanggal_audit"
-                                        required>
-                                </div>
+                                <label for="nama">Audit Name</label>
+                                <input type="text" class="form-control" id="nama" name="nama"
+                                    value="{{ old('nama', $d->nama) }}" required>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Upload</button>
+                            <div class="form-group">
+                                <label for="tanggal_audit">Audit Date</label>
+                                <input type="text" class="form-control" id="tanggal_audit" name="tanggal_audit"
+                                    value="{{ old('tanggal_audit', $d->tanggal_audit) }}" required>
                             </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -133,10 +132,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete this department?
+                        Are you sure you want to delete this audit?
                     </div>
                     <div class="modal-footer">
-                        <form action="" method="POST">
+                        <form action="{{ route('delete.audit', $d->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>

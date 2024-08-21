@@ -11,4 +11,12 @@ class Audit extends Model
 
     protected $guarded = ['id'];
     protected $table = 'audit';
+    public function documents()
+    {
+        return $this->hasMany(DocumentAudit::class);
+    }
+    public function auditControls()
+    {
+        return $this->hasMany(AuditControl::class, 'audit_id');
+    }
 }

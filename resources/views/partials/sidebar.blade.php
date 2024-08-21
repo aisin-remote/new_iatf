@@ -37,6 +37,12 @@
             </li>
         @endrole
         <li class="nav-item">
+            <a class="nav-link" href="{{ route('auditControl') }}">
+                <i class="fa-solid fa-list-check" style="margin-right: 8px"></i>
+                <span class="menu-title"> Audit Control</span>
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="{{ route('template.index') }}">
                 <i class="fa-solid fa-file-pen" style="margin-right: 8px"></i>
                 <span class="menu-title"> Template Documents</span>

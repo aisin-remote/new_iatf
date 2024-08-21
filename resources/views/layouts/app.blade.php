@@ -105,7 +105,7 @@
         <!-- partial -->
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_settings-panel.html -->
-            @include('partials.settings-panel')
+            {{-- @include('partials.settings-panel') --}}
 
             <!-- partial -->
             <!-- partial:partials/_sidebar.html -->

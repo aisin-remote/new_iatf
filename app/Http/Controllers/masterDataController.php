@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Audit;
+use App\Models\AuditControl;
 use App\Models\Departemen;
 use App\Models\DocumentAudit;
 use App\Models\RuleCode;
@@ -138,13 +139,14 @@ class masterDataController extends Controller
     {
         Audit::create([
             'nama' => $request->input('nama'),
-            'tanggal_upload' => $request->input('tangga_upload'),
+            'tanggal_audit' => $request->input('tanggal_audit'),
         ]);
         Alert::success('Success', 'Audit added successfully.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->route('masterdata.audit');
     }
-    public function update_audit(Request $request, $id){
+    public function update_audit(Request $request, $id)
+    {
         $audit = Audit::findOrFail($id);
         $audit->nama = $request->nama;
         $audit->tanggal_audit = $request->tanggal_audit;
@@ -152,7 +154,8 @@ class masterDataController extends Controller
         Alert::success('Success', 'Audit code changed succesfully.');
         return redirect()->back();
     }
-    public function delete_audit($id) {
+    public function delete_audit($id)
+    {
         $audit = Audit::findOrFail($id);
         $audit->delete();
 
@@ -161,10 +164,22 @@ class masterDataController extends Controller
     }
     public function index_documentAudit()
     {
-        $documentaudit = DocumentAudit::all();
-        return view('master data.documentAudit', compact('documentaudit'));
+        $documentaudit = DocumentAudit::with('audit')->get();
+        $audit = Audit::all();
+        return view('master data.documentAudit', compact('documentaudit','audit'));
     }
-    public function update_documentAudit(Request $request, $id) {
+    public function store_documentAudit(Request $request)
+    {
+        DocumentAudit::create([
+            'nama_dokumen' => $request->input('nama_dokumen'),
+            'audit_id' => $request->input('audit_id'),
+        ]);
+        Alert::success('Success', 'Document audit added successfully.');
+        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
+        return redirect()->route('masterdata.documentAudit');
+    }
+    public function update_documentAudit(Request $request, $id)
+    {
         $documentAudit = DocumentAudit::findOrFail($id);
         $documentAudit->nama_dokumen = $request->nama_dokumen;
         $documentAudit->audit_id = $request->audit_id;
@@ -172,9 +187,12 @@ class masterDataController extends Controller
         Alert::success('Success', 'Document Audit changed succesfully.');
         return redirect()->back();
     }
-    public function index_auditControl()
+    public function delete_documentAudit($id)
     {
-        $auditcontrol = Audit::all();
-        return view('master data.AuditControl', compact('auditcontrol'));
+        $documentAudit = DocumentAudit::findOrFail($id);
+        $documentAudit->delete();
+
+        Alert::success('Success', 'Document Audit has been deleted successfully.');
+        return redirect()->back();
     }
 }

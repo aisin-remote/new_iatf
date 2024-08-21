@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\HomeController;
@@ -72,9 +73,6 @@ Route::get('/master-data/audit', [masterDataController::class, 'index_audit'])
 Route::get('/master-data/documentaudit', [masterDataController::class, 'index_documentAudit'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.documentAudit');
-Route::get('/master-data/auditcontrol', [masterDataController::class, 'index_auditControl'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('masterdata.auditControl');
 Route::post('/master-data/departemen/add', [masterDataController::class, 'store_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.departemen');
@@ -87,12 +85,21 @@ Route::post('/master-data/role/add', [masterDataController::class, 'store_role']
 Route::post('/master-data/audit/add', [masterDataController::class, 'store_audit'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.audit');
+Route::post('/master-data/documentaudit/add', [masterDataController::class, 'store_documentAudit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.documentAudit');
 Route::post('/master-data/departemen/update/{id}', [masterDataController::class, 'update_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.departemen');
 Route::post('/master-data/process-code/update/{id}', [masterDataController::class, 'update_kodeproses'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.kodeproses');
+Route::post('/master-data/audit/update/{id}', [masterDataController::class, 'update_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.audit');
+Route::post('/master-data/documentaudit/update/{id}', [masterDataController::class, 'update_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.documentAudit');
 Route::delete('/master-data/departemen/delete/{id}', [masterDataController::class, 'delete_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.departemen');
@@ -102,10 +109,23 @@ Route::delete('/master-data/process-code/delete/{id}', [masterDataController::cl
 Route::delete('/master-data/role/delete/{id}', [masterDataController::class, 'delete_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.role');
-Route::get('/reminder', [ReminderAuditController::class, 'reminder'])
+Route::delete('/master-data/audit/delete/{id}', [masterDataController::class, 'delete_audit'])
     ->middleware(['auth', 'role:admin'])
-    ->name('reminder');
+    ->name('delete.audit');
 
+// Audit Control
+Route::get('/auditcontrol', [AuditController::class, 'index_auditControl'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('auditControl');
+Route::post('/auditcontrol/add', [AuditController::class, 'store_auditControl'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.auditControl');
+Route::post('/auditcontrol/update/{id}', [AuditController::class, 'update_auditControl'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.auditControl');
+Route::delete('/auditcontrol/delete/{id}', [AuditController::class, 'delete_auditControl'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('delete.auditControl');
 
 // Template Dokumen
 Route::get('/template-documents', [DokumenController::class, 'index'])

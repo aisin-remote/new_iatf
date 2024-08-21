@@ -21,8 +21,8 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Template Number</th>
-                                        <th>Document Title</th>
+                                        <th>Document Name</th>
+                                        <th>Audit Name</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -30,17 +30,17 @@
                                     @foreach ($documentaudit as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->code }}</td>
-                                            <td>{{ $d->nama_departemen }}</td>
+                                            <td>{{ $d->nama_dokumen }}</td>
+                                            <td>{{ $d->audit->nama }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editdepartemen-{{ $d->id }}">
+                                                    data-target="#editdocaudit-{{ $d->id }}">
                                                     Edit
                                                     <i class="fa-solid fa-edit"></i>
                                                 </button>
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deletedepartemen-{{ $d->id }}">
+                                                    data-target="#deletedocaudit-{{ $d->id }}">
                                                     Delete
                                                     <i class="fa-solid fa-trash-alt"></i>
                                                 </button>
@@ -62,21 +62,27 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddocauditLabel">Add Template</h5>
+                    <h5 class="modal-title" id="adddocauditLabel">Add Document Audit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('add.departemen') }}" method="post">
+                <form action="{{ route('add.documentAudit') }}" method="post">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="code">Code</label>
-                            <input type="text" class="form-control" id="code" name="code" required>
+                            <label for="nama_dokumen">Document Name</label>
+                            <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
                         </div>
                         <div class="form-group">
-                            <label for="nama_departemen">Nama Departemen</label>
-                            <input type="text" class="form-control" id="nama_departemen" name="nama_departemen" required>
+                            <label for="audit_id">Nama Audit</label>
+                            <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
+                                <option value="" selected>Select Audit</option>
+                                @foreach ($audit as $d)
+                                    <option value="{{ $d->id }}">{{ $d->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -90,12 +96,12 @@
 
     {{-- Modal Edit Template --}}
     @foreach ($documentaudit as $d)
-        <div class="modal fade" id="editdepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="editdepartemenLabel" aria-hidden="true">
+        <div class="modal fade" id="editdocaudit-{{ $d->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editdocauditLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editdepartemenLabel">Update Departemen</h5>
+                        <h5 class="modal-title" id="editdocauditLabel">Update Departemen</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -123,7 +129,7 @@
             </div>
         </div>
         <!-- Modal Delete -->
-        <div class="modal fade" id="deletedepartemen-{{ $d->id }}" tabindex="-1" role="dialog"
+        <div class="modal fade" id="deletedocaudit-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">

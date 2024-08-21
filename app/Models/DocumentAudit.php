@@ -9,4 +9,16 @@ class DocumentAudit extends Model
 {
     use HasFactory;
     protected $table = 'document_audit';
+    protected $fillable = [
+        'nama_dokumen',
+        'audit_id',
+    ];
+    public function audit()
+    {
+        return $this->belongsTo(Audit::class);
+    }
+    public function auditControls()
+    {
+        return $this->hasMany(AuditControl::class, 'dokumenaudit_id');
+    }
 }
