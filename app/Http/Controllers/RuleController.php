@@ -19,47 +19,31 @@ class RuleController extends Controller
     public function index($jenis, $tipe)
     {
         $user = auth()->user();
-        $selectedDepartemenId = session('active_departemen_id');
+        $departemenId = $user->departemen_id;
 
-        // Jika tidak ada departemen yang dipilih, ambil departemen pertama user
-        if (!$selectedDepartemenId) {
-            $selectedDepartemen = $user->departemens->first();
-            if ($selectedDepartemen) {
-                $selectedDepartemenId = $selectedDepartemen->id;
-                session(['active_departemen_id' => $selectedDepartemenId]);
-            }
-        }
-
-        // Dapatkan departemen yang aktif berdasarkan ID yang dipilih
-        $activeDepartemen = Departemen::find($selectedDepartemenId);
-
-        // Ambil dokumen berdasarkan jenis, tipe, dan departemen aktif
+        // Ambil dokumen berdasarkan jenis, tipe, dan departemen user
         $dokumen = Dokumen::where('jenis_dokumen', $jenis)
             ->where('tipe_dokumen', $tipe)
-            ->whereHas('indukDokumen', function ($query) use ($selectedDepartemenId) {
-                $query->whereHas('user.departemens', function ($query) use ($selectedDepartemenId) {
-                    $query->where('departemen_id', $selectedDepartemenId);
-                });
+            ->whereHas('indukDokumen', function ($query) use ($departemenId) {
+                $query->where('user_id', auth()->id());
             })
             ->orderBy('created_at', 'desc')
             ->get();
 
         // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
         $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
-            ->whereHas('user.departemens', function ($query) use ($selectedDepartemenId) {
-                $query->where('departemen_id', $selectedDepartemenId);
-            })
+            ->where('user_id', auth()->id())
             ->orderBy('tgl_upload', 'desc')
             ->get();
 
         $kodeProses = RuleCode::all();
-        $departemens = Departemen::all();
 
-        // Array untuk melacak code yang sudah ditampilkan
-        $uniqueDepartemens = $departemens->unique('code');
+        // Ambil departemen dengan code yang unik
+        $uniqueDepartemens = Departemen::select('code')->distinct()->get();
 
         return view('pages-rule.dokumen-rule', compact('jenis', 'tipe', 'dokumen', 'indukDokumenList', 'kodeProses', 'uniqueDepartemens'));
     }
+
     public function store(Request $request)
     {
         // Validasi file
@@ -75,17 +59,15 @@ class RuleController extends Controller
         $path = 'draft-rule/' . $filename;
         $file->storeAs('draft-rule', $filename, 'public'); // Simpan di direktori 'draft-rule' dalam storage 'public'
 
-        // Ambil informasi user
-        $userId = auth()->id();
+        // Ambil informasi user dan departemen
         $user = auth()->user();
 
-        // Cek apakah admin yang upload atau pengguna biasa
-        $isAdmin = $user->hasRole('admin'); // Misalkan ada metode untuk memeriksa peran admin
+        // Ambil departemen berdasarkan nama_departemen dari tabel user
+        $departemen = Departemen::where('nama_departemen', $user->departemen->nama_departemen)->first();
 
-        // Ambil departemen yang aktif
-        $departemen = $isAdmin ? Departemen::find($request->departemen_id) : $user->departemen->first();
-        $departemenId = $departemen->id;
-        $departemenCode = $departemen->code;
+        if (!$departemen) {
+            return redirect()->back()->with('error', 'User does not belong to any valid department.');
+        }
 
         // Ambil rule
         $rule = RuleCode::find($request->rule_id);
@@ -100,7 +82,7 @@ class RuleController extends Controller
             ->first();
 
         if (!$document) {
-            return redirect()->back()->with('error', 'Invalid type and document type.');
+            return redirect()->back()->with('error', 'Invalid document type and document type.');
         }
 
         $tipe_dokumen_code = $document->code;
@@ -110,7 +92,7 @@ class RuleController extends Controller
         $nomorDokumen = sprintf(
             '%s-%s-%s-%s-%02d',
             strtoupper($tipe_dokumen_code),
-            strtoupper($departemenCode),
+            strtoupper($departemen->code),
             strtoupper($kode_proses),
             $nomor_list,
             $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0
@@ -124,30 +106,17 @@ class RuleController extends Controller
         $dokumen->revisi_log = $request->status_dokumen === 'revisi' ? $request->revisi_ke : 0;
         $dokumen->nomor_dokumen = $nomorDokumen;
         $dokumen->tgl_upload = Carbon::now();
-        $dokumen->user_id = $userId;
+        $dokumen->user_id = $user->id;
         $dokumen->rule_id = $request->rule_id;
-        $dokumen->departemen_id = $departemenId;
+        $dokumen->departemen_id = $departemen->id;
         $dokumen->status = 'Waiting check by MS';
-        $dokumen->admin_upload = $isAdmin; // Tandai apakah diupload oleh admin
         $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been uploaded.';
         $dokumen->save();
-
-        // Jika ada departemen yang dipilih, kaitkan dokumen dengan departemen tersebut
-        if ($request->has('kode_departemen')) {
-            $departemenCodes = $request->input('kode_departemen');
-            $departemens = Departemen::whereIn('code', $departemenCodes)->get();
-            $dokumen->departments()->sync($departemens->pluck('id')); // Menggunakan sync() untuk update relasi
-        } else {
-            // Jika admin yang upload, tambahkan ke semua departemen
-            $departemens = Departemen::all();
-            $dokumen->departments()->sync($departemens->pluck('id'));
-        }
 
         // Tampilkan pesan sukses
         Alert::success('Success', 'Document uploaded successfully.');
         return redirect()->back();
     }
-
 
     public function download($id)
     {

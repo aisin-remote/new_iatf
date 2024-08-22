@@ -9,15 +9,29 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Data Audit Control</h4>
-                        <div class="d-flex justify-content-end mb-3">
-                            @role('admin')
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addauditcontrol">
-                                    Add New
+                        <div class="row mb-3">
+                            <!-- Kolom untuk tombol Upload Old Documents -->
+                            <div class="col-md-6 d-flex align-items-center">
+                                @role('admin')
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addauditcontrol"
+                                        style="margin-left: 0;">
+                                        Add new
+                                    </button>
+                                @endrole
+                            </div>
+                            <!-- Kolom untuk input pencarian dan tombol filter -->
+                            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                                <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                    placeholder="Search..." style="width: 300px;">
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#auditfilterModal"
+                                    style="background: #56544B">
+                                    Filter
                                 </button>
-                            @endrole
+                            </div>
                         </div>
+
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped" id="documentTableBody">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -59,6 +73,7 @@
             </div>
         </div>
     </div>
+
 
     {{-- Modal Add Template --}}
     <div class="modal fade" id="addauditcontrol" tabindex="-1" role="dialog" aria-labelledby="addauditcontrolLabel"
@@ -175,5 +190,95 @@
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog" aria-labelledby="auditfilterModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="{{ route('auditControl') }}" method="GET">
+                        @csrf
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="auditfilterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Filter berdasarkan Tanggal Upload -->
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Document</label>
+                                </div>
+                                <div class="col">
+                                    <select name="document_audit_id" class="form-control select2">
+                                        <option value="">Select Document Audit</option>
+                                        @foreach ($documentAudits as $d)
+                                            <option value="{{ $d->id }}">{{ $d->nama_dokumen }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Audit</label>
+                                </div>
+                                <div class="col">
+                                    <select name="audit_id" class="form-control select2">
+                                        <option value="">Select Audit</option>
+                                        @foreach ($audit as $a)
+                                            <option value="{{ $a->id }}">{{ $a->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Reminder</label>
+                                </div>
+                                <div class="col">
+                                    <input type="date" name="reminder" class="form-control"
+                                        placeholder="Reminder Date">
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Duedate</label>
+                                </div>
+                                <div class="col">
+                                    <input type="date" name="duedate" class="form-control" placeholder="Due Date">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     @endforeach
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Event handler untuk pencarian
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#documentTableBody tr').each(function() {
+                    var row = $(this);
+                    var text = row.text().toLowerCase();
+                    row.toggle(text.indexOf(value) > -1);
+                });
+            });
+
+            // Menghandle pagination agar pencarian bekerja
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function(data) {
+                    $('#documentTableBody').html($(data).find('#documentTableBody').html());
+                });
+            });
+        });
+    </script>
 @endsection

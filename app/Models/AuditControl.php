@@ -16,7 +16,7 @@ class AuditControl extends Model
         'duedate',
         'attachment',
     ];
-    public function documentAudit()
+    public function document_audit()
     {
         return $this->belongsTo(DocumentAudit::class, 'dokumenaudit_id');
     }

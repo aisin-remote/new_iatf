@@ -10,13 +10,38 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class AuditController extends Controller
 {
-    public function index_auditControl()
+    public function index_auditControl(Request $request)
     {
-        $auditControls = AuditControl::with(['documentAudit', 'audit'])->get();
+        $query = AuditControl::with(['document_audit', 'audit']);
+
+        // Filter berdasarkan dokumenaudit_id
+        if ($request->has('dokumenaudit_id') && $request->dokumenaudit_id != '') {
+            $query->where('dokumenaudit_id', $request->dokumenaudit_id);
+        }
+
+        // Filter berdasarkan audit_id
+        if ($request->has('audit_id') && $request->audit_id != '') {
+            $query->where('audit_id', $request->audit_id);
+        }
+
+        // Filter berdasarkan reminder date
+        if ($request->has('reminder') && $request->reminder != '') {
+            $query->whereDate('reminder', $request->reminder);
+        }
+
+        // Filter berdasarkan due date
+        if ($request->has('duedate') && $request->duedate != '') {
+            $query->whereDate('duedate', $request->duedate);
+        }
+
+        $auditControls = $query->get();
         $audit = Audit::all();
         $documentAudits = DocumentAudit::all();
+
         return view('auditControl', compact('auditControls', 'audit', 'documentAudits'));
     }
+
+
     public function store_auditControl(Request $request)
     {
         AuditControl::create([
