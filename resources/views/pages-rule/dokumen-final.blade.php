@@ -290,8 +290,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="file">Choose File</label>
+                                <label for="file">Choose File (.pdf)</label>
                                 <input type="file" class="form-control" id="file" name="file" required>
+                                <p>Maks 10 mb</p>
                             </div>
                             <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
                             <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
@@ -325,6 +326,7 @@
                                 <div class="form-group">
                                     <label for="file">Choose File</label>
                                     <input type="file" class="form-control" id="file" name="file" required>
+                                    <p>Maks 10 mb</p>
                                 </div>
                             </div>
                             <div class="modal-footer">

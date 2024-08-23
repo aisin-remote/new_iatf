@@ -33,7 +33,7 @@
                                 <tbody>
                                     @forelse ($sharedDocuments as $doc)
                                         <tr>
-                                            <td>{{ $iteration->id }}</td>
+                                            <td>{{ $loop->iteration }}</td>
                                             <td>{{ $doc->nomor_dokumen }}</td>
                                             <td>{{ $doc->nama_dokumen }}</td>
                                             <td>

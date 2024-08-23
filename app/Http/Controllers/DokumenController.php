@@ -19,15 +19,13 @@ class DokumenController extends Controller
     }
     public function store(Request $request)
     {
+        
         // Validasi input
-        // $request->validate([
-        //     'nomor_template' => 'required|string|max:255',
-        //     'jenis_dokumen' => 'required|string|in:Rule,Process', // Sesuaikan dengan jenis dokumen yang tersedia
-        //     'tipe_dokumen' => 'required|string|max:255',
-        //     'file' => 'required|mimes:pdf|max:2048',
-        //     'tgl_efektif' => 'required',
-        //     'template' => 'required|mimes:xlsx,doc,docx|max:2048', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
-        // ]);
+        $request->validate([
+            
+            'file_pdf' => 'required|mimes:pdf|max:10240',
+            'template' => 'required|mimes:xlsx,doc,docx|max:10240', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
+        ]);
 
         // Simpan file yang diunggah ke storage disk
         $file = $request->file('file_pdf');
@@ -61,8 +59,8 @@ class DokumenController extends Controller
         $request->validate([
             'nomor_template' => 'required|string|max:255',
             'tgl_efektif' => 'required',
-            'file' => 'nullable|file|mimes:pdf|max:2048',
-            'template' => 'nullable|file|mimes:xlsx,doc,docx|max:2048', // Sesuaikan dengan kebutuhan
+            'file_pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'template' => 'nullable|file|mimes:xlsx,doc,docx|max:10240', // Sesuaikan dengan kebutuhan
         ]);
 
         // Cari template berdasarkan id
@@ -73,9 +71,10 @@ class DokumenController extends Controller
         $template->tgl_efektif = $request->tgl_efektif;
 
         // Jika ada file yang diupload
-        if ($request->hasFile('file')) {
+        if ($request->hasFile('file_pdf')) {
             // Simpan file yang diunggah ke storage disk
-            $file = $request->file('file');
+            $file = $request->file('file_pdf');
+            
             $fileName = time() . '_file_' . $file->getClientOriginalName();
             $file->storeAs('template_dokumen', $fileName, 'public');
 

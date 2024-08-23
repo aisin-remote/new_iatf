@@ -154,8 +154,9 @@
                                 <input type="text" class="form-control" id="comment" name="comment" required>
                             </div>
                             <div class="form-group">
-                                <label for="file">File (optional)</label>
+                                <label for="file">File (.word, .excel)</label>
                                 <input type="file" class="form-control-file" id="file" name="file">
+                                <p>Maks 10 mb</p>
                             </div>
                         </div>
                         <div class="modal-footer">

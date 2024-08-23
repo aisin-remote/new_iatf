@@ -120,10 +120,12 @@
                         <div class="form-group">
                             <label for="file_pdf">Select Preview (.pdf)</label>
                             <input type="file" class="form-control-file" id="file_pdf" name="file_pdf" required>
+                            <p>Maks 10 mb</p>
                         </div>
                         <div class="form-group">
                             <label for="template">Select Template (.word, .excel)</label>
                             <input type="file" class="form-control-file" id="template" name="template">
+                            <p>Maks 10 mb</p>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -158,15 +160,18 @@
                             </div>
                             <div class="form-group">
                                 <label for="tgl_efektif">Effective date</label>
-                                <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif" required>
+                                <input type="date" class="form-control" id="tgl_efektif" name="tgl_efektif"
+                                    value="{{ $doc->tgl_efektif }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="file">Select Preview (.pdf)</label>
-                                <input type="file" class="form-control-file" id="file" name="file">
+                                <label for="file_pdf">Select Preview (.pdf)</label>
+                                <input type="file" class="form-control-file" id="file_pdf" name="file_pdf">
+                                <p>Maks 10 mb</p>
                             </div>
                             <div class="form-group">
                                 <label for="template">Select Template (.word, .excel)</label>
                                 <input type="file" class="form-control-file" id="template" name="template">
+                                <p>Maks 10 mb</p>
                             </div>
                         </div>
                         <div class="modal-footer">
