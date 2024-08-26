@@ -5,7 +5,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Skydash Admin</title>
+    <title>Register - Document Control</title>
     <!-- plugins:css -->
     <link rel="stylesheet" href="../../vendors/feather/feather.css">
     <link rel="stylesheet" href="../../vendors/ti-icons/css/themify-icons.css">
@@ -54,10 +54,12 @@
                                     @enderror
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control" id="departemen" name="departemen" style="padding-left: 24px;">
+                                    <select class="form-control" id="departemen" name="departemen"
+                                        style="padding-left: 24px;">
                                         <option value="" selected>Select Department</option>
                                         @foreach ($departemens as $departemen)
-                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}</option>
+                                            <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

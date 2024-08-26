@@ -2,9 +2,9 @@
     <div id="settings-trigger"><i class="ti-settings"></i></div>
     <div id="theme-settings" class="settings-panel">
         <i class="settings-close ti-close"></i>
-        <p class="settings-heading">SIDEBAR SKINS</p>
+        <p class="settings-heading">THEME SKINS</p>
         <div class="sidebar-bg-options selected" id="sidebar-light-theme">
-            <div class="img-ss rounded-circle bg-light border mr-3"></div>Light
+            <div class="img-ss rounded-circle bg-light border mr-3"></div><i class="fa-solid fa-sun"></i>Light
         </div>
         <div class="sidebar-bg-options" id="sidebar-dark-theme">
             <div class="img-ss rounded-circle bg-dark border mr-3"></div>Dark

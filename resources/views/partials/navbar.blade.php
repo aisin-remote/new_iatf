@@ -1,15 +1,16 @@
 <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo mr-5" href="{{ route('dashboard.rule') }}"><img
-                src="{{ asset('images/logo-iatf.png') }}" class="mr-2" alt="logo"
+                src="{{ asset('images/logo-iatf-removebg.png') }}" class="mr-2" alt="logo"
                 style="width: 80px; height: auto;" /></a>
         <a class="navbar-brand brand-logo-mini" href="{{ route('dashboard.rule') }}"><img
-                src="{{ asset('images/logo-iatf-mini.png') }}" alt="logo" /></a>
+                src="{{ asset('images/logo-iatf-mini-removebg.png') }}" alt="logo" /></a>
     </div>
     <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
             <span class="icon-menu"><i class="fa-solid fa-bars"></i></span>
         </button>
+
         <ul class="navbar-nav navbar-nav-right">
             <li class="nav-item dropdown">
                 @include('partials.notifications')
