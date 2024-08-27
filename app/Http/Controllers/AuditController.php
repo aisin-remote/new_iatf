@@ -47,8 +47,6 @@ class AuditController extends Controller
         AuditControl::create([
             'dokumenaudit_id' => $request->input('documentaudit_id'),
             'audit_id' => $request->input('audit_id'),
-            'reminder' => $request->input('reminder'),
-            'duedate' => $request->input('duedate'),
             'attachment' => $request->input('attachment'),
         ]);
         Alert::success('Success', 'Audit Control added successfully.');
@@ -60,8 +58,6 @@ class AuditController extends Controller
         $auditControl = AuditControl::findOrFail($id);
         $auditControl->dokumenaudit_id = $request->input('documentaudit_id');
         $auditControl->audit_id = $request->input('audit_id');
-        $auditControl->reminder = $request->input('reminder');
-        $auditControl->duedate = $request->input('duedate');
         $auditControl->attachment = $request->input('attachment');
         $auditControl->save();
         Alert::success('Success', 'Audit control changed succesfully.');

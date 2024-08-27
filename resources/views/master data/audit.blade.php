@@ -22,6 +22,8 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Audit Name</th>
+                                        <th>Reminder Set Date</th>
+                                        <th>Duedate</th>
                                         <th>Audit Date</th>
                                         <th>Action</th>
                                     </tr>
@@ -74,6 +76,14 @@
                             <input type="text" class="form-control" id="nama" name="nama" required>
                         </div>
                         <div class="form-group">
+                            <label for="reminder">Reminder Set</label>
+                            <input type="date" class="form-control" id="reminder" name="reminder" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="duedate">Due Date</label>
+                            <input type="date" class="form-control" id="duedate" name="duedate" required>
+                        </div>
+                        <div class="form-group">
                             <label for="tanggal_audit">Audit Date</label>
                             <input type="date" class="form-control" id="tanggal_audit" name="tanggal_audit" required>
                         </div>
@@ -105,6 +115,23 @@
                                 <label for="nama">Audit Name</label>
                                 <input type="text" class="form-control" id="nama" name="nama"
                                     value="{{ old('nama', $d->nama) }}" required>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Reminder</label>
+                                </div>
+                                <div class="col">
+                                    <input type="date" name="reminder" class="form-control"
+                                        placeholder="Reminder Date">
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-4">
+                                    <label class="col-form-label">Duedate</label>
+                                </div>
+                                <div class="col">
+                                    <input type="date" name="duedate" class="form-control" placeholder="Due Date">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="tanggal_audit">Audit Date</label>

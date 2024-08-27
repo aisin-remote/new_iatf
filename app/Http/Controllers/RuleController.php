@@ -112,7 +112,11 @@ class RuleController extends Controller
         $dokumen->status = 'Waiting check by MS';
         $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been uploaded.';
         $dokumen->save();
-
+        if ($request->has('kode_departemen')) {
+            $departemenCodes = $request->input('kode_departemen');
+            $departemens = Departemen::whereIn('code', $departemenCodes)->get();
+            $dokumen->departments()->sync($departemens->pluck('id'));
+        }
         // Tampilkan pesan sukses
         Alert::success('Success', 'Document uploaded successfully.');
         return redirect()->back();

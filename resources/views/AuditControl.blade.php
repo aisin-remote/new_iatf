@@ -37,8 +37,7 @@
                                         <th>No</th>
                                         <th>Document Name</th>
                                         <th>Audit</th>
-                                        <th>Reminder</th>
-                                        <th>Duedate</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -47,8 +46,6 @@
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->document_audit->nama_dokumen }}</td>
                                             <td>{{ $d->audit->nama }}</td>
-                                            <td>{{ $d->reminder }}</td>
-                                            <td>{{ $d->duedate }}</td>
                                             <td>{{ $d->attachment }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
@@ -73,7 +70,6 @@
             </div>
         </div>
     </div>
-
 
     {{-- Modal Add Template --}}
     <div class="modal fade" id="addauditcontrol" tabindex="-1" role="dialog" aria-labelledby="addauditcontrolLabel"
@@ -190,14 +186,15 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog" aria-labelledby="auditfilterModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
+            aria-labelledby="auditfilterModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form action="{{ route('auditControl') }}" method="GET">
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="auditfilterModalLabel">Filter <i class="fa-solid fa-filter"></i></h5>
+                            <h5 class="modal-title" id="auditfilterModalLabel">Filter <i class="fa-solid fa-filter"></i>
+                            </h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -217,7 +214,6 @@
                                     </select>
                                 </div>
                             </div>
-
                             <div class="row my-2">
                                 <div class="col-4">
                                     <label class="col-form-label">Audit</label>
@@ -229,23 +225,6 @@
                                             <option value="{{ $a->id }}">{{ $a->nama }}</option>
                                         @endforeach
                                     </select>
-                                </div>
-                            </div>
-                            <div class="row my-2">
-                                <div class="col-4">
-                                    <label class="col-form-label">Reminder</label>
-                                </div>
-                                <div class="col">
-                                    <input type="date" name="reminder" class="form-control"
-                                        placeholder="Reminder Date">
-                                </div>
-                            </div>
-                            <div class="row my-2">
-                                <div class="col-4">
-                                    <label class="col-form-label">Duedate</label>
-                                </div>
-                                <div class="col">
-                                    <input type="date" name="duedate" class="form-control" placeholder="Due Date">
                                 </div>
                             </div>
                         </div>

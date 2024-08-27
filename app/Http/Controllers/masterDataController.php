@@ -117,7 +117,7 @@ class masterDataController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+                return redirect()->back()->withErrors($validator)->withInput();
         }
 
         Role::create($request->only('name', 'guard_name'));
@@ -140,6 +140,8 @@ class masterDataController extends Controller
         Audit::create([
             'nama' => $request->input('nama'),
             'tanggal_audit' => $request->input('tanggal_audit'),
+            'reminder' => $request->input('reminder'),
+            'duedate' => $request->input('duedate')
         ]);
         Alert::success('Success', 'Audit added successfully.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses

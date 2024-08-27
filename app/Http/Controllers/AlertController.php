@@ -9,9 +9,9 @@ class AlertController extends Controller
     public function alert()
     {
         // Send WA notification
-        $groupId = '082125008160';
+        $groupId = '089687930588';
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
-        $message = sprintf("------ AIIA HENKATEN ALERT ------ %c%c%c------ BY AISIN BISA ------", 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
+        $message = sprintf("------ AKU SAYANG KAMU ------ %c%c%c------ BY AISIN BISA ------", 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
 
         $curl = curl_init();
         curl_setopt_array($curl, [

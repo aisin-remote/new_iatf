@@ -25,59 +25,64 @@ class ReminderAudit extends Command
     /**
      * Execute the console command.
      */
-    // public function handle()
-    // {
-    //     $today = Carbon::now();
-    //     $dayOfWeek = $today->dayOfWeek;
-
-    //     if ($dayOfWeek == 1 || $dayOfWeek == 5) { // Senin (1) dan Jumat (5)
-    //         // Tentukan ID grup WhatsApp yang dituju
-    //         $groupId = '120363311478624933@g.us'; // Ganti dengan ID grup Anda
-    //         $this->sendWaReminderAudit($groupId);
-    //     }
-    // }
-    public function handle()
-    {
-        // Langsung memanggil pengiriman WA tanpa cek hari
-        $groupId = '120363311478624933@g.us'; // Ganti dengan ID grup Anda
-        $this->sendWaReminderAudit($groupId);
-    }
     
-    protected function sendWaReminderAudit($groupId)
-    {
-        // Send WA notification
-        $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
-        $message = sprintf("------ AIIA HENKATEN ALERT ------ %c%c%c------ BY AISIN BISA ------", 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
+     public function handle()
+{
+    $now = Carbon::now('Asia/Jakarta');
+    $this->info("Current Time: " . $now);
+    
+    // Tentukan group_id di sini
+    $group_id = '120363311478624933'; // Ganti dengan Group ID Anda
+    
+    // Ambil audit yang perlu diingatkan berdasarkan rentang waktu
+    $auditControls = Audit::where('reminder', '<=', $now)
+        ->where('duedate', '>=', $now)
+        ->get();
 
-        $curl = curl_init();
-        curl_setopt_array($curl, [
-            CURLOPT_URL => 'https://app.ruangwa.id/api/send_message',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => http_build_query([
-                'token' => $token,
-                'number' => $groupId,
-                'message' => $message,
-            ]),
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/x-www-form-urlencoded'
-            ],
-        ]);
-
-        $response = curl_exec($curl);
-        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        curl_close($curl);
-
-        // Log the response or handle errors
-        if ($httpCode == 200) {
-            $this->info("Pesan berhasil dikirim: $response");
-        } else {
-            $this->error("Gagal mengirim pesan. Respons: $response");
-        }
+    foreach ($auditControls as $auditControl) {
+        // Mengirimkan pengingat WhatsApp menggunakan group_id
+        $this->sendWaReminderAudit($group_id);
+        
+        // Update status atau lakukan sesuatu untuk menandai bahwa reminder sudah dikirim
+        // $auditControl->update(['reminder_audit' => 0]);
     }
+}
+    
+protected function sendWaReminderAudit($groupId)
+{
+    // Send WA notification
+    $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
+    $message = "------ REMINDER DOCUMENT CONTROL ------\n\n\n------ BY AISIN BISA ------"; // Menggunakan \n untuk newline
+
+    $curl = curl_init();
+    curl_setopt_array($curl, [
+        CURLOPT_URL => 'https://app.ruangwa.id/api/send_message',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => http_build_query([
+            'token' => $token,
+            'number' => $groupId, // Pastikan ini adalah ID grup yang benar atau nomor WhatsApp
+            'message' => $message,
+        ]),
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/x-www-form-urlencoded',
+        ],
+    ]);
+
+    $response = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+
+    // Log the response or handle errors
+    if ($httpCode == 200) {
+        $this->info("Pesan berhasil dikirim: $response");
+    } else {
+        $this->error("Gagal mengirim pesan. Respons: $response");
+    }
+}
 }
