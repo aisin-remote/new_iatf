@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('dokumenaudit_id')->constrained('document_audit')->onDelete('cascade');
             $table->foreignId('audit_id')->constrained('audit')->onDelete('cascade');
-            $table->date('reminder')->nullable();
-            $table->date('duedate')->nullable();
             $table->text('attachment')->nullable();
             $table->timestamps();
         });

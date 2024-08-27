@@ -14,115 +14,127 @@ use Maatwebsite\Excel\Facades\Excel;
 class HomeController extends Controller
 {
     public function dashboard_rule(Request $request)
-{
-    $user = auth()->user();
-    $userDepartemenId = $user->departemen_id; // Ambil ID departemen pengguna
-
-    $allDepartemen = Departemen::all();
-
-    // Tampilkan form filter tipe dokumen
-    $tipeDokumen = Dokumen::all();
-
-    // Jumlah item per halaman
-    $perPage = $request->input('per_page', 10);
-
-    // Query dasar untuk data dokumen
-    $query = IndukDokumen::query()
-        ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id');
-
-    // Filter berdasarkan status dokumen jika bukan admin
-    if (!$user->hasRole('admin')) {
-        $query->whereIn('statusdoc', ['active', 'obsolete', 'not yet active']);
-    }
-
-    // Filter berdasarkan departemen pengguna jika bukan admin
-    if (!$user->hasRole('admin')) {
-        $query->where('induk_dokumen.departemen_id', $userDepartemenId);
-    }
-
-    // Terapkan filter dari query string
-    if ($request->filled('date_from') && $request->filled('date_to')) {
-        $query->whereBetween('tgl_upload', [$request->date_from, $request->date_to]);
-    }
-
-    if ($request->filled('tipe_dokumen_id')) {
-        $query->where('dokumen.tipe_dokumen', $request->tipe_dokumen_id);
-    }
-
-    if ($request->filled('statusdoc')) {
-        $query->where('statusdoc', $request->statusdoc);
-    }
-
-    // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
-    $dokumenall = $query->paginate($perPage);
-
-    // Format tanggal upload
-    $dokumenall->getCollection()->transform(function ($doc) {
-        $doc->tgl_upload = \Carbon\Carbon::parse($doc->tgl_upload)->format('d-m-Y');
-        return $doc;
-    });
-
-    // Query untuk menghitung berdasarkan tipe dokumen
-    $countByType = IndukDokumen::query()
-        ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-        ->select('dokumen.tipe_dokumen', DB::raw('count(*) as count'))
-        ->groupBy('dokumen.tipe_dokumen')
-        ->get();
-
-    // Query untuk menghitung berdasarkan status dan tipe dokumen
-    $countByStatusAndType = IndukDokumen::query()
-        ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
-        ->select('dokumen.tipe_dokumen', 'induk_dokumen.status', DB::raw('count(*) as count'))
-        ->groupBy('dokumen.tipe_dokumen', 'induk_dokumen.status')
-        ->get();
-
-    // Menghitung jumlah berdasarkan status tertentu
-    $waitingCheckCount = $countByStatusAndType->where('status', 'Waiting check by MS')->sum('count');
-    $finishCheckCount = $countByStatusAndType->where('status', 'Finish check by MS')->sum('count');
-    $activeCount = $countByStatusAndType->where('status', 'Approve by MS')->sum('count');
-    $obsolateCount = $countByStatusAndType->where('status', 'Obsolete by MS')->sum('count');
-
-    return view('pages-rule.dashboard', compact(
-        'countByType',
-        'waitingCheckCount',
-        'finishCheckCount',
-        'activeCount',
-        'obsolateCount',
-        'countByStatusAndType',
-        'dokumenall',
-        'allDepartemen',
-        'tipeDokumen',
-        'perPage'
-    ));
-}
-
-
-    public function getNotifications()
     {
         $user = auth()->user();
+        $userDepartemenId = $user->departemen_id; // Ambil ID departemen pengguna
 
-        if (!$user || !$user->departments) {
-            // Tangani jika tidak ada data departemen
-            return redirect()->route('error.page'); // Ganti dengan rute error atau tampilkan pesan
+        $allDepartemen = Departemen::all();
+
+        // Tampilkan form filter tipe dokumen
+        $tipeDokumen = Dokumen::all();
+
+        // Jumlah item per halaman
+        $perPage = $request->input('per_page', 10);
+
+        // Query dasar untuk data dokumen
+        $query = IndukDokumen::query()
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id');
+
+        // Filter berdasarkan status dokumen jika bukan admin
+        if (!$user->hasRole('admin')) {
+            $query->whereIn('statusdoc', ['active', 'obsolete', 'not yet active']);
         }
 
-        $departemen_user = $user->departments->pluck('nama_departemen')->first();
-
-        // Ambil notifikasi dari tabel IndukDokumen
-        if ($user->role === 'admin') {
-            // Jika user adalah admin, ambil semua notifikasi yang memiliki file_draft diisi
-            $notifications = IndukDokumen::whereNotNull('file')
-                ->whereNotNull('command')
-                ->get();
-        } else {
-            // Jika user bukan admin, ambil notifikasi berdasarkan user_id dan file diisi
-            $notifications = IndukDokumen::where('user_id', $user->id)
-                ->whereNotNull('file')
-                ->whereNotNull('command')
-                ->get();
+        // Filter berdasarkan departemen pengguna jika bukan admin
+        if (!$user->hasRole('admin')) {
+            $query->where('induk_dokumen.departemen_id', $userDepartemenId);
         }
 
-        return view('partials.notifications', compact('notifications'));
+        // Terapkan filter dari query string
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $query->whereBetween('tgl_upload', [$request->date_from, $request->date_to]);
+        }
+
+        if ($request->filled('tipe_dokumen_id')) {
+            $query->where('dokumen.tipe_dokumen', $request->tipe_dokumen_id);
+        }
+
+        if ($request->filled('statusdoc')) {
+            $query->where('statusdoc', $request->statusdoc);
+        }
+
+        // Ambil data dokumen sesuai dengan query yang sudah difilter dengan pagination
+        $dokumenall = $query->paginate($perPage);
+
+        // Format tanggal upload
+        $dokumenall->getCollection()->transform(function ($doc) {
+            $doc->tgl_upload = \Carbon\Carbon::parse($doc->tgl_upload)->format('d-m-Y');
+            return $doc;
+        });
+
+        // Query untuk menghitung berdasarkan tipe dokumen
+        $countByType = IndukDokumen::query()
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->select('dokumen.tipe_dokumen', DB::raw('count(*) as count'))
+            ->groupBy('dokumen.tipe_dokumen')
+            ->get();
+
+        // Query untuk menghitung berdasarkan status dan tipe dokumen
+        $countByStatusAndType = IndukDokumen::query()
+            ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
+            ->select('dokumen.tipe_dokumen', 'induk_dokumen.status', DB::raw('count(*) as count'))
+            ->groupBy('dokumen.tipe_dokumen', 'induk_dokumen.status')
+            ->get();
+
+        // Menghitung jumlah berdasarkan status tertentu
+        $waitingCheckCount = $countByStatusAndType->where('status', 'Waiting check by MS')->sum('count');
+        $finishCheckCount = $countByStatusAndType->where('status', 'Finish check by MS')->sum('count');
+        $activeCount = $countByStatusAndType->where('status', 'Approve by MS')->sum('count');
+        $obsolateCount = $countByStatusAndType->where('status', 'Obsolete by MS')->sum('count');
+
+        return view('pages-rule.dashboard', compact(
+            'countByType',
+            'waitingCheckCount',
+            'finishCheckCount',
+            'activeCount',
+            'obsolateCount',
+            'countByStatusAndType',
+            'dokumenall',
+            'allDepartemen',
+            'tipeDokumen',
+            'perPage'
+        ));
+    }
+    // public function getNotifications()
+    // {
+    //     $user = auth()->user();
+
+    //     if (!$user || !$user->departments) {
+    //         // Tangani jika tidak ada data departemen
+    //         return redirect()->route('error.page'); // Ganti dengan rute error atau tampilkan pesan
+    //     }
+
+    //     $departemen_user = $user->departments->pluck('nama_departemen')->first();
+
+    //     // Ambil notifikasi dari tabel IndukDokumen
+    //     if ($user->role === 'admin') {
+    //         // Jika user adalah admin, ambil semua notifikasi yang memiliki file_draft diisi
+    //         $notifications = IndukDokumen::whereNotNull('file')
+    //             ->whereNotNull('command')
+    //             ->get();
+    //     } else {
+    //         // Jika user bukan admin, ambil notifikasi berdasarkan user_id dan file diisi
+    //         $notifications = IndukDokumen::where('user_id', $user->id)
+    //             ->whereNotNull('file')
+    //             ->whereNotNull('command')
+    //             ->get();
+    //     }
+
+    //     return view('partials.notifications', compact('notifications'));
+    // }
+
+    public function markAsRead($id)
+    {
+        $user = Auth::user();
+        $document = IndukDokumen::findOrFail($id);
+
+        // Tandai notifikasi terkait dokumen ini sebagai sudah dibaca
+        $user->notifications()
+            ->where('data->document_id', $document->id)
+            ->update(['read_at' => now()]);
+
+        // Redirect ke halaman terkait dokumen ini
+        return redirect()->route('document.view', $document->id);
     }
     public function downloadExcel(Request $request)
     {
@@ -166,26 +178,5 @@ class HomeController extends Controller
             ->join('dokumen', 'induk_dokumen.dokumen_id', '=', 'dokumen.id')
             ->groupBy('dokumen.tipe_dokumen_id')
             ->get();
-    }
-    public function switchDepartemen(Request $request)
-    {
-        $user = auth()->user();
-        $departemenId = $request->input('department_id');
-
-        // Validasi ID departemen
-        $departemen = Departemen::find($departemenId);
-        // dd($departemen);
-
-        if ($departemen) {
-            // Update session dengan departemen yang dipilih
-            session(['active_departemen_name' => $departemen->nama_departemen]);
-
-            // Redirect ke dashboard atau halaman lain
-            return redirect()->route('dashboard.rule');
-        }
-
-
-        // Jika departemen tidak ditemukan atau tidak dimiliki pengguna
-        return redirect()->back()->withErrors(['department_id' => 'Invalid department.']);
     }
 }

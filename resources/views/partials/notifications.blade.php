@@ -39,7 +39,7 @@
         <div class="dropdown-item">
             <div class="notification-list">
                 @forelse ($documents as $document)
-                    <div class="notification-item d-flex align-items-start justify-content-between mb-3 p-3 border"
+                    <div class="notification-item d-flex align-items-start justify-content-between mb-3 p-3 border" id="notification-{{ $document->id }}"
                         style="cursor: pointer;">
                         <div class="notification-content flex-grow-1">
                             <p class="notification-title mb-1">{{ $document->nomor_dokumen }}</p>
@@ -63,3 +63,14 @@
         </div>
     </div>
 </li>
+<script>
+    function markNotificationAsRead(notificationId) {
+        $.ajax({
+            url: '/notification/read/' + notificationId,
+            method: 'GET',
+            success: function() {
+                $('#notification-' + notificationId).remove(); // Menghapus notifikasi dari daftar
+            }
+        });
+    }
+</script>

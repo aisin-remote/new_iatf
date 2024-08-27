@@ -26,10 +26,10 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('partials.notifications', function ($view) {
             $user = Auth::user();
-        
+
             // Pastikan departemen ada sebelum mengakses propertinya
             $departemen_user = $user->selectedDepartmen ? $user->selectedDepartmen->nama_departemen : null;
-        
+
             if ($user->hasRole('admin')) {
                 $documents = IndukDokumen::with(['user.departemen'])
                     ->where(function ($query) {
@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
                             ->orWhereNotIn('statusdoc', ['active', 'obsolete']);
                     })
                     ->orderByDesc('created_at')
+                    ->take(3) // Batasi hanya 3 notifikasi terbaru
                     ->get();
             } else {
                 $documents = IndukDokumen::where(function ($query) use ($user) {
@@ -49,25 +50,27 @@ class AppServiceProvider extends ServiceProvider
                         })->whereNotIn('statusdoc', ['active', 'obsolete']);
                     });
                 })
-                ->orderByDesc('created_at')
-                ->get();
+                    ->orderByDesc('created_at')
+                    ->take(3) // Batasi hanya 3 notifikasi terbaru
+                    ->get();
             }
-        
+
             $sharedDocuments = IndukDokumen::whereHas('departments', function ($query) use ($departemen_user) {
                 if ($departemen_user) {
                     $query->where('nama_departemen', $departemen_user);
                 }
             })
-            ->where('statusdoc', 'active')
-            ->whereNotNull('file_pdf')
-            ->orderByDesc('created_at')
-            ->get()
-            ->each(function ($doc) {
-                $doc->is_shared = true;
-            });
-        
-            $allDocuments = $documents->merge($sharedDocuments)->sortByDesc('created_at');
-        
+                ->where('statusdoc', 'active')
+                ->whereNotNull('file_pdf')
+                ->orderByDesc('created_at')
+                ->take(3) // Batasi hanya 3 notifikasi terbaru
+                ->get()
+                ->each(function ($doc) {
+                    $doc->is_shared = true;
+                });
+
+            $allDocuments = $documents->merge($sharedDocuments)->sortByDesc('created_at')->take(3); // Batasi hanya 3 notifikasi terbaru
+
             $paginatedDocuments = new \Illuminate\Pagination\LengthAwarePaginator(
                 $allDocuments->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
                 $allDocuments->count(),
@@ -75,12 +78,11 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Pagination\Paginator::resolveCurrentPage(),
                 ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
             );
-        
+
             $notificationCount = $allDocuments->count();
-        
+
             $view->with('documents', $paginatedDocuments);
             $view->with('notificationCount', $notificationCount);
         });
-        
     }
 }

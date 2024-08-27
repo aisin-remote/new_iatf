@@ -8,6 +8,7 @@ use App\Http\Controllers\masterDataController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReminderAuditController;
 use App\Http\Controllers\RuleController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ValidateRuleController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -27,6 +28,9 @@ use Illuminate\Support\Facades\Storage;
 Route::get('/', function () {
     return redirect('/login');
 });
+
+Route::get('/alert', [AlertController::class, 'alert'])->name('alert');
+
 Route::get('/select-dashboard', [AuthController::class, 'select_dashboard'])->name('select.dashboard');
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login-proses', [AuthController::class, 'login_proses'])->name('login.proses');
