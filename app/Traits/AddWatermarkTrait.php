@@ -26,6 +26,10 @@ trait AddWatermarkTrait
             return null;
         }
 
+        // Ambil nama file tanpa ekstensi dan ekstensi file
+        $fileNameWithoutExtension = pathinfo($filePath, PATHINFO_FILENAME);
+        $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
+
         // Path gambar watermark
         $watermarkImagePath = storage_path('app/public/' . $watermarkImage);
 
@@ -77,8 +81,8 @@ trait AddWatermarkTrait
             $pdf->SetAlpha(1.0);
         }
 
-        // Tentukan path file baru
-        $watermarkedPath = $watermarkDirectory . '/watermarked_' . uniqid() . '.pdf';
+        // Tentukan path file baru dengan nama file asli dan prefix/suffix
+        $watermarkedPath = $watermarkDirectory . '/' . $fileNameWithoutExtension . '_watermarked.' . $fileExtension;
         $fullWatermarkedPath = storage_path('app/public/' . $watermarkedPath);
 
         // Simpan file PDF yang di-watermark

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Departemen;
+use App\Models\DocumentDepartement;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
@@ -199,10 +200,10 @@ class ValidateRuleController extends Controller
     public function activateDocument(Request $request, $id)
     {
         $id = (int) $id;
-        
+
         // Temukan dokumen berdasarkan ID
         $dokumen = IndukDokumen::findOrFail($id);
-        
+
         // Periksa apakah dokumen belum aktif atau sudah obsolete
         if ($dokumen->statusdoc == 'not yet active' || $dokumen->statusdoc == 'obsolete') {
 
@@ -216,7 +217,7 @@ class ValidateRuleController extends Controller
                     20,
                     150
                 );
-                
+
                 // Perbarui kolom active_doc dengan path file yang sudah di-watermark
                 $dokumen->active_doc = $watermarkedPath;
             } else {
@@ -232,12 +233,72 @@ class ValidateRuleController extends Controller
             $dokumen->tgl_efektif = $request->input('activation_date');
             $dokumen->save();
 
+            $departemenIds = DocumentDepartement::where('induk_dokumen_id', $dokumen->id)
+                ->pluck('departemen_id')
+                ->toArray(); // Pastikan ini mengembalikan array
+
+            $departemenNames = [];
+            foreach ($departemenIds as $departemenId) {
+                $departemen = Departemen::find($departemenId);
+                if ($departemen) {
+                    $departemenNames[] = $departemen->nama_departemen;
+                }
+            }
+
+            // Buat pesan yang mencakup semua departemen yang mendapatkan distribusi
+            $departemenList = implode(', ', $departemenNames);
+            $message = "------ DOCUMENT DISTRIBUTION NOTIFICATION ------\n\nDocument Activated: $dokumen->active_doc\n\nDistributed To Departments: $departemenList\n\nSilakan lihat dan download pada menu distributed document\n\n------ BY AISIN BISA ------";
+
+            // Define group IDs for notifications
+            $groupIds = [
+                '120363311478624933', // Ganti dengan ID grup WhatsApp yang relevan
+            ];
+
+            // Pastikan groupIds adalah array, meskipun hanya ada satu ID
+            if (is_string($groupIds)) {
+                $groupIds = [$groupIds];
+            }
+
+            foreach ($groupIds as $groupId) {
+                // Kirim pesan WhatsApp ke grup
+                $this->sendWaReminderAudit($groupId, $message);
+            }
+
             Alert::success('The document has been successfully activated.');
             return redirect()->back();
         }
 
         Alert::error('The document cannot be activated.');
         return redirect()->back();
+    }
+    protected function sendWaReminderAudit($groupId, $message)
+    {
+        // Send WA notification
+        $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://app.ruangwa.id/api/send_message',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30, // Atur waktu timeout untuk lebih realistis
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query([
+                'token' => $token,
+                'number' => $groupId, // Pastikan ini adalah ID grup yang benar atau nomor WhatsApp
+                'message' => $message,
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/x-www-form-urlencoded',
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
     }
 
     public function obsoleteDocument(Request $request, $id)

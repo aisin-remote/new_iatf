@@ -40,8 +40,6 @@ Route::post('/register-proses', [AuthController::class, 'register_proses'])->nam
 Route::get('/comingsoon', function () {
     return view('comingsoon');
 })->name('comingsoon');
-Route::get('/switch-departemen/{id}', [AuthController::class, 'switchDepartemen'])->name('switch.departemen');
-Route::post('/switchdepartemens', [HomeController::class, 'switchDepartemen'])->name('home.switch.departemen');
 
 
 // Dashboard rule
@@ -119,10 +117,10 @@ Route::delete('/master-data/audit/delete/{id}', [masterDataController::class, 'd
 
 // Audit Control
 Route::get('/auditcontrol', [AuditController::class, 'index_auditControl'])
-    ->middleware(['auth', 'role:admin'])
+    ->middleware(['auth', 'role:admin|guest'])
     ->name('auditControl');
 Route::post('/auditcontrol/add', [AuditController::class, 'store_auditControl'])
-    ->middleware(['auth', 'role:admin'])
+    ->middleware(['auth', 'role:admin|guest'])
     ->name('add.auditControl');
 Route::post('/auditcontrol/update/{id}', [AuditController::class, 'update_auditControl'])
     ->middleware(['auth', 'role:admin'])
@@ -202,6 +200,3 @@ Route::post('/documents/final/upload-oldDocument', [ValidateRuleController::clas
 Route::get('/documents/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('document.share');
-
-//notifications
-// Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

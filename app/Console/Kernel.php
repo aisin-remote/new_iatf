@@ -12,8 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('wa:send-reminder')
-            ->everyMinute();
+        $schedule->command('command:send-audit-reminder')
+            ->days([Schedule::MONDAY, Schedule::FRIDAY]) // Hanya Senin dan Jumat
+            ->timezone('Asia/Jakarta')
+            ->at('14:00');
     }
 
     /**

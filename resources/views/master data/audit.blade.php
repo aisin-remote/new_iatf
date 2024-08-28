@@ -33,6 +33,8 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->nama }}</td>
+                                            <td>{{ $d->reminder }}</td>
+                                            <td>{{ $d->duedate }}</td>
                                             <td>{{ $d->tanggal_audit }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->

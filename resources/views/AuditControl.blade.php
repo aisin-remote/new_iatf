@@ -107,14 +107,6 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="reminder">Reminder</label>
-                            <input type="date" class="form-control" id="reminder" name="reminder" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="duedate">Duedate</label>
-                            <input type="date" class="form-control" id="duedate" name="duedate" required>
-                        </div>
-                        <div class="form-group">
                             <label for="Attachment">Attachment</label>
                             <input type="file" class="form-control" id="Attachment" name="attachment" required>
                         </div>

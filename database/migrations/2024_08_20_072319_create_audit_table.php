@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('audit', function (Blueprint $table) {
             $table->id();
             $table->string('nama')->nullable();
-            $table->date('reminder')->nullable();
-            $table->date('duedate')->nullable();
+            $table->dateTime('reminder')->nullable();
+            $table->dateTime('duedate')->nullable();
             $table->date('tanggal_audit')->nullable();
             $table->timestamps();
         });
