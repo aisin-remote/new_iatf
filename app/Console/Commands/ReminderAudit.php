@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Audit;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class ReminderAudit extends Command
 {
