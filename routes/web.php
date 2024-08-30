@@ -10,6 +10,7 @@ use App\Http\Controllers\ReminderAuditController;
 use App\Http\Controllers\RuleController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ValidateRuleController;
+use App\Models\AuditControl;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -29,7 +30,6 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/alert', [AlertController::class, 'alert'])->name('alert');
 
 Route::get('/select-dashboard', [AuthController::class, 'select_dashboard'])->name('select.dashboard');
 Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -43,82 +43,161 @@ Route::get('/comingsoon', function () {
 
 
 // Dashboard rule
-Route::get('/dashboard-rule', [HomeController::class, 'dashboard_rule'])
+Route::get('/rule', [HomeController::class, 'dashboard_rule'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('dashboard.rule');
-Route::get('/notifications', [HomeController::class, 'getNotifications'])
+Route::get('/rule/notification', [HomeController::class, 'getNotifications'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('notifications');
-Route::get('download-excel', [HomeController::class, 'downloadExcel'])
+Route::get('/rule/download-excel', [HomeController::class, 'downloadExcel'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('download.excel');
-Route::get('/filter-documents', [HomeController::class, 'filterDocuments'])
+Route::get('/rule/filter-documents', [HomeController::class, 'filterDocuments'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('filter.documents');
 
 //master data
-Route::get('/master-data', [masterDataController::class, 'index'])
+Route::get('/rule/master-data', [masterDataController::class, 'index'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata');
-Route::get('/master-data/departemen', [masterDataController::class, 'index_departemen'])
+Route::get('/rule/master-data/departemen', [masterDataController::class, 'index_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.departemen');
-Route::get('/master-data/process-code', [masterDataController::class, 'index_prosescode'])
+Route::get('/rule/master-data/process-code', [masterDataController::class, 'index_prosescode'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.kodeproses');
-Route::get('/master-data/role', [masterDataController::class, 'index_role'])
+Route::get('/rule/master-data/role', [masterDataController::class, 'index_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.role');
-Route::get('/master-data/audit', [masterDataController::class, 'index_audit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('masterdata.audit');
-Route::get('/master-data/documentaudit', [masterDataController::class, 'index_documentAudit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('masterdata.documentAudit');
-Route::post('/master-data/departemen/add', [masterDataController::class, 'store_departemen'])
+Route::post('/rule/master-data/departemen/add', [masterDataController::class, 'store_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.departemen');
-Route::post('/master-data/process-code/add', [masterDataController::class, 'store_kodeproses'])
+Route::post('/rule/master-data/process-code/add', [masterDataController::class, 'store_kodeproses'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.kodeproses');
-Route::post('/master-data/role/add', [masterDataController::class, 'store_role'])
+Route::post('/rule/master-data/role/add', [masterDataController::class, 'store_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.role');
-Route::post('/master-data/audit/add', [masterDataController::class, 'store_audit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('add.audit');
-Route::post('/master-data/documentaudit/add', [masterDataController::class, 'store_documentAudit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('add.documentAudit');
-Route::post('/master-data/departemen/update/{id}', [masterDataController::class, 'update_departemen'])
+Route::post('/rule/master-data/departemen/update/{id}', [masterDataController::class, 'update_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.departemen');
-Route::post('/master-data/process-code/update/{id}', [masterDataController::class, 'update_kodeproses'])
+Route::post('/rule/master-data/process-code/update/{id}', [masterDataController::class, 'update_kodeproses'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.kodeproses');
-Route::post('/master-data/audit/update/{id}', [masterDataController::class, 'update_audit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('update.audit');
-Route::post('/master-data/documentaudit/update/{id}', [masterDataController::class, 'update_audit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('update.documentAudit');
-Route::delete('/master-data/departemen/delete/{id}', [masterDataController::class, 'delete_departemen'])
+Route::delete('/rule/master-data/departemen/delete/{id}', [masterDataController::class, 'delete_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.departemen');
-Route::delete('/master-data/process-code/delete/{id}', [masterDataController::class, 'delete_kodeproses'])
+Route::delete('/rule/master-data/process-code/delete/{id}', [masterDataController::class, 'delete_kodeproses'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.kodeproses');
-Route::delete('/master-data/role/delete/{id}', [masterDataController::class, 'delete_role'])
+Route::delete('/rule/master-data/role/delete/{id}', [masterDataController::class, 'delete_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.role');
-Route::delete('/master-data/audit/delete/{id}', [masterDataController::class, 'delete_audit'])
+
+// Template Dokumen
+Route::get('/rule/template-documents', [DokumenController::class, 'index'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.index');
+Route::post('/rule/template-documents/add', [DokumenController::class, 'store'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.add');
+Route::post('/rule/template-documents/edit/{id}', [DokumenController::class, 'edit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.edit');
+Route::get('/rule/template-documents/preview/{id}', [DokumenController::class, 'preview'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.preview');
+Route::get('/rule/template-documents/download/{id}', [DokumenController::class, 'download'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('template.download');
+Route::delete('/rule/template-documents/delete/{id}', [DokumenController::class, 'destroy'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('template.delete');
+
+
+// Document Draft Rule
+Route::get('/rule/documents/{jenis}/{tipe}', [RuleController::class, 'index'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('rule.index');
+Route::post('/rule/documents/draftRule', [RuleController::class, 'store'])
+    ->middleware(['auth', 'role:guest'])
+    ->name('tambah.rule');
+Route::get('/rule/download/rule/{id}', [RuleController::class, 'download'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('download.rule');
+
+// Validate Rule
+Route::get('/rule/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('rule.validate');
+Route::post('/rule/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('dokumen.approve');
+Route::post('/rule/documents/validate/{id}/activate', [ValidateRuleController::class, 'activateDocument'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('activate.document');
+Route::post('/rule/documents/validate/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('obsolete.document');
+
+// Document Final Rule
+Route::get('/rule/documents/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('documents.final');
+Route::post('/rule/documents/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('upload.final');
+Route::get('/rule/documents/final/preview-final/{id}', [ValidateRuleController::class, 'previewFinal'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('documents.previewFinal');
+Route::get('/rule/documents/final/preview-active/{id}', [ValidateRuleController::class, 'previewActive'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('documents.previewActive');
+Route::get('/rule/documents/final/preview-obsolete/{id}', [ValidateRuleController::class, 'previewObsolete'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('documents.previewObsolete');
+Route::post('/rule/documents/final/upload-oldDocument', [ValidateRuleController::class, 'upload_old_doc'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.oldDoc');
+
+// Document Share
+Route::get('/rule/documents/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('document.share');
+
+// Audit Control Master
+Route::get('/rule/master-data/audit', [AuditControl::class, 'master_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.audit');
+Route::post('/rule/master-data/audit/add', [masterDataController::class, 'store_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.audit');
+Route::post('/rule/master-data/audit/update/{id}', [masterDataController::class, 'update_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.audit');
+Route::delete('/rule/master-data/audit/delete/{id}', [masterDataController::class, 'delete_audit'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.audit');
-
-// Audit Control
-Route::get('/auditcontrol', [AuditController::class, 'index_auditControl'])
-    ->middleware(['auth', 'role:admin|guest'])
+Route::get('/rule/master-data/documentaudit', [masterDataController::class, 'master_documentAudit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.documentAudit');
+Route::post('/rule/master-data/documentaudit/add', [masterDataController::class, 'store_documentAudit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.documentAudit');
+Route::post('/rule/master-data/documentaudit/update/{id}', [masterDataController::class, 'update_audit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.documentAudit');
+Route::get('/rule/auditcontrol', [AuditController::class, 'master_auditControl'])
+    ->middleware(['auth', 'role:admin'])
     ->name('auditControl');
+
+
+
+//Audit Control List
+Route::get('/dashboard-audit', [HomeController::class, 'dashboard_audit'])
+    ->middleware(['auth', 'role:admin|guest'])
+    ->name('dashboard.audit');
+
 Route::post('/auditcontrol/add', [AuditController::class, 'store_auditControl'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('add.auditControl');
@@ -128,75 +207,3 @@ Route::post('/auditcontrol/update/{id}', [AuditController::class, 'update_auditC
 Route::delete('/auditcontrol/delete/{id}', [AuditController::class, 'delete_auditControl'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.auditControl');
-
-// Template Dokumen
-Route::get('/template-documents', [DokumenController::class, 'index'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('template.index');
-Route::post('/template-documents/add', [DokumenController::class, 'store'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('template.add');
-Route::post('/template-documents/edit/{id}', [DokumenController::class, 'edit'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('template.edit');
-Route::get('/template-documents/preview/{id}', [DokumenController::class, 'preview'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('template.preview');
-Route::get('/template-documents/download/{id}', [DokumenController::class, 'download'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('template.download');
-Route::delete('/template-documents/delete/{id}', [DokumenController::class, 'destroy'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('template.delete');
-
-
-// Document Draft Rule
-Route::get('/documents/{jenis}/{tipe}', [RuleController::class, 'index'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('rule.index');
-Route::post('/documents/draftRule', [RuleController::class, 'store'])
-    ->middleware(['auth', 'role:guest'])
-    ->name('tambah.rule');
-Route::get('/download/rule/{id}', [RuleController::class, 'download'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('download.rule');
-
-// Validate Rule
-Route::get('/validate-draft/{jenis}/{tipe}', [ValidateRuleController::class, 'validate_index'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('rule.validate');
-Route::post('/validate/approve/{id}', [ValidateRuleController::class, 'approveDocument'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('dokumen.approve');
-Route::post('/documents/validate/{id}/activate', [ValidateRuleController::class, 'activateDocument'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('activate.document');
-Route::post('/documents/validate/{id}/obsolete', [ValidateRuleController::class, 'obsoleteDocument'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('obsolete.document');
-
-// Document Final Rule
-Route::get('/documents/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('documents.final');
-Route::post('documents/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('upload.final');
-Route::get('/documents/final/preview-final/{id}', [ValidateRuleController::class, 'previewFinal'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('documents.previewFinal');
-Route::get('/documents/final/preview-active/{id}', [ValidateRuleController::class, 'previewActive'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('documents.previewActive');
-Route::get('/documents/final/preview-obsolete/{id}', [ValidateRuleController::class, 'previewObsolete'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('documents.previewObsolete');
-Route::post('/documents/final/upload-oldDocument', [ValidateRuleController::class, 'upload_old_doc'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('add.oldDoc');
-
-
-// Document Share
-Route::get('/documents/share/{jenis}/{tipe}', [RuleController::class, 'share_document'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('document.share');

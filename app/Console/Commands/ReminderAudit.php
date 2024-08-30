@@ -51,8 +51,8 @@ class ReminderAudit extends Command
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
         $message = "------ REMINDER AUDIT CONTROL ------\n\n";
         $message .= "Audit Name: " . $auditControl->nama . "\n";
-        $message .= "Reminder Date: " . $auditControl->reminder->format('Y-m-d') . "\n";
-        $message .= "Due Date: " . $auditControl->duedate->format('Y-m-d') . "\n";
+        $message .= "Reminder Date: " . $auditControl->reminder. "\n";
+        $message .= "Due Date: " . $auditControl->duedate. "\n";
         $message .= "\n------ BY AISIN BISA ------";
 
         $response = Http::asForm()->post('https://app.ruangwa.id/api/send_message', [

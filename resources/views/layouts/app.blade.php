@@ -108,9 +108,12 @@
             <!-- partial:partials/_settings-panel.html -->
             {{-- @include('partials.settings-panel') --}}
 
-            <!-- partial -->
-            <!-- partial:partials/_sidebar.html -->
-            @include('partials.sidebar')
+            @if (request()->is('rule') || request()->is('rule/*'))
+                @include('partials.sidebar-rule')
+            @else
+                @include('partials.sidebar-audit')
+            @endif
+
             <!-- partial -->
             <div class="main-panel">
                 @yield('content')

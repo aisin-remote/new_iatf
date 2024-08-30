@@ -48,7 +48,7 @@ class RuleController extends Controller
     {
         // Validasi file
         $request->validate([
-            'file' => 'required|mimes:doc,docx,xls,xlsx|max:10240',
+            'file' => 'required|mimes:doc,docx,xls,xlsx',
         ], [
             'file.mimes' => 'Only Word and Excel files are allowed.',
         ]);

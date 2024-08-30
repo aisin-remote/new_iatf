@@ -95,46 +95,13 @@ class HomeController extends Controller
             'perPage'
         ));
     }
-    // public function getNotifications()
-    // {
-    //     $user = auth()->user();
-
-    //     if (!$user || !$user->departments) {
-    //         // Tangani jika tidak ada data departemen
-    //         return redirect()->route('error.page'); // Ganti dengan rute error atau tampilkan pesan
-    //     }
-
-    //     $departemen_user = $user->departments->pluck('nama_departemen')->first();
-
-    //     // Ambil notifikasi dari tabel IndukDokumen
-    //     if ($user->role === 'admin') {
-    //         // Jika user adalah admin, ambil semua notifikasi yang memiliki file_draft diisi
-    //         $notifications = IndukDokumen::whereNotNull('file')
-    //             ->whereNotNull('command')
-    //             ->get();
-    //     } else {
-    //         // Jika user bukan admin, ambil notifikasi berdasarkan user_id dan file diisi
-    //         $notifications = IndukDokumen::where('user_id', $user->id)
-    //             ->whereNotNull('file')
-    //             ->whereNotNull('command')
-    //             ->get();
-    //     }
-
-    //     return view('partials.notifications', compact('notifications'));
-    // }
-
-    public function markAsRead($id)
+    public function dashboard_process()
     {
-        $user = Auth::user();
-        $document = IndukDokumen::findOrFail($id);
-
-        // Tandai notifikasi terkait dokumen ini sebagai sudah dibaca
-        $user->notifications()
-            ->where('data->document_id', $document->id)
-            ->update(['read_at' => now()]);
-
-        // Redirect ke halaman terkait dokumen ini
-        return redirect()->route('document.view', $document->id);
+        return view('pages-process.dashboard');
+    }
+    public function dashboard_audit()
+    {
+        return view('audit.dashboard');
     }
     public function downloadExcel(Request $request)
     {
@@ -170,7 +137,6 @@ class HomeController extends Controller
         // Export data ke file Excel dan langsung download
         return Excel::download(new IndukDokumenExport($dokumen, $columns), $fileName);
     }
-
     // Fungsi untuk menghitung jumlah dokumen berdasarkan tipe
     private function getDocumentCounts()
     {

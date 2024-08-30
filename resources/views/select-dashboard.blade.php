@@ -77,12 +77,12 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <a href="{{ route('dashboard.rule') }}">
                                 <div class="card tale-bg">
                                     <div class="card-people mt-auto"
                                         style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
-                                        <img src="{{ asset('images/select-dashboard-3.jpeg') }}" alt="process"
+                                        <img src="{{ asset('images/select-dashboard-3.jpeg') }}" alt="rule"
                                             style="width: 100%; height: 100%; object-fit: cover;">
                                         <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
                                             <div class="d-flex align-items-center justify-content-center">
@@ -95,17 +95,35 @@
                             </a>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="card tale-bg">
                                 <a href="{{ route('comingsoon') }}" style="text-decoration: none;">
                                     <div class="card-people mt-auto"
                                         style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
-                                        <img src="{{ asset('images/select-dashboard-2.jpg') }}" alt="rule"
+                                        <img src="{{ asset('images/select-dashboard-2.jpg') }}" alt="process"
                                             style="width: 100%; height: 100%; object-fit: cover;">
                                         <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
                                             <div class="d-flex align-items-center justify-content-center">
                                                 <h2 class="mb-0 font-weight-bold text-white"><i
                                                         class="icon-sun mr-2"></i>Dashboard Process</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card tale-bg">
+                                <a href="{{ route('dashboard.audit') }}" style="text-decoration: none;">
+                                    <div class="card-people mt-auto"
+                                        style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
+                                        <img src="{{ asset('images/auditcontrol.png') }}" alt="audit"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                        <div class="weather-info"
+                                            style="position: absolute; bottom: 10px; left: 10px;">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <h2 class="mb-0 font-weight-bold text-white"><i
+                                                        class="icon-sun mr-2"></i>Audit Control</h2>
                                             </div>
                                         </div>
                                     </div>

@@ -79,10 +79,12 @@
                         <!-- Form untuk Upload Draft -->
                         <div class="form-group">
                             <label for="nama_dokumen">Document Title</label>
+                            <p>(Example: Penanganan Abnormality)</p>
                             <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
                         </div>
                         <div class="form-group">
                             <label for="nomor_list">Number Document</label>
+                            <p>(Example: 012)</p>
                             <input type="text" class="form-control" id="nomor_list" name="nomor_list" required>
                         </div>
                         <div class="form-group">
@@ -109,6 +111,21 @@
                                 @endforeach
                             </select>
                         </div>
+
+                        <!-- Input untuk Line dan Model Product, disembunyikan secara default -->
+                        <div id="prd_wis_group" style="display: none;">
+                            <div class="form-group">
+                                <label for="line">Line</label>
+                                <p>(Example: PC6A)</p>
+                                <input type="text" class="form-control" id="line" name="line">
+                            </div>
+                            <div class="form-group">
+                                <label for="model_product">Model Product</label>
+                                <p>(Example: 560B)</p>
+                                <input type="text" class="form-control" id="model_product" name="model_product">
+                            </div>
+                        </div>
+
                         <div class="form-group row">
                             <label class="col-sm-3 col-form-label">Share Document To:</label>
                             <div class="col-sm-9">
@@ -122,7 +139,7 @@
                                     @foreach ($uniqueDepartemens as $dept)
                                         <div class="col-sm-6">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox"
+                                                <input class="form-check-input kode_departemen_checkbox" type="checkbox"
                                                     id="dept_{{ $dept->code }}" name="kode_departemen[]"
                                                     value="{{ $dept->code }}">
                                                 <label class="form-check-label"
@@ -142,8 +159,8 @@
                                 </div>
                             @endif
                         </div>
-                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
-                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
+                        <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}" id="jenis_dokumen">
+                        <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}" id="tipe_dokumen">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -153,6 +170,7 @@
             </div>
         </div>
     </div>
+
 
     <script>
         document.getElementById('status_dokumen').addEventListener('change', function() {
@@ -199,5 +217,28 @@
             });
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tipeDokumen = document.getElementById('tipe_dokumen');
+            var prdWisGroup = document.getElementById('prd_wis_group');
 
+            // Dapatkan kode departemen dari user yang sedang login
+            var kodeDepartemen = @json(Auth::user()->departemen->code);
+
+            // Fungsi untuk menampilkan atau menyembunyikan field berdasarkan tipe dokumen dan departemen
+            function togglePrdWisFields() {
+                if (tipeDokumen.value === 'WIS' && kodeDepartemen === 'PRD') {
+                    prdWisGroup.style.display = 'block';
+                } else {
+                    prdWisGroup.style.display = 'none';
+                }
+            }
+
+            // Panggil fungsi saat halaman dimuat
+            togglePrdWisFields();
+
+            // Pastikan field diperbarui ketika tipe dokumen berubah
+            tipeDokumen.addEventListener('change', togglePrdWisFields);
+        });
+    </script>
 @endsection

@@ -41,7 +41,7 @@ class ValidateRuleController extends Controller
     public function approveDocument(Request $request, $id)
     {
         $request->validate([
-            'file' => 'required|mimes:doc,docx,xls,xlsx|max:10240',
+            'file' => 'required|mimes:doc,docx,xls,xlsx',
         ], [
             'file.mimes' => 'Only Word and Excel files are allowed.',
         ]);
@@ -95,7 +95,7 @@ class ValidateRuleController extends Controller
     {
         // Validasi file hanya bisa PDF
         $request->validate([
-            'file' => 'required|mimes:pdf|max:10240',
+            'file' => 'required|mimes:pdf',
         ], [
             'file.mimes' => 'Only PDF files are allowed.',
         ]);
@@ -122,7 +122,7 @@ class ValidateRuleController extends Controller
     {
         // Validasi file
         $request->validate([
-            'file' => 'required|mimes:pdf|max:10240',
+            'file' => 'required|mimes:pdf',
         ], [
             'file.mimes' => 'Only PDF files are allowed.',
         ]);
