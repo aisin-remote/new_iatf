@@ -35,8 +35,9 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Document Name</th>
-                                        <th>Audit</th>
+                                        <th>Audit Name</th>
+                                        <th>Item</th>
+                                        <th>Departemen</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -44,22 +45,9 @@
                                     @foreach ($auditControls as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->document_audit->nama_dokumen }}</td>
-                                            <td>{{ $d->audit->nama }}</td>
-                                            <td>{{ $d->attachment }}</td>
-                                            <td>
-                                                <!-- Tombol Edit -->
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editauditcontrol-{{ $d->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deleteauditcontrol-{{ $d->id }}">
-                                                    Delete
-                                                    <i class="fa-solid fa-trash-alt"></i>
-                                                </button>
-                                            </td>
+                                            <td>{{ $d->audit->nama_audit }}</td>
+                                            <td>{{ $d->item_audit->nama_item }}</td>
+                                            <td>{{ $d->item->departemen->nama_departemen }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

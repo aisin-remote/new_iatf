@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('document_audit', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_dokumen')->nullable();
+            $table->foreignId('item_id')->constrained('item_audit')->onDelete('cascade');
+            $table->foreignId('departemen_id')->constrained('item_audit')->onDelete('cascade');
+            $table->text('attachment')->nullable();
             $table->timestamps();
         });
     }

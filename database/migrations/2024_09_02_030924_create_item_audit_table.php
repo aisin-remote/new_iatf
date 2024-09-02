@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('audit_control', function (Blueprint $table) {
+        Schema::create('item_audit', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dokumenaudit_id')->constrained('document_audit')->onDelete('cascade');
+            $table->string('nama_item');
             $table->foreignId('audit_id')->constrained('audit')->onDelete('cascade');
             $table->foreignId('departemen_id')->constrained('departemen')->onDelete('cascade');
             $table->timestamps();
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('audit_control');
+        Schema::dropIfExists('item_audit');
     }
 };

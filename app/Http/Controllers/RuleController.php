@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Departemen;
+use App\Models\DocumentDepartement;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\RuleCode;
@@ -232,4 +233,107 @@ class RuleController extends Controller
 
         return view('pages-rule.document-shared', compact('sharedDocuments', 'jenis', 'tipe', 'departments'));
     }
+    public function preview($id)
+    {
+        $document = IndukDokumen::findOrFail($id);
+
+        // Tentukan path file aktif
+        $filePath = storage_path('app/public/' . $document->active_doc);
+
+        // Pastikan file ada
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        // Menentukan tipe MIME untuk file
+        $mimeType = mime_content_type($filePath);
+
+        // Tandai dokumen sebagai telah dilihat
+        $departemenId = Auth::user()->departemen_id; // Ambil ID departemen dari user yang login
+
+        // Periksa apakah entri sudah ada
+        $documentView = DocumentDepartement::firstOrNew([
+            'induk_dokumen_id' => $id,
+            'departemen_id' => $departemenId
+        ]);
+
+        // Set status has_viewed
+        $documentView->has_viewed = true;
+        $documentView->save();
+
+        // Kirim notifikasi
+        $this->sendDocumentDistributionNotification($id);
+
+        // Mengembalikan file untuk ditampilkan di browser
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType
+        ]);
+    }
+    protected function sendDocumentDistributionNotification($documentId)
+    {
+        $document = IndukDokumen::findOrFail($documentId);
+
+        // Ambil semua departemen yang telah melihat dokumen
+        $views = DocumentDepartement::where('induk_dokumen_id', $documentId)
+            ->where('has_viewed', true)
+            ->pluck('departemen_id')
+            ->toArray();
+
+        $departemen = Departemen::all(); // Ambil semua departemen
+
+        // Buat daftar departemen dengan ceklis
+        $departemenList = $departemen->map(function ($dept) use ($views) {
+            return (in_array($dept->id, $views) ? "✔️ " : "❌ ") . $dept->nama_departemen;
+        })->implode("\n");
+
+        // Ambil nama file tanpa ekstensi
+        $fileBaseName = pathinfo($document->active_doc, PATHINFO_FILENAME);
+
+        // Pesan notifikasi
+        $message = "------ DOCUMENT DISTRIBUTION NOTIFICATION ------\n\nDocument Activated: $fileBaseName\n\nDistributed To Departments:\n$departemenList\n\nSilakan lihat dan download pada menu distributed document\n\n------ BY AISIN BISA ------";
+
+        // Define group IDs for notifications
+        $groupIds = [
+            '120363311478624933', // Ganti dengan ID grup WhatsApp yang relevan
+        ];
+
+        // Pastikan groupIds adalah array, meskipun hanya ada satu ID
+        if (is_string($groupIds)) {
+            $groupIds = [$groupIds];
+        }
+
+        foreach ($groupIds as $groupId) {
+            // Kirim pesan WhatsApp ke grup
+            $this->sendWaReminderAudit($groupId, $message);
+        }
+    }
+    protected function sendWaReminderAudit($groupId, $message)
+    {
+        // Send WA notification
+        $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
+
+        $curl = curl_init();
+        curl_setopt_array($curl, [
+            CURLOPT_URL => 'https://app.ruangwa.id/api/send_message',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30, // Atur waktu timeout untuk lebih realistis
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => http_build_query([
+                'token' => $token,
+                'number' => $groupId, // Pastikan ini adalah ID grup yang benar atau nomor WhatsApp
+                'message' => $message,
+            ]),
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/x-www-form-urlencoded',
+            ],
+        ]);
+
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+    }   
 }

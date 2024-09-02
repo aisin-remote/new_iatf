@@ -233,21 +233,24 @@ class ValidateRuleController extends Controller
             $dokumen->tgl_efektif = $request->input('activation_date');
             $dokumen->save();
 
+            // Ambil nama dasar dari file yang telah di-watermark
+            $fileBaseName = pathinfo($dokumen->active_doc, PATHINFO_FILENAME);
+
             $departemenIds = DocumentDepartement::where('induk_dokumen_id', $dokumen->id)
                 ->pluck('departemen_id')
                 ->toArray(); // Pastikan ini mengembalikan array
 
             $departemenNames = [];
-            foreach ($departemenIds as $departemenId) {
+            foreach ($departemenIds as $index => $departemenId) {
                 $departemen = Departemen::find($departemenId);
                 if ($departemen) {
-                    $departemenNames[] = $departemen->nama_departemen;
+                    $departemenNames[] = ($index + 1) . '. ' . $departemen->nama_departemen;
                 }
             }
 
             // Buat pesan yang mencakup semua departemen yang mendapatkan distribusi
-            $departemenList = implode(', ', $departemenNames);
-            $message = "------ DOCUMENT DISTRIBUTION NOTIFICATION ------\n\nDocument Activated: $dokumen->active_doc\n\nDistributed To Departments: $departemenList\n\nSilakan lihat dan download pada menu distributed document\n\n------ BY AISIN BISA ------";
+            $departemenList = implode("\n", $departemenNames); // Menggunakan newline untuk format daftar
+            $message = "------ DOCUMENT DISTRIBUTION NOTIFICATION ------\n\nDocument Activated: $fileBaseName\n\nDistributed To Departments:\n$departemenList\n\nSilakan lihat dan download pada menu distributed document\n\n------ BY AISIN BISA ------";
 
             // Define group IDs for notifications
             $groupIds = [

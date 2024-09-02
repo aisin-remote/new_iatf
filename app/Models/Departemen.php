@@ -33,4 +33,8 @@ class Departemen extends Model
     {
         return $this->belongsToMany(IndukDokumen::class, 'document_departement', 'departemen_id', 'induk_dokumen_id');
     }
+    public function itemAudits()
+    {
+        return $this->belongsToMany(ItemAudit::class, 'audit_departemen');
+    }
 }

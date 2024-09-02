@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('induk_dokumen_id')->constrained('induk_dokumen')->onDelete('cascade');
             $table->foreignId('departemen_id')->constrained('departemen')->onDelete('cascade');
+            $table->boolean('has_viewed')->default(false);
             $table->timestamps();
         });
     }

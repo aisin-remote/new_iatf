@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Master Data Departemen')
+@section('title', 'Master Data Audit')
 
 @section('content')
     <div class="content-wrapper">
@@ -21,13 +21,13 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Document Name</th>
+                                        <th>Item Name</th>
                                         <th>Audit Name</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($documentaudit as $d)
+                                    @foreach ($itemAudit as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->nama_dokumen }}</td>
@@ -62,17 +62,17 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddocauditLabel">Add Document Audit</h5>
+                    <h5 class="modal-title" id="adddocauditLabel">Add Audit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('add.documentAudit') }}" method="post">
+                <form action="{{ route('add.itemAudit') }}" method="post">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="nama_dokumen">Document Name</label>
-                            <input type="text" class="form-control" id="nama_dokumen" name="nama_dokumen" required>
+                            <label for="nama_item">Item Name</label>
+                            <input type="text" class="form-control" id="nama_item" name="nama_item" required>
                         </div>
                         <div class="form-group">
                             <label for="audit_id">Nama Audit</label>
@@ -83,6 +83,23 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="departemen_id">Choose Departemen:</label>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <select class="form-control form-control-lg" id="exampleFormControlSelect2"
+                                        style="padding-left: 28px" name="departemen">
+                                        <option value="">Departemen</option>
+                                        @foreach ($uniqueDepartemens as $departemen)
+                                            <option value="{{ $departemen->id }}"
+                                                {{ old('departemen') == $departemen->id ? 'selected' : '' }}>
+                                                {{ $departemen->nama_departemen }}</option>
+                                        @endforeach
+                                    </select>
+
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -95,7 +112,7 @@
     </div>
 
     {{-- Modal Edit Template --}}
-    @foreach ($documentaudit as $d)
+    @foreach ($itemAudit as $d)
         <div class="modal fade" id="editdocaudit-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="editdocauditLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -154,4 +171,12 @@
             </div>
         </div>
     @endforeach
+    <script>
+        $(document).ready(function() {
+            $('#selectdepartemen').select2({
+                placeholder: 'Select a department', // Optional placeholder text
+                allowClear: true // Allow clearing of selected value(s)
+            });
+        });
+    </script>
 @endsection

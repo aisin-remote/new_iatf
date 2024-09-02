@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Dokumen;
-use App\Models\IndukDokumen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
-use Symfony\Contracts\Service\Attribute\Required;
 
-class DokumenController extends Controller
+class DocumentRuleController extends Controller
 {
     public function index()
     {

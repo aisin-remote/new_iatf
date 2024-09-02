@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Audit;
-use App\Models\AuditControl;
 use App\Models\Departemen;
-use App\Models\DocumentAudit;
 use App\Models\RuleCode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 use Spatie\Permission\Models\Role;
 
-class masterDataController extends Controller
+class MasterDataRuleController extends Controller
 {
     public function index()
     {
@@ -117,7 +114,7 @@ class masterDataController extends Controller
         ]);
 
         if ($validator->fails()) {
-                return redirect()->back()->withErrors($validator)->withInput();
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         Role::create($request->only('name', 'guard_name'));

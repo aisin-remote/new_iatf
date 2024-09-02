@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Audit;
+use App\Models\AuditControl;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -36,10 +37,10 @@ class ReminderAudit extends Command
         $group_id = '120363311478624933'; // Ganti dengan Group ID Anda
 
         // Ambil audit yang perlu diingatkan berdasarkan rentang waktu
-        $auditControls = Audit::where('reminder', '<=', $now)
+        $auditControls = AuditControl::where('reminder', '<=', $now)
             ->where('duedate', '>=', $now)
             ->get();
-
+        
         foreach ($auditControls as $auditControl) {
             // Mengirimkan pengingat WhatsApp menggunakan group_id
             $this->sendWaReminderAudit($group_id, $auditControl);
@@ -49,7 +50,7 @@ class ReminderAudit extends Command
     protected function sendWaReminderAudit($groupId, $auditControl)
     {
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
-        $message = "------ REMINDER AUDIT CONTROL ------\n\n";
+        $message = "------ WARNING SUBMIT DOCUMENT ------\n\n";
         $message .= "Audit Name: " . $auditControl->nama . "\n";
         $message .= "Reminder Date: " . $auditControl->reminder. "\n";
         $message .= "Due Date: " . $auditControl->duedate. "\n";

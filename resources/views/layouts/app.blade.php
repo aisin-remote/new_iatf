@@ -9,6 +9,7 @@
     <!-- plugins:css -->
     <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
 
     {{-- <link rel="stylesheet" href="{{ asset('vendors/feather/feather.css') }}"> --}}
     <link rel="stylesheet" href="{{ asset('vendors/ti-icons/css/themify-icons.css') }}">
@@ -110,8 +111,10 @@
 
             @if (request()->is('rule') || request()->is('rule/*'))
                 @include('partials.sidebar-rule')
-            @else
+            @elseif (request()->is('audit') || request()->is('audit/*'))
                 @include('partials.sidebar-audit')
+            @else
+                @include('partials.sidebar-default')
             @endif
 
             <!-- partial -->
@@ -148,6 +151,7 @@
     <!-- Custom js for this page-->
     <script src="{{ asset('js/dashboard.js') }}"></script>
     <script src="{{ asset('js/Chart.roundedBarCharts.js') }}"></script>
+    <script src="{{ asset('css/select2.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

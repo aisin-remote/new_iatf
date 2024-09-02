@@ -48,9 +48,9 @@
                                                 @if ($doc->statusdoc == 'active' && $doc->active_doc)
                                                     @php
                                                         // Menggunakan nama file yang disimpan di kolom active_doc
-                                                        $fileUrl = asset('storage/' . $doc->active_doc);
+                                                        $previewUrl = route('documents.preview', ['id' => $doc->id]);
                                                     @endphp
-                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                    <a href="{{ $previewUrl }}" target="_blank"
                                                         class="btn btn-primary btn-sm">
                                                         <i class="fa-solid fa-eye"></i>
                                                     </a>
