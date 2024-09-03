@@ -8,19 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class ItemAudit extends Model
 {
     protected $table = 'item_audit';
+    protected $fillable = [
+        'nama_item',
+        'audit_id',
+    ];
     use HasFactory;
     public function audit()
     {
-        return $this->belongsTo(Audit::class);
+        return $this->belongsTo(Audit::class, 'audit_id');
     }
 
-    public function dokumens()
+    public function auditDepartemen()
     {
-        return $this->hasMany(DocumentAudit::class);
-    }
-
-    public function departemens()
-    {
-        return $this->belongsToMany(Departemen::class, 'audit_departemen');
+        return $this->belongsTo(AuditDepartemen::class, 'audit_departemen_id');
     }
 }

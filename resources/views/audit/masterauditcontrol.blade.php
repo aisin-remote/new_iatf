@@ -42,12 +42,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($auditControls as $d)
+                                    @foreach ($auditDepartemens as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->audit->nama_audit }}</td>
+                                            <td>{{ $d->audit->nama }}</td>
                                             <td>{{ $d->item_audit->nama_item }}</td>
-                                            <td>{{ $d->item->departemen->nama_departemen }}</td>
+                                            <td>{{ $d->item_audit->departemen->nama_departemen }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -74,30 +74,40 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="documentaudit_id">Document Name</label>
-                            <select name="documentaudit_id" id="documentaudit_id" class="form-control select2"
+                            <label for="item_audit_id">Audit</label>
+                            <select name="item_audit_id" id="item_audit_id" class="form-control select2"
                                 style="width: 100%;">
-                                <option value="" selected>Select Document Audit</option>
-                                @foreach ($documentAudits as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama_dokumen }}
-                                    </option>
+                                <option value="" selected>Select item</option>
+                                @foreach ($itemaudit as $d)
+                                    <option value="{{ $d->id }}">{{ $d->nama_item }} - {{ $d->audit->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="audit_id">Audit</label>
-                            <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
-                                <option value="" selected>Select Audit</option>
-                                @foreach ($audit as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">Select Department</label>
+                            <div class="col-sm-9">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="select_all">
+                                            <label class="form-check-label" for="select_all">Select All</label>
+                                        </div>
+                                    </div>
+                                    @foreach ($uniqueDepartemens as $dept)
+                                        <div class="col-sm-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input kode_departemen_checkbox" type="checkbox"
+                                                    id="dept_{{ $dept->id }}" name="departemen[]"
+                                                    value="{{ $dept->id }}">
+                                                <label class="form-check-label"
+                                                    for="dept_{{ $dept->id }}">{{ $dept->nama_departemen }}</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="Attachment">Attachment</label>
-                            <input type="file" class="form-control" id="Attachment" name="attachment" required>
-                        </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -108,8 +118,8 @@
         </div>
     </div>
     {{-- Modal Edit Template --}}
-    @foreach ($auditControls as $d)
-        <div class="modal fade" id="editauditcontrol-{{ $d->id }}" tabindex="-1" role="dialog"
+    @foreach ($auditDepartemens as $d)
+        {{-- <div class="modal fade" id="editauditcontrol-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="editauditcontrolLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -140,9 +150,9 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> --}}
         <!-- Modal Delete -->
-        <div class="modal fade" id="deleteauditcontrol-{{ $d->id }}" tabindex="-1" role="dialog"
+        {{-- <div class="modal fade" id="deleteauditcontrol-{{ $d->id }}" tabindex="-1" role="dialog"
             aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -165,8 +175,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
+        </div> --}}
+        {{-- <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
             aria-labelledby="auditfilterModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -186,7 +196,7 @@
                                     <label class="col-form-label">Document</label>
                                 </div>
                                 <div class="col">
-                                    <select name="document_audit_id" class="form-control select2">
+                                    <select name="document_item_id" class="form-control select2">
                                         <option value="">Select Document Audit</option>
                                         @foreach ($documentAudits as $d)
                                             <option value="{{ $d->id }}">{{ $d->nama_dokumen }}</option>
@@ -215,7 +225,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> --}}
     @endforeach
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -236,6 +246,39 @@
                 var url = $(this).attr('href');
                 $.get(url, function(data) {
                     $('#documentTableBody').html($(data).find('#documentTableBody').html());
+                });
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Dapatkan elemen checkbox "Select All"
+            const selectAllCheckbox = document.getElementById('select_all');
+
+            // Dapatkan semua elemen checkbox departemen
+            const checkboxes = document.querySelectorAll('input[name="departemen[]"]');
+
+            // Tambahkan event listener untuk checkbox "Select All"
+            selectAllCheckbox.addEventListener('change', function() {
+                // Set status semua checkbox departemen sesuai dengan status checkbox "Select All"
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = selectAllCheckbox.checked;
+                });
+            });
+
+            // Tambahkan event listener untuk setiap checkbox departemen
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Jika ada satu checkbox yang tidak dipilih, hapus centang dari "Select All"
+                    if (!this.checked) {
+                        selectAllCheckbox.checked = false;
+                    }
+
+                    // Jika semua checkbox departemen dipilih, beri centang pada "Select All"
+                    if (document.querySelectorAll('input[name="departemen[]"]:checked')
+                        .length === checkboxes.length) {
+                        selectAllCheckbox.checked = true;
+                    }
                 });
             });
         });

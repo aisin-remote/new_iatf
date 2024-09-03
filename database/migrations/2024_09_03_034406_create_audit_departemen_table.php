@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('document_audit', function (Blueprint $table) {
+        Schema::create('audit_departemen', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('item_id')->constrained('item_audit')->onDelete('cascade');
-            $table->foreignId('departemen_id')->constrained('item_audit')->onDelete('cascade');
+            $table->unsignedBigInteger('departemen_id');
+            $table->unsignedBigInteger('item_audit_id');
             $table->text('attachment')->nullable();
             $table->timestamps();
+
+            $table->foreign('departemen_id')->references('id')->on('departemen')->onDelete('cascade');
+            $table->foreign('item_audit_id')->references('id')->on('item_audit')->onDelete('cascade');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('document_audit');
+        Schema::dropIfExists('audit_departemen');
     }
 };

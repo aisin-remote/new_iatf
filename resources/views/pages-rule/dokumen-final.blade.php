@@ -56,13 +56,15 @@
                                                 </td>
                                                 <td>{{ $doc->statusdoc }}</td>
                                                 <td>
-                                                    @if (is_null($doc->file_pdf))
-                                                        <!-- Tombol Upload Final jika file_pdf kosong -->
-                                                        <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                            data-target="#uploadFinalModal-{{ $doc->id }}">
-                                                            Upload Final
-                                                        </button>
-                                                    @else
+                                                    @role('guest')
+                                                        @if (is_null($doc->file_pdf))
+                                                            <!-- Tombol Upload Final jika file_pdf kosong -->
+                                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
+                                                                data-target="#uploadFinalModal-{{ $doc->id }}">
+                                                                Upload Final
+                                                            </button>
+                                                        @else
+                                                        @endrole
                                                         @if ($doc->statusdoc == 'not yet active')
                                                             <!-- Tombol View dari file_pdf, tombol Activate, dan tombol Obsolete -->
                                                             @php

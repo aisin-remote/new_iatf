@@ -2,20 +2,13 @@
 
 use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\masterDataController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\ReminderAuditController;
 use App\Http\Controllers\RuleController;
-use App\Http\Controllers\AlertController;
 use App\Http\Controllers\DocumentRuleController;
 use App\Http\Controllers\MasterDataAuditController;
 use App\Http\Controllers\MasterDataRuleController;
 use App\Http\Controllers\ValidateRuleController;
-use App\Models\AuditControl;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,7 +138,7 @@ Route::get('/rule/documents/final/{jenis}/{tipe}', [RuleController::class, 'fina
     ->middleware(['auth', 'role:admin|guest'])
     ->name('documents.final');
 Route::post('/rule/documents/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
-    ->middleware(['auth', 'role:admin'])
+    ->middleware(['auth', 'role:guest'])
     ->name('upload.final');
 Route::get('/rule/documents/final/preview-final/{id}', [ValidateRuleController::class, 'previewFinal'])
     ->middleware(['auth', 'role:admin|guest'])
@@ -180,7 +173,7 @@ Route::post('/audit/master-data/audit/update/{id}', [MasterDataAuditController::
 Route::delete('/audit/master-data/audit/delete/{id}', [MasterDataAuditController::class, 'delete_audit'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.audit');
-Route::get('/audit/master-data/documentaudit', [MasterDataAuditController::class, 'master_itemAudit'])
+Route::get('/audit/master-data/itemaudit', [MasterDataAuditController::class, 'master_itemAudit'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.itemAudit');
 Route::post('/audit/master-data/itemaudit/add', [MasterDataAuditController::class, 'store_itemAudit'])
@@ -189,15 +182,21 @@ Route::post('/audit/master-data/itemaudit/add', [MasterDataAuditController::clas
 Route::post('/audit/master-data/itemaudit/update/{id}', [MasterDataAuditController::class, 'update_itemaudit'])
     ->middleware(['auth', 'role:admin'])
     ->name('update.itemAudit');
+Route::delete('/audit/master-data/itemaudit/delete/{id}', [MasterDataAuditController::class, 'delete_itemAudit'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('delete.itemAudit');
+Route::get('/audit/master-data/auditcontrol', [MasterDataAuditController::class, 'master_auditcontrol'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('masterdata.auditControl');
+Route::post('/audit/master-data/auditcontrol/add', [MasterDataAuditController::class, 'store_auditControl'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('add.auditControl');
 
 
 //Audit Control 
 Route::get('/audit', [HomeController::class, 'dashboard_audit'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('dashboard.audit');
-Route::get('/audit/auditcontrol', [AuditController::class, 'master_auditControl'])
-    ->middleware(['auth', 'role:admin'])
-    ->name('masterdata.auditControl');
-Route::post('/audit/auditcontrol/add', [AuditController::class, 'store_auditControl'])
-    ->middleware(['auth', 'role:admin|guest'])
-    ->name('add.auditControl');
+Route::get('/audit/auditcontrol', [AuditController::class, 'index_auditControl'])
+    ->middleware(['auth', 'role:guest|admin'])
+    ->name('index.auditControl');
