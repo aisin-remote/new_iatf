@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('audit_departemen', function (Blueprint $table) {
+        Schema::create('audit_control', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('departemen_id');
             $table->unsignedBigInteger('item_audit_id');
-            $table->text('attachment')->nullable();
+            $table->string('status')->nullable();
+            $table->text('comment')->nullable();
             $table->timestamps();
 
             $table->foreign('departemen_id')->references('id')->on('departemen')->onDelete('cascade');

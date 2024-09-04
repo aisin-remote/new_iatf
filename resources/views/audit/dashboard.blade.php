@@ -28,39 +28,54 @@
 
         <!-- Div untuk count -->
         <div class="row">
-            <div class="col-md-6 grid-margin transparent">
-                <div class="row">
-                    <div class="col-md-6 mb-4 stretch-card transparent">
-                        <div class="card card-tale">
-                            <div class="card-body">
-                                <h4 class="mb-4">WI</h4>
+            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="chartjs-size-monitor">
+                            <div class="chartjs-size-monitor-expand">
+                                <div class=""></div>
+                            </div>
+                            <div class="chartjs-size-monitor-shrink">
+                                <div class=""></div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-6 mb-4 stretch-card transparent">
-                        <div class="card card-dark-blue">
-                            <div class="card-body">
-                                <h4 class="mb-4">WIS</h4>
-                            </div>
-                        </div>
+                        <h4 class="card-title">ISO 90001</h4>
+                        <canvas id="pieChart" width="1668" height="834"
+                            style="display: block; height: 417px; width: 834px;" class="chartjs-render-monitor"></canvas>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 grid-margin transparent">
-                <div class="row">
-                    <div class="col-md-6 mb-4 stretch-card transparent">
-                        <div class="card card-tale">
-                            <div class="card-body">
-                                <h4 class="mb-4">Standard</h4>
+            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="chartjs-size-monitor">
+                            <div class="chartjs-size-monitor-expand">
+                                <div class=""></div>
+                            </div>
+                            <div class="chartjs-size-monitor-shrink">
+                                <div class=""></div>
                             </div>
                         </div>
+                        <h4 class="card-title">Pie chart</h4>
+                        <canvas id="pieChart" width="1668" height="834"
+                            style="display: block; height: 417px; width: 834px;" class="chartjs-render-monitor"></canvas>
                     </div>
-                    <div class="col-md-6 mb-4 stretch-card transparent">
-                        <div class="card card-dark-blue">
-                            <div class="card-body">
-                                <h4 class="mb-4">Procedure</h4>
+                </div>
+            </div>
+            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="chartjs-size-monitor">
+                            <div class="chartjs-size-monitor-expand">
+                                <div class=""></div>
+                            </div>
+                            <div class="chartjs-size-monitor-shrink">
+                                <div class=""></div>
                             </div>
                         </div>
+                        <h4 class="card-title">Pie chart</h4>
+                        <canvas id="pieChart" width="1668" height="834"
+                            style="display: block; height: 417px; width: 834px;" class="chartjs-render-monitor"></canvas>
                     </div>
                 </div>
             </div>
@@ -77,5 +92,26 @@
 
         updateDateTime();
         setInterval(updateDateTime, 1000);
+    </script>
+    <script>
+        var ctx = document.getElementById('auditChart').getContext('2d');
+        var auditChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Completed Tasks', 'Incomplete Tasks'],
+                datasets: [{
+                    data: [{{ $completedTasks }}, {{ $totalTasks - $completedTasks }}],
+                    backgroundColor: ['#4CAF50', '#FF5252'], // Warna untuk pie chart
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                }
+            }
+        });
     </script>
 @endsection

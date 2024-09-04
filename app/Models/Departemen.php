@@ -35,6 +35,6 @@ class Departemen extends Model
     }
     public function auditDepartemens()
     {
-        return $this->hasMany(AuditDepartemen::class, 'departemen_id');
+        return $this->hasMany(AuditControl::class, 'departemen_id');
     }
 }

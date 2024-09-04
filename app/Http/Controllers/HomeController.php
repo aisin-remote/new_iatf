@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\IndukDokumenExport;
+use App\Models\AuditControl;
 use App\Models\Departemen;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
@@ -101,7 +102,24 @@ class HomeController extends Controller
     }
     public function dashboard_audit()
     {
-        return view('audit.dashboard');
+        $user = auth()->user();
+        $userDepartemenId = $user->departemen_id;
+        // Ambil total task audit untuk departemen user
+        $totalTasks = AuditControl::where('departemen_id', $userDepartemenId)->count();
+
+        // Ambil jumlah task yang sudah selesai (misalnya, memiliki status 'completed')
+        $completedTasks = AuditControl::where('departemen_id', $userDepartemenId)
+            ->where('status', 'completed') // Sesuaikan dengan kolom status di tabel audit_control
+            ->count();
+
+        // Hitung persentase task selesai
+        $percentageCompleted = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+
+        return view('audit.dashboard', [
+            'totalTasks' => $totalTasks,
+            'completedTasks' => $completedTasks,
+            'percentageCompleted' => $percentageCompleted
+        ]);
     }
     public function downloadExcel(Request $request)
     {

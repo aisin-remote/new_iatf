@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Audit;
 use App\Models\AuditControl;
-use App\Models\AuditDepartemen;
 use App\Models\Departemen;
 use App\Models\DocumentAudit;
 use App\Models\ItemAudit;
@@ -99,21 +98,19 @@ class MasterDataAuditController extends Controller
     }
     public function master_auditcontrol(Request $request)
     {
-        $auditDepartemens = AuditDepartemen::with(['itemAudits', 'departemen'])->get();
+        $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])->get();
+
+        // Ambil data item audit untuk digunakan dalam dropdown di modal
         $itemaudit = ItemAudit::with('audit')->get();
-        $uniqueDepartemens = Departemen::distinct()->get(['nama_departemen']);
-        return view('audit.masterauditcontrol', compact('auditDepartemens', 'itemaudit', 'uniqueDepartemens'));
+
+        // Ambil data departemen yang unik
+        $uniqueDepartemens = Departemen::all()->unique('nama_departemen');
+
+        // Mengirimkan data ke view
+        return view('audit.masterauditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens'));
     }
     public function store_auditControl(Request $request)
     {
-        dd($request->input('departemen'));
-        // Validasi input
-        // $request->validate([
-        //     'item_audit_id' => 'required|exists:item_audit,id', // Pastikan item_audit_id valid
-        //     'departemen' => 'required|array|min:1', // Pastikan setidaknya satu departemen dipilih
-        //     'departemen.*' => 'integer|exists:departemen,id' // Validasi setiap ID departemen
-        // ]);
-
         // Ambil item_audit_id dari request
         $itemAuditId = $request->input('item_audit_id');
 
@@ -122,13 +119,30 @@ class MasterDataAuditController extends Controller
 
         // Iterasi melalui setiap departemen yang dipilih dan simpan ke database
         foreach ($departemenIds as $departemenId) {
-            AuditDepartemen::create([
+            AuditControl::create([
                 'departemen_id' => $departemenId,
                 'item_audit_id' => $itemAuditId,
             ]);
         }
 
         Alert::success('Success', 'Audit Control added successfully.');
-        return redirect()->route('auditControl'); // Pastikan route ini ada
+        return redirect()->route('masterdata.auditControl'); // Pastikan route ini ada
+    }
+    public function update_auditcontrol(Request $request, $id)
+    {
+        $AuditControls = AuditControl::findOrFail($id);
+        $AuditControls->departemen_id = $request->departemen;
+        $AuditControls->item_audit_id = $request->item_audit_id;
+        $AuditControls->save();
+        Alert::success('Success', 'Document Audit changed succesfully.');
+        return redirect()->back();
+    }
+    public function delete_auditcontrol($id)
+    {
+        $AuditControls = AuditControl::findOrFail($id);
+        $AuditControls->delete();
+
+        Alert::success('Success', 'Document Audit has been deleted successfully.');
+        return redirect()->back();
     }
 }

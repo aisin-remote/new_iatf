@@ -8,28 +8,18 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Data Audit Control</h4>
+                        <h4 class="card-title">Audit Control</h4>
                         <div class="row mb-3">
-                            <!-- Kolom untuk tombol Upload Old Documents -->
-                            <div class="col-md-6 d-flex align-items-center">
-                                @role('admin')
-                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addauditcontrol"
-                                        style="margin-left: 0;">
-                                        Add new
-                                    </button>
-                                @endrole
-                            </div>
                             <!-- Kolom untuk input pencarian dan tombol filter -->
-                            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                            <div class="col-md-12 d-flex justify-content-end">
                                 <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
-                                    placeholder="Search..." style="width: 300px;">
+                                    placeholder="Search..." style="width: 250px;">
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#auditfilterModal"
                                     style="background: #56544B">
                                     Filter
                                 </button>
                             </div>
                         </div>
-
                         <div class="table-responsive">
                             <table class="table table-striped" id="documentTableBody">
                                 <thead>
@@ -38,7 +28,7 @@
                                         <th>Audit Name</th>
                                         <th>Item</th>
                                         <th>Departemen</th>
-                                        <th>Action</th>
+                                        <th>Attachment</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -49,16 +39,22 @@
                                             <td>{{ $d->itemAudit->nama_item }}</td>
                                             <td>{{ $d->departemen->nama_departemen }}</td>
                                             <td>
-                                                <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                    data-target="#editauditcontrol-{{ $d->id }}">
-                                                    Edit
-                                                    <i class="fa-solid fa-edit"></i>
-                                                </button>
-                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                    data-target="#deleteaudit-{{ $d->id }}">
-                                                    Delete
-                                                    <i class="fa-solid fa-trash-alt"></i>
-                                                </button>
+                                                <form action="{{ route('uploadDocumentAudit', $d->id) }}" method="POST"
+                                                    enctype="multipart/form-data">
+                                                    @csrf
+                                                    <input type="file" name="attachments[   ]" multiple
+                                                        accept=".pdf,.doc,.docx,.xls,.xlsx">
+                                                    <button type="submit" class="btn btn-success btn-sm">Upload</button>
+                                                </form>
+                                                @if ($d->documentAudit->count())
+                                                    @foreach ($d->documents as $document)
+                                                        <a href="{{ asset('storage/' . $document->path) }}"
+                                                            class="btn btn-info btn-sm" download>
+                                                            {{ basename($document->path) }}
+                                                            <i class="fa-solid fa-download"></i>
+                                                        </a>
+                                                    @endforeach
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -91,7 +87,8 @@
                                 style="width: 100%;">
                                 <option value="" selected>Select item</option>
                                 @foreach ($itemaudit as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama_item }} - {{ $d->audit->nama }}</option>
+                                    <option value="{{ $d->id }}">{{ $d->nama_item }} - {{ $d->audit->nama }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -131,12 +128,12 @@
     </div>
     {{-- Modal Edit Template --}}
     @foreach ($AuditControls as $d)
-        <div class="modal fade" id="editauditcontrol-{{ $d->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="editauditcontrolLabel" aria-hidden="true">
+        <div class="modal fade" id="editauditcontrolcontrol-{{ $d->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="editauditcontrolcontrolLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editauditcontrolLabel">Update Audit Control</h5>
+                        <h5 class="modal-title" id="editauditcontrolcontrolLabel">Update Audit</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -145,28 +142,15 @@
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
-                                <label for="item_audit_id">Audit</label>
-                                <select name="item_audit_id" id="item_audit_id" class="form-control select2"
-                                    style="width: 100%;">
-                                    <option value="" selected>Select item</option>
-                                    @foreach ($itemaudit as $d)
-                                        <option value="{{ $d->id }}">{{ $d->nama_item }} - {{ $d->audit->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label for="nama">Audit Name</label>
+                                <input type="text" class="form-control" id="nama" name="nama"
+                                    value="{{ old('nama', $d->nama) }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="departemen">Department</label>
-                                <select name="departemen" id="departemen" class="form-control select2"
-                                    style="width: 100%;">
-                                    <option value="" selected>Select Department</option>
-                                    @foreach ($uniqueDepartemens as $d)
-                                        <option value="{{ $d->id }}">{{ $d->nama_departemen }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label for="tanggal_audit">Audit Date</label>
+                                <input type="text" class="form-control" id="tanggal_audit" name="tanggal_audit"
+                                    value="{{ old('tanggal_audit', $d->tanggal_audit) }}" required>
                             </div>
-
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -176,31 +160,7 @@
                 </div>
             </div>
         </div>
-        <!-- Modal Delete -->
-        <div class="modal fade" id="deleteaudit-{{ $d->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="deleteauditModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteauditModalLabel">Delete Confirmation</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete this audit?
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{{ route('delete.audit', $d->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         {{-- <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
             aria-labelledby="auditfilterModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">

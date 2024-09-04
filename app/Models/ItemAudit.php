@@ -17,9 +17,12 @@ class ItemAudit extends Model
     {
         return $this->belongsTo(Audit::class, 'audit_id');
     }
-
-    public function auditDepartemen()
+    public function auditDepartemens()
     {
-        return $this->belongsTo(AuditDepartemen::class, 'audit_departemen_id');
+        return $this->hasMany(AuditControl::class, 'item_audit_id');
+    }
+    public function documents()
+    {
+        return $this->hasMany(DocumentAuditControl::class);
     }
 }

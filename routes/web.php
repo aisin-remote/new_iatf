@@ -191,6 +191,12 @@ Route::get('/audit/master-data/auditcontrol', [MasterDataAuditController::class,
 Route::post('/audit/master-data/auditcontrol/add', [MasterDataAuditController::class, 'store_auditControl'])
     ->middleware(['auth', 'role:admin'])
     ->name('add.auditControl');
+Route::post('/audit/master-data/auditcontrol/update/{id}', [MasterDataAuditController::class, 'update_auditcontrol'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('update.auditControl');
+Route::delete('/audit/master-data/auditcontrol/delete/{id}', [MasterDataAuditController::class, 'delete_auditcontrol'])
+    ->middleware(['auth', 'role:admin'])
+    ->name('delete.auditControl');
 
 
 //Audit Control 
@@ -200,3 +206,6 @@ Route::get('/audit', [HomeController::class, 'dashboard_audit'])
 Route::get('/audit/auditcontrol', [AuditController::class, 'index_auditControl'])
     ->middleware(['auth', 'role:guest|admin'])
     ->name('index.auditControl');
+Route::post('/audit/auditcontrol/uploaddocument/{id}', [AuditController::class, 'uploadDocumentAudit'])
+    ->middleware(['auth', 'role:guest|admin'])
+    ->name('uploadDocumentAudit');

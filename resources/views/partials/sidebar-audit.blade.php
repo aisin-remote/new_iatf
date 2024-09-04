@@ -37,11 +37,11 @@
         @endrole
 
         <!-- Audit Control -->
-        {{-- <li class="nav-item {{ request()->routeIs('auditControl') ? 'active' : '' }}">
+        <li class="nav-item {{ request()->routeIs('index.auditControl') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('index.auditControl') }}">
                 <i class="fa-solid fa-list-check" style="margin-right: 8px"></i>
                 <span class="menu-title"> Audit Control</span>
             </a>
-        </li> --}}
+        </li>
     </ul>
 </nav>
