@@ -137,7 +137,7 @@ Route::post('/rule/documents/validate/{id}/obsolete', [ValidateRuleController::c
 Route::get('/rule/documents/final/{jenis}/{tipe}', [RuleController::class, 'final_doc'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('documents.final');
-Route::post('/rule/documents/final/upload/{id}', [ValidateRuleController::class, 'uploadFinal'])
+Route::post('/rule/documents/final/upload/{id}', [RuleController::class, 'uploadFinal'])
     ->middleware(['auth', 'role:guest'])
     ->name('upload.final');
 Route::get('/rule/documents/final/preview-final/{id}', [ValidateRuleController::class, 'previewFinal'])

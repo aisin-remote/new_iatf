@@ -91,32 +91,6 @@ class ValidateRuleController extends Controller
             return redirect()->back()->with('error', 'There is an error: ' . $e->getMessage());
         }
     }
-    public function uploadFinal(Request $request, $id)
-    {
-        // Validasi file hanya bisa PDF
-        $request->validate([
-            'file' => 'required|mimes:pdf',
-        ], [
-            'file.mimes' => 'Only PDF files are allowed.',
-        ]);
-
-        // Ambil dokumen berdasarkan ID
-        $doc = IndukDokumen::findOrFail($id);
-
-        // Simpan file di folder public tanpa folder tambahan
-        $file_pdf = $request->file('file');
-        $filename = $file_pdf->getClientOriginalName(); // Ambil nama file asli
-        $path = 'final-rule/' . $filename; // Tentukan path
-        $file_pdf->storeAs('final-rule', $filename, 'public'); // Simpan file dengan nama asli
-
-
-        // Update path file di database
-        $doc->file_pdf = $path;
-        $doc->save();
-
-        // Tampilkan pesan sukses
-        return redirect()->back()->with('success', 'Document uploaded successfully.');
-    }
 
     public function upload_old_doc(Request $request)
     {

@@ -35,7 +35,10 @@
                                 <tbody>
                                     @php
                                         $filteredDocs = $indukDokumenList->filter(function ($doc) {
-                                            return in_array($doc->status, ['Waiting check by MS']);
+                                            return in_array($doc->status, [
+                                                'Waiting check by MS',
+                                                'Finish check by MS',
+                                            ]);
                                         });
                                     @endphp
 
@@ -50,7 +53,7 @@
                                             <td>{{ $doc->status }}</td>
                                             <!-- Tombol Edit -->
                                             <td>
-                                                @if ($doc->status == 'Waiting check by MS')
+                                                @if ($doc->status == 'Waiting check by MS' || $doc->status == 'Finish check by MS')
                                                     <!-- Tombol Download Draft -->
                                                     <a href="{{ route('download.rule', ['id' => $doc->id]) }}"
                                                         class="btn btn-success btn-sm" target="_blank">

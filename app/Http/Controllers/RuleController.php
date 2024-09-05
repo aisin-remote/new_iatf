@@ -161,11 +161,9 @@ class RuleController extends Controller
 
         // Sesuaikan filter berdasarkan peran pengguna
         if ($user->hasRole('admin')) {
-            $query->whereIn('induk_dokumen.status', ['Finish check by MS', 'Approve by MS', 'Obsolete by MS']);
+            $query->whereIn('induk_dokumen.status', ['Waiting Final Approval', 'Approve by MS', 'Obsolete by MS']);
         } else {
-            $query->whereIn('induk_dokumen.status', ['Approve by MS', 'Obsolete by MS'])
-                ->whereIn('induk_dokumen.statusdoc', ['active', 'obsolete']) // Tambahkan kondisi untuk statusdoc
-                ->whereNotNull('induk_dokumen.file_pdf') // Pastikan ini sesuai dengan nama kolom Anda
+            $query->whereIn('induk_dokumen.status', ['Waiting Final Approval','Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
                 ->where(function ($query) use ($user) {
                     $query->where('induk_dokumen.departemen_id', $user->departemen_id);
                 });
@@ -196,7 +194,33 @@ class RuleController extends Controller
 
         return view('pages-rule.dokumen-final', compact('dokumenfinal', 'kodeProses', 'alldepartmens', 'uniqueDepartemens', 'jenis', 'tipe'));
     }
+    public function uploadFinal(Request $request, $id)
+    {
+        // Validasi file hanya bisa PDF
+        $request->validate([
+            'file' => 'required|mimes:pdf',
+        ], [
+            'file.mimes' => 'Only PDF files are allowed.',
+        ]);
 
+        // Ambil dokumen berdasarkan ID
+        $doc = IndukDokumen::findOrFail($id);
+
+        // Simpan file di folder public tanpa folder tambahan
+        $file_pdf = $request->file('file');
+        $filename = $file_pdf->getClientOriginalName(); // Ambil nama file asli
+        $path = 'final-rule/' . $filename; // Tentukan path
+        $file_pdf->storeAs('final-rule', $filename, 'public'); // Simpan file dengan nama asli
+
+
+        // Update path file di database
+        $doc->file_pdf = $path;
+        $doc->status = 'Waiting Final Approval';
+        $doc->save();
+
+        // Tampilkan pesan sukses
+        return redirect()->back()->with('success', 'Document uploaded successfully.');
+    }
     public function share_document(Request $request, $jenis, $tipe)
     {
         $user = auth()->user();

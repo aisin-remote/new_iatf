@@ -56,62 +56,56 @@
                                                 </td>
                                                 <td>{{ $doc->statusdoc }}</td>
                                                 <td>
-                                                    @role('guest')
-                                                        @if (is_null($doc->file_pdf))
-                                                            <!-- Tombol Upload Final jika file_pdf kosong -->
-                                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                                data-target="#uploadFinalModal-{{ $doc->id }}">
-                                                                Upload Final
-                                                            </button>
-                                                        @else
-                                                        @endrole
-                                                        @if ($doc->statusdoc == 'not yet active')
-                                                            <!-- Tombol View dari file_pdf, tombol Activate, dan tombol Obsolete -->
-                                                            @php
+                                                    @if (!is_null($doc->file_pdf))
+                                                        @php
+                                                            // Mengatur URL untuk preview sesuai dengan status dokumen
+                                                            if ($doc->statusdoc == 'active') {
+                                                                $fileUrl = asset('storage/' . $doc->active_doc);
+                                                            } elseif ($doc->statusdoc == 'obsolete') {
+                                                                $fileUrl = asset('storage/' . $doc->obsolete_doc);
+                                                            } else {
                                                                 $fileUrl = Storage::url($doc->file_pdf);
-                                                            @endphp
-                                                            <a href="{{ $fileUrl }}" target="_blank"
-                                                                class="btn btn-primary btn-sm">
-                                                                <i class="fa-solid fa-eye"></i>
-                                                            </a>
-                                                            @role('admin')
-                                                                <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                                    data-target="#activateDokumen-{{ $doc->id }}">
-                                                                    Activate
-                                                                </button>
-                                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                                    data-target="#obsolateDokumen-{{ $doc->id }}">
-                                                                    Obsolete
-                                                                </button>
-                                                            @endrole
-                                                        @elseif ($doc->statusdoc == 'active')
-                                                            <!-- Tombol View dari active_doc dan tombol Obsolete -->
-                                                            @php $fileUrl = asset('storage/' . $doc->active_doc); @endphp
-                                                            <a href="{{ $fileUrl }}" target="_blank"
-                                                                class="btn btn-primary btn-sm">
-                                                                <i class="fa-solid fa-eye"></i>
-                                                            </a>
-                                                            @role('admin')
-                                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                                    data-target="#obsolateDokumen-{{ $doc->id }}">
-                                                                    Obsolete
-                                                                </button>
-                                                            @endrole
-                                                        @elseif ($doc->statusdoc == 'obsolete')
-                                                            <!-- Tombol View dari obsolete_doc dan tombol Activate -->
-                                                            @php $fileUrl = asset('storage/' . $doc->obsolete_doc); @endphp
-                                                            <a href="{{ $fileUrl }}" target="_blank"
-                                                                class="btn btn-primary btn-sm">
-                                                                <i class="fa-solid fa-eye"></i>
-                                                            </a>
-                                                            @role('admin')
-                                                                <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                                    data-target="#activateDokumen-{{ $doc->id }}">
-                                                                    Activate
-                                                                </button>
-                                                            @endrole
-                                                        @endif
+                                                            }
+                                                        @endphp
+
+                                                        <!-- Tombol Preview -->
+                                                        <a href="{{ $fileUrl }}" target="_blank"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fa-solid fa-eye"></i> Preview
+                                                        </a>
                                                     @endif
+
+                                                    @if ($doc->statusdoc == 'not yet active')
+                                                        @role('admin')
+                                                            <!-- Tombol Activate dan Obsolete hanya untuk admin -->
+                                                            <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                                data-target="#activateDokumen-{{ $doc->id }}">
+                                                                Activate
+                                                            </button>
+                                                            <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                                data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                Obsolete
+                                                            </button>
+                                                        @endrole
+                                                    @elseif ($doc->statusdoc == 'active')
+                                                        @role('admin')
+                                                            <!-- Tombol Obsolete hanya untuk admin -->
+                                                            <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                                data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                Obsolete
+                                                            </button>
+                                                        @endrole
+                                                    @elseif ($doc->statusdoc == 'obsolete')
+                                                        @role('admin')
+                                                            <!-- Tombol Activate hanya untuk admin -->
+                                                            <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                                data-target="#activateDokumen-{{ $doc->id }}">
+                                                                Activate
+                                                            </button>
+                                                        @endrole
+                                                    @endif
+
+
                                                 </td>
                                             </tr>
                                         @empty
