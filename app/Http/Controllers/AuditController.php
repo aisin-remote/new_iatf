@@ -16,8 +16,18 @@ class AuditController extends Controller
 {
     public function index_auditControl()
     {
-
-        $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])->get();
+        // Cek apakah pengguna adalah admin
+        if (auth()->user()->hasRole('admin')) {
+            // Admin dapat melihat semua data
+            $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])->get();
+        } else {
+            // Pengguna selain admin hanya melihat data sesuai departemen
+            $departemenId = auth()->user()->departemen_id; // Asumsi departemen_id menyimpan ID departemen pengguna
+            $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])
+                ->whereHas('departemen', function ($query) use ($departemenId) {
+                    $query->where('id', $departemenId);
+                })->get();
+        }
 
         $itemaudit = ItemAudit::with('audit')->get();
 
@@ -27,37 +37,36 @@ class AuditController extends Controller
         // Mengirimkan data ke view
         return view('audit.auditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens'));
     }
-    // YourController.php
+
 
     public function uploadDocumentAudit(Request $request, $id)
     {
-        // Validasi file yang diupload
+        // Validasi file yang diupload (bukan array)
         $request->validate([
-            'attachments' => 'required|array', // Pastikan attachments adalah array
-            'attachments.*' => 'file|mimes:pdf,doc,docx,xls,xlsx|max:20480', // Maksimal 20MB per file
+            'attachments' => 'required|file|mimes:pdf,doc,docx,xls,xlsx|max:20480', // Maksimal 20MB per file
         ]);
 
         // Temukan entitas AuditControl
         $auditControl = AuditControl::find($id);
-        dd($request->all());
+
         if ($auditControl) {
             // Proses upload file
             if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    if ($file->isValid()) { // Pastikan file valid
-                        $filename = time() . '-' . $file->getClientOriginalName();
-                        $file->storeAs('public/documentsAudit', $filename);
+                $file = $request->file('attachments'); // Mengambil file dari input (satu file)
 
-                        // Simpan informasi dokumen di database per baris
-                        $auditControl->documentAudit()->create([
-                            'audit_control_id' => $id,
-                            'attachment' => 'documentsAudit/' . $filename,
-                        ]);
-                    }
+                if ($file->isValid()) { // Pastikan file valid
+                    $filename = time() . '-' . $file->getClientOriginalName();
+                    $file->storeAs('public/documentsAudit', $filename);
+
+                    // Simpan informasi dokumen di database
+                    $auditControl->documentAudit()->create([
+                        'audit_control_id' => $id,
+                        'attachment' => 'documentsAudit/' . $filename,
+                    ]);
                 }
             }
         }
 
-        return redirect()->back()->with('success', 'Documents uploaded successfully');
+        return redirect()->back()->with('success', 'Document uploaded successfully');
     }
 }

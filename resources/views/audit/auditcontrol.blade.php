@@ -39,27 +39,48 @@
                                             <td>{{ $d->itemAudit->nama_item }}</td>
                                             <td>{{ $d->departemen->nama_departemen }}</td>
                                             <td>
+                                                {{-- Menampilkan file yang sudah di-upload --}}
+                                                @if ($d->documentAudit->count())
+                                                    <div class="mb-2">
+                                                        @foreach ($d->documentAudit as $document)
+                                                            <div class="d-flex align-items-center mb-2">
+                                                                <a href="{{ asset('storage/' . $document->attachment) }}"
+                                                                    class="btn btn-info btn-sm" download>
+                                                                    {{ preg_replace('/^\d+-/', '', basename($document->attachment)) }}
+                                                                </a>
+
+                                                                {{-- Tombol hapus untuk setiap file yang di-upload --}}
+                                                                <form
+                                                                    action="{{ route('deleteDocumentAudit', $document->id) }}"
+                                                                    method="POST"
+                                                                    style="display:inline-block; margin-left: 10px;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                                        onclick="return confirm('Are you sure you want to delete this document?')">Delete</button>
+                                                                </form>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                @else
+                                                    <p>No document uploaded yet.</p>
+                                                @endif
+
+                                                {{-- Form upload untuk upload file baru di bawah file yang sudah ada --}}
                                                 <form action="{{ route('uploadDocumentAudit', $d->id) }}" method="POST"
                                                     enctype="multipart/form-data">
                                                     @csrf
-                                                    <input type="file" name="attachments[   ]" multiple
-                                                        accept=".pdf,.doc,.docx,.xls,.xlsx">
-                                                    <button type="submit" class="btn btn-success btn-sm">Upload</button>
+                                                    <label for="attachments">Upload New File:</label>
+                                                    <input type="file" name="attachments" id="attachments" required>
+                                                    <br><button type="submit"
+                                                        class="btn btn-primary btn-sm mt-2">Upload</button></br>
                                                 </form>
-                                                @if ($d->documentAudit->count())
-                                                    @foreach ($d->documents as $document)
-                                                        <a href="{{ asset('storage/' . $document->path) }}"
-                                                            class="btn btn-info btn-sm" download>
-                                                            {{ basename($document->path) }}
-                                                            <i class="fa-solid fa-download"></i>
-                                                        </a>
-                                                    @endforeach
-                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>

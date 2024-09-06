@@ -9,9 +9,9 @@ class DocumentAuditControl extends Model
 {
     use HasFactory;
     protected $table = 'document_audit_control';
-    protected $guarded = 'id';
+    protected $fillable = ['audit_control_id', 'attachment'];
     public function auditControl()
     {
-        return $this->belongsTo(AuditControl::class);
+        return $this->belongsTo(AuditControl::class, 'audit_control_id');
     }
 }

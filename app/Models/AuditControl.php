@@ -26,6 +26,6 @@ class AuditControl extends Model
     }
     public function documentAudit()
     {
-        return $this->hasMany(DocumentAuditControl::class);
+        return $this->hasMany(DocumentAuditControl::class, 'audit_control_id');
     }
 }
