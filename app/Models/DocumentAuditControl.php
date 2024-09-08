@@ -12,6 +12,6 @@ class DocumentAuditControl extends Model
     protected $guarded = 'id';
     public function auditControl()
     {
-        return $this->belongsTo(AuditControl::class);
+        return $this->belongsTo(AuditControl::class, 'audit_control_id');
     }
 }

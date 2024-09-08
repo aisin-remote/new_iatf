@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\IndukDokumenExport;
+use App\Models\Audit;
 use App\Models\AuditControl;
 use App\Models\Departemen;
+use App\Models\DocumentAuditControl;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
+use App\Models\ItemAudit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -107,26 +110,51 @@ class HomeController extends Controller
         return view('pages-process.dashboard');
     }
     public function dashboard_audit()
-    {
-        $user = auth()->user();
-        $userDepartemenId = $user->departemen_id;
-        // Ambil total task audit untuk departemen user
-        $totalTasks = AuditControl::where('departemen_id', $userDepartemenId)->count();
+{
+    $user = auth()->user();
+    $userDepartemenId = $user->departemen_id;
 
-        // Ambil jumlah task yang sudah selesai (misalnya, memiliki status 'completed')
-        $completedTasks = AuditControl::where('departemen_id', $userDepartemenId)
-            ->where('status', 'completed') // Sesuaikan dengan kolom status di tabel audit_control
-            ->count();
+    // Dapatkan semua audit yang terkait dengan departemen user
+    $audits = Audit::with(['itemAudits.auditDepartemens' => function ($query) use ($userDepartemenId) {
+        $query->where('departemen_id', $userDepartemenId);
+    }])->get();
 
-        // Hitung persentase task selesai
-        $percentageCompleted = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+    $auditData = [];
 
-        return view('audit.dashboard', [
-            'totalTasks' => $totalTasks,
+    foreach ($audits as $audit) {
+        $totalTasks = 0;
+        $completedTasks = 0;
+
+        // Loop item audits dalam audit
+        foreach ($audit->itemAudits as $itemAudit) {
+            foreach ($itemAudit->auditDepartemens as $auditControl) {
+                $totalTasks++;
+
+                // Hitung task yang selesai (status = 'completed')
+                if ($auditControl->status == 'completed') {
+                    $completedTasks++;
+                }
+            }
+        }
+
+        // Jika tidak ada item audit
+        if ($totalTasks == 0) {
+            $completedTasks = 0;
+            $notCompletedTasks = 0;
+        } else {
+            $notCompletedTasks = $totalTasks - $completedTasks;
+        }
+
+        $auditData[] = [
+            'auditName' => $audit->name,
             'completedTasks' => $completedTasks,
-            'percentageCompleted' => $percentageCompleted
-        ]);
+            'notCompletedTasks' => $notCompletedTasks,
+        ];
     }
+
+    return view('audit.dashboard', ['auditData' => $auditData]);
+}
+
     public function downloadExcel(Request $request)
     {
         $user = auth()->user();

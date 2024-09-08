@@ -26,61 +26,23 @@
             </div>
         </div>
 
-        <!-- Div untuk count -->
+        <!-- Div untuk chart -->
         <div class="row">
-            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="chartjs-size-monitor">
-                            <div class="chartjs-size-monitor-expand">
-                                <div class=""></div>
-                            </div>
-                            <div class="chartjs-size-monitor-shrink">
-                                <div class=""></div>
-                            </div>
+            @foreach ($auditData as $index => $data)
+                <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ $data['auditName'] }}</h4>
+                            <canvas id="chart-{{ $index }}" width="1668" height="834"
+                                style="display: block; height: 417px; width: 834px;"
+                                class="chartjs-render-monitor"></canvas>
                         </div>
-                        <h4 class="card-title">ISO 90001</h4>
-                        <canvas id="pieChart" width="1668" height="834"
-                            style="display: block; height: 417px; width: 834px;" class="chartjs-render-monitor"></canvas>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="chartjs-size-monitor">
-                            <div class="chartjs-size-monitor-expand">
-                                <div class=""></div>
-                            </div>
-                            <div class="chartjs-size-monitor-shrink">
-                                <div class=""></div>
-                            </div>
-                        </div>
-                        <h4 class="card-title">Pie chart</h4>
-                        <canvas id="pieChart" width="1668" height="834"
-                            style="display: block; height: 417px; width: 834px;" class="chartjs-render-monitor"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="chartjs-size-monitor">
-                            <div class="chartjs-size-monitor-expand">
-                                <div class=""></div>
-                            </div>
-                            <div class="chartjs-size-monitor-shrink">
-                                <div class=""></div>
-                            </div>
-                        </div>
-                        <h4 class="card-title">Pie chart</h4>
-                        <canvas id="pieChart" width="1668" height="834"
-                            style="display: block; height: 417px; width: 834px;" class="chartjs-render-monitor"></canvas>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -94,24 +56,54 @@
         setInterval(updateDateTime, 1000);
     </script>
     <script>
-        var ctx = document.getElementById('auditChart').getContext('2d');
-        var auditChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: ['Completed Tasks', 'Incomplete Tasks'],
-                datasets: [{
-                    data: [{{ $completedTasks }}, {{ $totalTasks - $completedTasks }}],
-                    backgroundColor: ['#4CAF50', '#FF5252'], // Warna untuk pie chart
+        @foreach ($auditData as $index => $data)
+            var ctx{{ $index }} = document.getElementById('chart-{{ $index }}').getContext('2d');
+            var chart{{ $index }} = new Chart(ctx{{ $index }}, {
+                type: 'pie',
+                data: {
+                    labels: ['Completed Tasks', 'Not Completed Tasks'],
+                    datasets: [{
+                        data: [{{ $data['completedTasks'] }}, {{ $data['notCompletedTasks'] }}],
+                        backgroundColor: ['#4CAF50', '#FF5252'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    let dataLabel = tooltipItem.label || '';
+                                    let dataValue = tooltipItem.raw || 0;
+                                    return dataLabel + ': ' + dataValue + ' (' + Math.round((dataValue /
+                                            {{ $data['completedTasks'] + $data['notCompletedTasks'] }}) *
+                                        100) + '%)';
+                                }
+                            }
+                        }
+                    }
+                },
+                // Plugin untuk menampilkan pesan jika tidak ada data
+                plugins: [{
+                    afterDraw: function(chart) {
+                        if (chart.data.datasets[0].data.every(v => v === 0)) {
+                            var ctx = chart.ctx;
+                            var chartArea = chart.chartArea;
+                            var x = (chartArea.left + chartArea.right) / 2;
+                            var y = (chartArea.top + chartArea.bottom) / 2;
+                            ctx.save();
+                            ctx.font = '16px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText('No data available', x, y);
+                            ctx.restore();
+                        }
+                    }
                 }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                }
-            }
-        });
+            });
+        @endforeach
     </script>
 @endsection

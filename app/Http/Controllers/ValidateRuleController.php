@@ -228,7 +228,7 @@ class ValidateRuleController extends Controller
 
             // Define group IDs for notifications
             $groupIds = [
-                '120363311478624933', // Ganti dengan ID grup WhatsApp yang relevan
+                '085711190753', // Ganti dengan ID grup WhatsApp yang relevan
             ];
 
             // Pastikan groupIds adalah array, meskipun hanya ada satu ID

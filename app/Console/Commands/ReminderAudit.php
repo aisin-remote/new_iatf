@@ -34,10 +34,10 @@ class ReminderAudit extends Command
         $this->info("Current Time: " . $now);
 
         // Tentukan ID grup WhatsApp yang statis
-        $group_id = '120363311478624933'; // Ganti dengan Group ID Anda
+        $group_id = '085711190753'; // Ganti dengan Group ID Anda
 
         // Ambil audit yang perlu diingatkan berdasarkan rentang waktu
-        $auditControls = AuditControl::where('reminder', '<=', $now)
+        $auditControls = Audit::where('reminder', '<=', $now)
             ->where('duedate', '>=', $now)
             ->get();
         
