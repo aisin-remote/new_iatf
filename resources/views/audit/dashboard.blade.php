@@ -58,7 +58,7 @@
     <script>
         @foreach ($auditData as $index => $data)
             var ctx{{ $index }} = document.getElementById('chart-{{ $index }}').getContext('2d');
-            var chart{{ $index }} = new Chart(ctx{{ $index }}, {
+            new Chart(ctx{{ $index }}, {
                 type: 'pie',
                 data: {
                     labels: ['Completed Tasks', 'Not Completed Tasks'],
@@ -86,7 +86,6 @@
                         }
                     }
                 },
-                // Plugin untuk menampilkan pesan jika tidak ada data
                 plugins: [{
                     afterDraw: function(chart) {
                         if (chart.data.datasets[0].data.every(v => v === 0)) {

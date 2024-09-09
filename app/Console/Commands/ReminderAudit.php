@@ -34,28 +34,77 @@ class ReminderAudit extends Command
         $this->info("Current Time: " . $now);
 
         // Tentukan ID grup WhatsApp yang statis
-        $group_id = '085711190753'; // Ganti dengan Group ID Anda
+        $group_id = '120363311478624933'; // Ganti dengan Group ID Anda
 
-        // Ambil audit yang perlu diingatkan berdasarkan rentang waktu
-        $auditControls = Audit::where('reminder', '<=', $now)
-            ->where('duedate', '>=', $now)
-            ->get();
-        
-        foreach ($auditControls as $auditControl) {
+        // Ambil audit control yang perlu diingatkan berdasarkan rentang waktu
+        $auditControls = AuditControl::select('audit_control.*')
+            ->join('item_audit', 'audit_control.item_audit_id', '=', 'item_audit.id')
+            ->join('audit', 'item_audit.audit_id', '=', 'audit.id')
+            ->where('audit.reminder', '<=', $now)
+            ->where('audit.duedate', '>=', $now)
+            ->with(['itemAudit.audit']) // Eager load itemAudit dan audit
+            ->get()
+            ->groupBy('item_audit_id'); // Kelompokkan berdasarkan item_audit_id
+
+        foreach ($auditControls as $itemAuditId => $auditControlsGroup) {
             // Mengirimkan pengingat WhatsApp menggunakan group_id
-            $this->sendWaReminderAudit($group_id, $auditControl);
+            $this->sendWaReminderAudit($group_id, $itemAuditId, $auditControlsGroup);
         }
     }
 
-    protected function sendWaReminderAudit($groupId, $auditControl)
+    protected function sendWaReminderAudit($groupId, $itemAuditId, $auditControls)
     {
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
         $message = "------ WARNING SUBMIT DOCUMENT ------\n\n";
-        $message .= "Audit Name: " . $auditControl->nama . "\n";
-        $message .= "Reminder Date: " . $auditControl->reminder. "\n";
-        $message .= "Due Date: " . $auditControl->duedate. "\n";
+
+        // Ambil item audit yang terkait dengan itemAuditId
+        $itemAudit = $auditControls->first()->itemAudit;
+
+        if ($itemAudit) {
+            // Mengambil nama audit melalui itemAudit
+            $auditName = $itemAudit->audit ? $itemAudit->audit->nama : 'N/A';
+            $jenisItem = $itemAudit->nama_item ?? 'N/A';
+            $dueDate = $itemAudit->audit ? $itemAudit->audit->duedate : 'N/A';
+
+            $message .= "Audit Name: " . $auditName . "\n";
+            $message .= "Jenis Item: " . $jenisItem . "\n";
+            $message .= "Due Date: " . $dueDate . "\n\n";
+
+            // Ambil semua audit control untuk item_audit_id tertentu dan kelompokkan berdasarkan departemen
+            $departemenData = $auditControls->groupBy('departemen_id');
+
+            // Inisialisasi variabel untuk mengumpulkan informasi
+            $departemenMessages = [];
+
+            foreach ($departemenData as $departemenId => $auditControls) {
+                $departemen = $auditControls->first()->departemen; // Ambil departemen dari salah satu audit control
+
+                if ($departemen) {
+                    $totalTasks = $auditControls->count();
+                    $completedTasks = $auditControls->where('status', 'completed')->count();
+                    $percentageComplete = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+
+                    $departemenName = $departemen->nama_departemen;
+                    $departemenMessages[] = "Departemen: " . $departemenName . "\n" .
+                        "Total Tasks: " . $totalTasks . "\n" .
+                        "Completed Tasks: " . $completedTasks . "\n" .
+                        "Percentage Complete: " . number_format($percentageComplete, 2) . "%\n";
+                }
+            }
+
+            if (empty($departemenMessages)) {
+                $message .= "No item audit data available.\n";
+            } else {
+                $message .= implode("\n", $departemenMessages);
+            }
+        } else {
+            // Jika itemAudit tidak ada
+            $message .= "No item audit data available.\n";
+        }
+
         $message .= "\n------ BY AISIN BISA ------";
 
+        // Kirim pesan sekali dengan informasi yang terkumpul
         $response = Http::asForm()->post('https://app.ruangwa.id/api/send_message', [
             'token' => $token,
             'number' => $groupId,
@@ -65,7 +114,9 @@ class ReminderAudit extends Command
         if ($response->successful()) {
             $this->info("Pesan berhasil dikirim ke $groupId: " . $response->body());
             // Update kolom `last_reminder_sent` untuk auditControl
-            $auditControl->update(['last_reminder_sent' => Carbon::now()]);
+            $auditControls->each(function ($auditControl) {
+                $auditControl->update(['last_reminder_sent' => Carbon::now()]);
+            });
         } else {
             $this->error("Gagal mengirim pesan ke $groupId. Respons: " . $response->body());
         }
