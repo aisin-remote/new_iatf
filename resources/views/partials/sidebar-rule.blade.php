@@ -23,20 +23,19 @@
                             <a class="nav-link" href="{{ route('masterdata.kodeproses') }}">Rule Code</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('masterdata.role') }}">Role</a>
+                            <a class="nav-link" href="{{ route('masterdata.template') }}">Template Doc</a>
                         </li>
                     </ul>
                 </div>
             </li>
         @endrole
-
-        <li class="nav-item">
-            <a class="nav-link" href="{{ route('template.index') }}">
-                <i class="fa-solid fa-file-pen" style="margin-right: 8px"></i>
-                <span class="menu-title"> Template Documents</span>
-            </a>
-        </li>
         @role('guest')
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('masterdata.template') }}">
+                    <i class="fa-solid fa-file-pen" style="margin-right: 8px"></i>
+                    <span class="menu-title"> Template Documents</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#rule-collapse-guest"
                     aria-expanded="{{ request()->is('rule.index') ? 'true' : 'false' }}"
@@ -69,13 +68,13 @@
         @role('admin')
             <li class="nav-item">
                 <a class="nav-link" data-toggle="collapse" href="#validasi-draft-rule-collapse-admin"
-                    aria-expanded="{{ request()->routeIs('rule.validate') ? 'true' : 'false' }}"
+                    aria-expanded="{{ request()->is('rule.validate') ? 'true' : 'false' }}"
                     aria-controls="validasi-draft-rule-collapse-admin">
                     <i class="fa solid fa-file-circle-check" style="margin-right: 12px"></i>
                     <span class="menu-title"> Document Validation</span>
                     <i class="menu-arrow"></i>
                 </a>
-                <div class="collapse {{ request()->routeIs('rule.validate') ? 'show' : '' }}"
+                <div class="collapse {{ request()->is('/rule/validate-draft/*') ? 'show' : '' }}"
                     id="validasi-draft-rule-collapse-admin">
                     <ul class="nav flex-column sub-menu">
                         <li class="nav-item">
@@ -100,13 +99,13 @@
         @endrole
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#final-rule-collapse"
-                aria-expanded="{{ request()->routeIs('documents.final') ? 'true' : 'false' }}"
+                aria-expanded="{{ request()->is('documents.final') ? 'true' : 'false' }}"
                 aria-controls="final-rule-collapse">
                 <i class="fa-solid fa-file-pdf" style="margin-right: 14px"></i>
                 <span class="menu-title"> Final Dokumen</span>
                 <i class="menu-arrow"></i>
             </a>
-            <div class="collapse {{ request()->routeIs('documents.final') ? 'show' : '' }}" id="final-rule-collapse">
+            <div class="collapse {{ request()->is('documents.final') ? 'show' : '' }}" id="final-rule-collapse">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item">
                         <a class="nav-link"
@@ -129,14 +128,13 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" data-toggle="collapse" href="#document-share-collapse"
-                aria-expanded="{{ request()->routeIs('document.share') ? 'true' : 'false' }}"
+                aria-expanded="{{ request()->is('document.share') ? 'true' : 'false' }}"
                 aria-controls="document-share-collapse">
                 <i class="fa-solid fa-file-import" style="margin-right: 14px"></i>
                 <span class="menu-title"> Distributed Document</span>
                 <i class="menu-arrow"></i>
             </a>
-            <div class="collapse {{ request()->routeIs('document.share') ? 'show' : '' }}"
-                id="document-share-collapse">
+            <div class="collapse {{ request()->is('document.share') ? 'show' : '' }}" id="document-share-collapse">
                 <ul class="nav flex-column sub-menu">
                     <li class="nav-item">
                         <a class="nav-link"

@@ -39,7 +39,7 @@ Route::get('/comingsoon', function () {
 
 
 // Dashboard rule
-Route::get('/rule', [HomeController::class, 'dashboard_rule'])
+Route::get('/rule/dashboard', [HomeController::class, 'dashboard_rule'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('dashboard.rule');
 Route::get('/rule/notification', [HomeController::class, 'getNotifications'])
@@ -86,24 +86,22 @@ Route::delete('/rule/master-data/process-code/delete/{id}', [MasterDataRuleContr
 Route::delete('/rule/master-data/role/delete/{id}', [MasterDataRuleController::class, 'delete_role'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.role');
-
-// Template Dokumen
-Route::get('/rule/template-documents', [DocumentRuleController::class, 'index'])
+Route::get('/rule/master-data/template-documents', [DocumentRuleController::class, 'index'])
     ->middleware(['auth', 'role:admin|guest'])
-    ->name('template.index');
-Route::post('/rule/template-documents/add', [DocumentRuleController::class, 'store'])
+    ->name('masterdata.template');
+Route::post('/rule/master-data/template-documents/add', [DocumentRuleController::class, 'store'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.add');
-Route::post('/rule/template-documents/edit/{id}', [DocumentRuleController::class, 'edit'])
+Route::post('/rule/master-data/template-documents/edit/{id}', [DocumentRuleController::class, 'edit'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.edit');
-Route::get('/rule/template-documents/preview/{id}', [DocumentRuleController::class, 'preview'])
+Route::get('/rule/master-data/template-documents/preview/{id}', [DocumentRuleController::class, 'preview'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.preview');
-Route::get('/rule/template-documents/download/{id}', [DocumentRuleController::class, 'download'])
+Route::get('/rule/master-data/template-documents/download/{id}', [DocumentRuleController::class, 'download'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('template.download');
-Route::delete('/rule/template-documents/delete/{id}', [DocumentRuleController::class, 'destroy'])
+Route::delete('/rule/master-data/template-documents/delete/{id}', [DocumentRuleController::class, 'destroy'])
     ->middleware(['auth', 'role:admin'])
     ->name('template.delete');
 
@@ -200,7 +198,7 @@ Route::delete('/audit/master-data/auditcontrol/delete/{id}', [MasterDataAuditCon
 
 
 //Audit Control 
-Route::get('/audit', [HomeController::class, 'dashboard_audit'])
+Route::get('/audit/dashboard', [HomeController::class, 'dashboard_audit'])
     ->middleware(['auth', 'role:admin|guest'])
     ->name('dashboard.audit');
 Route::get('/audit/auditcontrol', [AuditController::class, 'index_auditControl'])

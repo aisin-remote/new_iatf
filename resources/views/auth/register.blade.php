@@ -111,6 +111,7 @@
     <script src="../../js/todolist.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('css/select2.min.js') }}"></script>
+    @include('sweetalert::alert')
     <script>
         $(document).ready(function() {
             $('.select2').select2();

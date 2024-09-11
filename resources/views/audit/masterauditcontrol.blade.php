@@ -201,7 +201,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
+        {{-- <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
             aria-labelledby="auditfilterModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -250,7 +250,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+        </div> --}}
     @endforeach
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>

@@ -21,7 +21,7 @@ class MasterDataRuleController extends Controller
     }
     public function index_departemen()
     {
-        $departemen = Departemen::all();
+        $departemen = Departemen::orderBy('updated_at', 'desc')->get();
         return view('master data.departemen', compact('departemen'));
     }
     public function store_departemen(Request $request)
@@ -62,7 +62,7 @@ class MasterDataRuleController extends Controller
     }
     public function index_prosescode()
     {
-        $kode_proses = RuleCode::all();
+        $kode_proses = RuleCode::orderBy('updated_at', 'desc')->get();
         return view('master data.rulecode', compact('kode_proses'));
     }
     public function store_kodeproses(Request $request)
@@ -78,7 +78,7 @@ class MasterDataRuleController extends Controller
         ]);
         Alert::success('Success', 'Process code added successfully.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->route('masterdata.departemen');
+        return redirect()->route('masterdata.kodeproses');
     }
     public function update_kodeproses(Request $request, $id)
     {
@@ -100,31 +100,5 @@ class MasterDataRuleController extends Controller
 
         Alert::success('Success', 'Process code has been deleted successfully.');
         return redirect()->back();
-    }
-    public function index_role()
-    {
-        $roles = Role::all();
-        return view('master data.role', compact('roles'));
-    }
-
-    public function store_role(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:roles',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        Role::create($request->only('name', 'guard_name'));
-
-        return redirect()->route('masterdata.role');
-    }
-
-    public function delete_role(Role $role)
-    {
-        $role->delete();
-        return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }
 }

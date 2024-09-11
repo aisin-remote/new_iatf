@@ -21,68 +21,68 @@ class AuthController extends Controller
         return view('auth.login');
     }
     public function select_dashboard()
-{
-    // Ambil departemen dari pengguna yang sedang login
-    $departemen = Auth::user()->departemen;
+    {
+        // Ambil departemen dari pengguna yang sedang login
+        $departemen = Auth::user()->departemen;
 
-    // Jika tidak ada departemen, tampilkan halaman dengan pesan error
-    if (!$departemen) {
-        return view('select-dashboard')->withErrors(['departemen' => 'Departemen tidak ditemukan.']);
-    }
-
-    // Tampilkan view select-dashboard
-    return view('select-dashboard', compact('departemen'));
-}
-
-public function login_proses(Request $request)
-{
-    $request->validate([
-        'npk' => 'required|string',
-        'password' => 'required|string',
-    ]);
-
-    $credentials = $request->only('npk', 'password');
-
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
-        
-        // Ambil departemen pengguna
-        $departemen = $user->departemen;
+        // Jika tidak ada departemen, tampilkan halaman dengan pesan error
         if (!$departemen) {
-            return redirect()->route('login')->withErrors(['departemen' => 'Departemen tidak ditemukan.']);
+            return view('select-dashboard')->withErrors(['departemen' => 'Departemen tidak ditemukan.']);
         }
 
-        // Arahkan ke route select.dashboard setelah login berhasil
-        return redirect()->route('select.dashboard');
+        // Tampilkan view select-dashboard
+        return view('select-dashboard', compact('departemen'));
     }
 
-    // Jika login gagal, cek jumlah percobaan gagal
-    $loginAttempts = session('login_attempts', 0);
-    session(['login_attempts' => $loginAttempts + 1]);
+    public function login_proses(Request $request)
+    {
+        $request->validate([
+            'npk' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-    if ($loginAttempts >= 3) {
-        // Jika percobaan login lebih dari 3, tampilkan pesan tunggu
-        $lockoutTime = session('lockout_time', now()->addMinutes(1));
-        if (now()->lt($lockoutTime)) {
-            $remainingTime = $lockoutTime->diffInSeconds(now());
-            return back()->withErrors([
-                'login' => "Silakan coba lagi dalam {$remainingTime} detik.",
-            ]);
+        $credentials = $request->only('npk', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+
+            // Ambil departemen pengguna
+            $departemen = $user->departemen;
+            if (!$departemen) {
+                return redirect()->route('login')->withErrors(['departemen' => 'Departemen tidak ditemukan.']);
+            }
+
+            // Arahkan ke route select.dashboard setelah login berhasil
+            return redirect()->route('select.dashboard');
         }
 
-        // Reset percobaan login setelah waktu lockout berakhir
-        session(['login_attempts' => 1]);
-        session(['lockout_time' => null]);
-    } elseif ($loginAttempts >= 2) {
-        // Set waktu lockout jika percobaan login mencapai 3
-        session(['lockout_time' => now()->addMinutes(1)]);
-    }
+        // Jika login gagal, cek jumlah percobaan gagal
+        $loginAttempts = session('login_attempts', 0);
+        session(['login_attempts' => $loginAttempts + 1]);
 
-    return back()->withErrors([
-        'npk' => 'NPK atau Password salah.',
-        'password' => 'NPK atau Password salah.',
-    ])->withInput();
-}
+        if ($loginAttempts >= 3) {
+            // Jika percobaan login lebih dari 3, tampilkan pesan tunggu
+            $lockoutTime = session('lockout_time', now()->addMinutes(1));
+            if (now()->lt($lockoutTime)) {
+                $remainingTime = $lockoutTime->diffInSeconds(now());
+                return back()->withErrors([
+                    'login' => "Silakan coba lagi dalam {$remainingTime} detik.",
+                ]);
+            }
+
+            // Reset percobaan login setelah waktu lockout berakhir
+            session(['login_attempts' => 1]);
+            session(['lockout_time' => null]);
+        } elseif ($loginAttempts >= 2) {
+            // Set waktu lockout jika percobaan login mencapai 3
+            session(['lockout_time' => now()->addMinutes(1)]);
+        }
+
+        return back()->withErrors([
+            'npk' => 'NPK atau Password salah.',
+            'password' => 'NPK atau Password salah.',
+        ])->withInput();
+    }
 
     public function register_form()
     {
@@ -91,52 +91,59 @@ public function login_proses(Request $request)
     }
     // Fungsi untuk memproses registrasi
     public function register_proses(Request $request)
-{
-    $message = [
-        'npk.required' => 'NPK tidak boleh kosong.',
-        'npk.unique' => 'NPK sudah terdaftar.',
-        'departemen.required' => 'Departemen tidak boleh kosong.',
-        'departemen.exists' => 'Departemen tidak valid.',
-        'name.required' => 'Nama tidak boleh kosong.',
-        'password.required' => 'Password tidak boleh kosong.',
-        'password.confirmed' => 'Konfirmasi password tidak cocok.',
-        'password.size' => 'Password harus memiliki tepat 8 karakter.', // Pesan kesalahan untuk panjang tepat 8 karakter
-    ];
+    {
+        $message = [
+            'npk.required' => 'NPK tidak boleh kosong.',
+            'npk.unique' => 'NPK sudah terdaftar.',
+            'departemen.required' => 'Departemen tidak boleh kosong.',
+            'departemen.exists' => 'Departemen tidak valid.',
+            'name.required' => 'Nama tidak boleh kosong.',
+            'password.required' => 'Password tidak boleh kosong.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.size' => 'Password harus memiliki tepat 8 karakter.',
+        ];
 
-    $validator = Validator::make($request->all(), [
-        'npk' => 'required|string|max:255|unique:users',
-        'departemen' => 'required|exists:departemen,id', // Validasi sebagai satu value, bukan array
-        'name' => 'required|string|max:255',
-        'password' => 'required|string|size:8|confirmed', // Mengatur panjang tepat 8 karakter
-    ], $message);
+        $validator = Validator::make($request->all(), [
+            'npk' => 'required|string|max:255|unique:users',
+            'departemen' => 'required|exists:departemen,id',
+            'name' => 'required|string|max:255',
+            'password' => 'required|string|size:8|confirmed',
+        ], $message);
 
-    if ($validator->fails()) {
-        return redirect()->route('register')
-            ->withErrors($validator)
-            ->withInput($request->except(['password', 'password_confirmation']));
+        if ($validator->fails()) {
+            // Gabungkan pesan error
+            $errors = $validator->errors()->all();
+            $errorMessage = implode('<br>', $errors); // Menggabungkan semua pesan error
+
+            // Tampilkan SweetAlert error
+            Alert::error('Registration Error', $errorMessage)->html(); // Menampilkan pesan dengan format HTML
+
+            return redirect()->route('register')
+                ->withErrors($validator)
+                ->withInput($request->except(['password', 'password_confirmation']));
+        }
+
+        $defaultRoleName = 'guest';
+        $role = Role::where('name', $defaultRoleName)->first();
+
+        // Buat user baru
+        $user = User::create([
+            'npk' => $request->npk,
+            'name' => $request->name,
+            'password' => Hash::make($request->password),
+            'departemen_id' => $request->departemen,
+        ]);
+
+        if ($role) {
+            $user->assignRole($role);
+        }
+
+        Auth::login($user);
+
+        Alert::success('Registration Success', 'Registrasi berhasil! Silakan login.');
+        return redirect()->route('login');
     }
 
-    $defaultRoleName = 'guest';
-    $role = Role::where('name', $defaultRoleName)->first();
-
-    // Buat user baru
-    $user = User::create([
-        'npk' => $request->npk,
-        'name' => $request->name,
-        'password' => Hash::make($request->password),
-        'departemen_id' => $request->departemen, // Menyimpan ID departemen langsung
-    ]);
-
-    // Assign role ke user jika role ditemukan
-    if ($role) {
-        $user->assignRole($role);
-    }
-
-    Auth::login($user);
-
-    Alert::success('Success', 'Registration successful! Please login.');
-    return redirect()->route('login');
-}
     public function logout()
     {
         Auth::logout();

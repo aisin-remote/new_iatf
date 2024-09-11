@@ -10,12 +10,14 @@
                     <div class="card-body">
                         <h4 class="card-title">Master Data Process Code</h4>
                         <div class="d-flex justify-content-end mb-3">
+                            <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                placeholder="Search..." style="width: 300px;">
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addrulecode">
                                 Add New
                             </button>
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped" id="documentTableBody">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -145,4 +147,27 @@
             </div>
         </div>
     @endforeach
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Event handler untuk pencarian
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#documentTableBody tr').each(function() {
+                    var row = $(this);
+                    var text = row.text().toLowerCase();
+                    row.toggle(text.indexOf(value) > -1);
+                });
+            });
+
+            // Menghandle pagination agar pencarian bekerja
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function(data) {
+                    $('#documentTableBody').html($(data).find('#documentTableBody').html());
+                });
+            });
+        });
+    </script>
 @endsection

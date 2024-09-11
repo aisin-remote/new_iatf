@@ -10,4 +10,8 @@ class RuleCode extends Model
     use HasFactory;
 
     protected $table = 'rule';
+    protected $fillable = [
+        'kode_proses',
+        'nama_proses'
+    ];
 }
