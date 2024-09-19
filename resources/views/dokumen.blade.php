@@ -18,6 +18,15 @@
                                 </button>
                             @endrole
                         </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger" id="error-alert">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="table-responsive">
                             <table class="table table-striped" id="documentTableBody">
                                 <thead>
@@ -170,11 +179,19 @@
                             <div class="form-group">
                                 <label for="file_pdf">Select Preview (.pdf)</label>
                                 <input type="file" class="form-control-file" id="file_pdf" name="file_pdf">
+                                @if ($doc->file_pdf)
+                                    <p>Current file: <a href="{{ asset('storage/' . $doc->file_pdf) }}"
+                                            target="_blank">{{ basename($doc->file_pdf) }}</a></p>
+                                @endif
                                 <p>Maks 10 mb</p>
                             </div>
                             <div class="form-group">
                                 <label for="template">Select Template (.word, .excel)</label>
                                 <input type="file" class="form-control-file" id="template" name="template">
+                                @if ($doc->template)
+                                    <p>Current file: <a href="{{ asset('storage/' . $doc->template) }}"
+                                            target="_blank">{{ basename($doc->template) }}</a></p>
+                                @endif
                                 <p>Maks 10 mb</p>
                             </div>
                         </div>
@@ -189,6 +206,9 @@
     @endforeach
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        setTimeout(function() {
+            document.getElementById('error-alert')?.remove();
+        }, 3000);
         $(document).ready(function() {
             // Event handler untuk pencarian
             $('#searchInput').on('keyup', function() {

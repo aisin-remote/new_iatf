@@ -69,4 +69,12 @@ class AuditController extends Controller
 
         return redirect()->back()->with('success', 'Document uploaded successfully');
     }
+    public function deleteDocumentAudit($id)
+    {
+        $DocumentAuditControls = DocumentAuditControl::findOrFail($id);
+        $DocumentAuditControls->delete();
+
+        Alert::success('Success', 'Document Audit Control has been deleted successfully.');
+        return redirect()->back();
+    }
 }

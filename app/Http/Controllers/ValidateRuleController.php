@@ -41,7 +41,7 @@ class ValidateRuleController extends Controller
     public function approveDocument(Request $request, $id)
     {
         $request->validate([
-            'file' => 'required|mimes:doc,docx,xls,xlsx',
+            'file' => 'nullable|mimes:doc,docx,xls,xlsx',
         ], [
             'file.mimes' => 'Only Word and Excel files are allowed.',
         ]);

@@ -18,6 +18,15 @@
                                 Upload Draft
                             </button>
                         </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger" id="error-alert">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="table-responsive">
                             <table class="table table-striped" id="documentTableBody">
                                 <thead>
@@ -264,5 +273,8 @@
             // Pastikan field diperbarui ketika tipe dokumen berubah
             tipeDokumen.addEventListener('change', togglePrdWisFields);
         });
+        setTimeout(function() {
+            document.getElementById('error-alert')?.remove();
+        }, 3000);
     </script>
 @endsection

@@ -17,12 +17,18 @@ class DocumentRuleController extends Controller
     }
     public function store(Request $request)
     {
-        
+
         // Validasi input
         $request->validate([
-            
-            'file_pdf' => 'required|mimes:pdf|max:10240',
-            'template' => 'required|mimes:xlsx,doc,docx|max:10240', // Format file yang diterima: pdf, doc, docx dengan maksimum ukuran 2MB
+            'file_pdf' => 'required|mimes:pdf|max:10240', // Hanya file PDF yang diperbolehkan
+            'template' => 'required|mimes:xlsx,doc,docx|max:10240', // Hanya file Word/Excel yang diperbolehkan
+        ], [
+            'file_pdf.required' => 'The PDF file is required.',
+            'file_pdf.mimes' => 'Only PDF files are allowed for the file_pdf.',
+            'file_pdf.max' => 'The PDF file must not be greater than 10 MB.',
+            'template.required' => 'The template file is required.',
+            'template.mimes' => 'Only Excel (xlsx) or Word (doc, docx) files are allowed for the template.',
+            'template.max' => 'The template file must not be greater than 10 MB.',
         ]);
 
         // Simpan file yang diunggah ke storage disk
@@ -49,7 +55,7 @@ class DocumentRuleController extends Controller
 
         Alert::success('Success', 'Template added successfully.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->route('template.index');
+        return redirect()->route('masterdata.template');
     }
     public function edit(Request $request, $id)
     {
@@ -72,7 +78,7 @@ class DocumentRuleController extends Controller
         if ($request->hasFile('file_pdf')) {
             // Simpan file yang diunggah ke storage disk
             $file = $request->file('file_pdf');
-            
+
             $fileName = time() . '_file_' . $file->getClientOriginalName();
             $file->storeAs('template_dokumen', $fileName, 'public');
 
@@ -177,6 +183,6 @@ class DocumentRuleController extends Controller
         Alert::success('Success', 'Document deleted successfully.');
 
         // Redirect ke halaman sebelumnya
-        return redirect()->route('template.index');
+        return redirect()->route('masterdata.template');
     }
 }

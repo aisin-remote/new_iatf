@@ -142,6 +142,7 @@ class RuleController extends Controller
 
     public function final_doc(Request $request, $jenis, $tipe)
     {
+        
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Ambil data untuk filter dropdown

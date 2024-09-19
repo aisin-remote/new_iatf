@@ -18,6 +18,15 @@
                                 Filter
                             </button>
                         </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger" id="error-alert">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -157,7 +166,7 @@
                                 <input type="text" class="form-control" id="comment" name="comment" required>
                             </div>
                             <div class="form-group">
-                                <label for="file">File (.word, .excel)</label>
+                                <label for="file">File (.word, .excel) <small>(Optional)</small></label>
                                 <input type="file" class="form-control-file" id="file" name="file">
                                 <p>Maks 10 mb</p>
                             </div>
@@ -222,4 +231,9 @@
             </div>
         </div>
     @endforeach
+    <script>
+        setTimeout(function() {
+            document.getElementById('error-alert')?.remove();
+        }, 3000);
+    </script>
 @endsection

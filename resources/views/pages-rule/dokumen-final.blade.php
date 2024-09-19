@@ -28,6 +28,15 @@
                                 </div>
                             </div>
                         </div>
+                        @if ($errors->any())
+                            <div class="alert alert-danger" id="error-alert">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="table-responsive">
                             <div class="table-responsive">
                                 <table class="table table-striped" id="documentTableBody">
@@ -56,7 +65,18 @@
                                                 </td>
                                                 <td>{{ $doc->statusdoc }}</td>
                                                 <td>
-                                                    @if (!is_null($doc->file_pdf))
+                                                    @if (is_null($doc->file_pdf) && $doc->status == 'Finish Check by MS' && $doc->statusdoc == 'not yet active')
+                                                        @role('guest')
+                                                            <!-- Tombol Upload Final untuk guest -->
+                                                            <button class="btn btn-info btn-sm" data-toggle="modal"
+                                                                data-target="#uploadFinal-{{ $doc->id }}">
+                                                                Upload Final
+                                                            </button>
+                                                        @else
+                                                            <!-- Pesan debugging jika peran bukan guest -->
+                                                            <p>Not a guest or condition not met</p>
+                                                        @endrole
+                                                    @elseif (!is_null($doc->file_pdf))
                                                         @php
                                                             // Mengatur URL untuk preview sesuai dengan status dokumen
                                                             if ($doc->statusdoc == 'active') {
@@ -67,27 +87,26 @@
                                                                 $fileUrl = Storage::url($doc->file_pdf);
                                                             }
                                                         @endphp
-
-                                                        <!-- Tombol Preview -->
                                                         <a href="{{ $fileUrl }}" target="_blank"
                                                             class="btn btn-primary btn-sm">
                                                             <i class="fa-solid fa-eye"></i> Preview
                                                         </a>
+                                                        @if ($doc->statusdoc == 'not yet active')
+                                                            @role('admin')
+                                                                <!-- Tombol Activate dan Obsolete hanya untuk admin -->
+                                                                <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                                    data-target="#activateDokumen-{{ $doc->id }}">
+                                                                    Activate
+                                                                </button>
+                                                                <button class="btn btn-danger btn-sm" data-toggle="modal"
+                                                                    data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                    Obsolete
+                                                                </button>
+                                                            @endrole
+                                                        @endif
                                                     @endif
 
-                                                    @if ($doc->statusdoc == 'not yet active')
-                                                        @role('admin')
-                                                            <!-- Tombol Activate dan Obsolete hanya untuk admin -->
-                                                            <button class="btn btn-primary btn-sm" data-toggle="modal"
-                                                                data-target="#activateDokumen-{{ $doc->id }}">
-                                                                Activate
-                                                            </button>
-                                                            <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                                data-target="#obsolateDokumen-{{ $doc->id }}">
-                                                                Obsolete
-                                                            </button>
-                                                        @endrole
-                                                    @elseif ($doc->statusdoc == 'active')
+                                                    @if ($doc->statusdoc == 'active')
                                                         @role('admin')
                                                             <!-- Tombol Obsolete hanya untuk admin -->
                                                             <button class="btn btn-danger btn-sm" data-toggle="modal"
@@ -104,9 +123,8 @@
                                                             </button>
                                                         @endrole
                                                     @endif
-
-
                                                 </td>
+
                                             </tr>
                                         @empty
                                             <tr>
@@ -464,5 +482,8 @@
                     });
                 });
             });
+            setTimeout(function() {
+                document.getElementById('error-alert')?.remove();
+            }, 3000);
         </script>
     @endsection
