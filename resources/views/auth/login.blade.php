@@ -26,8 +26,10 @@
             <div class="content-wrapper d-flex align-items-center auth px-0">
                 <div class="row w-100 mx-0">
                     <div class="col-lg-4 mx-auto">
-                        @if ($errors->has('lockout'))
-                            <div class="alert alert-danger mt-3">{{ $errors->first('lockout') }}</div>
+                        @if ($errors->has('login'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first('login') }}
+                            </div>
                         @endif
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo"
@@ -36,6 +38,11 @@
                                 <img src="../../images/aisin.png" alt="logo"
                                     style="width: 96px; height: auto; margin-left: auto;">
                             </div>
+                            @if (session('success'))
+                                <div class="alert alert-success" id="alert-success">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
                             <h4>Hello! let's get started</h4>
                             <h6 class="font-weight-light">Sign in to continue.</h6>
                             <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
@@ -91,9 +98,11 @@
     <script src="../../js/template.js"></script>
     <script src="../../js/settings.js"></script>
     <script src="../../js/todolist.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script>
+        setTimeout(function() {
+            document.getElementById('alert-success')?.remove();
+        }, 3000);
+    </script>
 
     <!-- endinject -->
 </body>

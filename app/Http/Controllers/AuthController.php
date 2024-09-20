@@ -60,13 +60,13 @@ class AuthController extends Controller
         $loginAttempts = session('login_attempts', 0);
         session(['login_attempts' => $loginAttempts + 1]);
 
-        if ($loginAttempts >= 3) {
-            // Jika percobaan login lebih dari 3, tampilkan pesan tunggu
-            $lockoutTime = session('lockout_time', now()->addMinutes(1));
-            if (now()->lt($lockoutTime)) {
+        if ($loginAttempts >= 2) {
+            // Jika percobaan login sudah 3 kali, tampilkan pesan tunggu
+            $lockoutTime = session('lockout_time');
+            if ($lockoutTime && now()->lt($lockoutTime)) {
                 $remainingTime = $lockoutTime->diffInSeconds(now());
                 return back()->withErrors([
-                    'login' => "Silakan coba lagi dalam {$remainingTime} detik.",
+                    'login' => "Anda sudah melakukan 3 kali percobaan login. Silakan coba lagi dalam {$remainingTime} detik.",
                 ]);
             }
 
@@ -77,12 +77,15 @@ class AuthController extends Controller
             // Set waktu lockout jika percobaan login mencapai 3
             session(['lockout_time' => now()->addMinutes(1)]);
         }
+        dd(session()->all());
 
         return back()->withErrors([
             'npk' => 'NPK atau Password salah.',
             'password' => 'NPK atau Password salah.',
         ])->withInput();
     }
+
+
 
     public function register_form()
     {
@@ -111,13 +114,6 @@ class AuthController extends Controller
         ], $message);
 
         if ($validator->fails()) {
-            // Gabungkan pesan error
-            $errors = $validator->errors()->all();
-            $errorMessage = implode('<br>', $errors); // Menggabungkan semua pesan error
-
-            // Tampilkan SweetAlert error
-            Alert::error('Registration Error', $errorMessage)->html(); // Menampilkan pesan dengan format HTML
-
             return redirect()->route('register')
                 ->withErrors($validator)
                 ->withInput($request->except(['password', 'password_confirmation']));
@@ -140,9 +136,10 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        Alert::success('Registration Success', 'Registrasi berhasil! Silakan login.');
-        return redirect()->route('login');
+        // Flash message to session
+        return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login.');
     }
+
 
     public function logout()
     {

@@ -16,14 +16,43 @@ use Carbon\Carbon;
 class ValidateRuleController extends Controller
 {
     use AddWatermarkTrait;
-    public function validate_index($jenis, $tipe)
+    public function validate_index($jenis, $tipe, Request $request)
     {
-        // Ambil dokumen yang sesuai dengan jenis dan tipe dokumen dan urutkan berdasarkan tanggal upload
-        $dokumen = Dokumen::where('jenis_dokumen', $jenis)
-            ->where('tipe_dokumen', $tipe)
-            ->get();
+        // Ambil input dari request
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
+        $tipeDokumenId = $request->input('tipe_dokumen_id');
+        $statusDoc = $request->input('statusdoc');
+        $departemen = (int) $request->input('departemen', 0);
 
-        // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih dan memiliki status "waiting approval"
+        // Mulai kueri dokumen
+        $query = Dokumen::where('jenis_dokumen', $jenis)
+            ->where('tipe_dokumen', $tipe);
+
+        // Filter berdasarkan tanggal upload
+        if ($request->filled('date_from') && $request->filled('date_to')) {
+            $query->whereBetween('induk_dokumen.tgl_upload', [$dateFrom, $dateTo]);
+        }
+
+        // Filter berdasarkan tipe dokumen
+        if ($request->filled('tipe_dokumen_id')) {
+            $query->where('dokumen.tipe_dokumen', $tipeDokumenId);
+        }
+
+        // Filter berdasarkan status dokumen
+        if ($request->filled('statusdoc')) {
+            $query->where('induk_dokumen.statusdoc', $statusDoc);
+        }
+
+        // Filter berdasarkan Departemen (Hanya untuk admin)
+        if ($departemen > 0 && $user->hasRole('admin')) {
+            $query->where('induk_dokumen.departemen_id', $departemen);
+        }
+
+        // Eksekusi kueri untuk mendapatkan dokumen
+        $dokumen = $query->get();
+
+        // Ambil induk dokumen yang sesuai dengan dokumen yang telah dipilih
         $indukDokumenList = IndukDokumen::whereIn('dokumen_id', $dokumen->pluck('id'))
             ->orderBy('tgl_upload', 'desc')
             ->get();

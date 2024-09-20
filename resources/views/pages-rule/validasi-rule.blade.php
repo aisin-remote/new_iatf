@@ -9,9 +9,8 @@
                         <h4 class="card-title">Document {{ ucfirst($jenis) }} - Type: {{ ucfirst($tipe) }}</h4>
                         <div class="d-flex justify-content-end mb-3">
                             <!-- Input pencarian -->
-                            <input type="text" class="form-control form-control-sm w-25 mr-2" id="searchInput"
-                                placeholder="Search...">
-
+                            <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                placeholder="Search..." style="width: 300px;">
                             <!-- Tombol Filter -->
                             <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
                                 style="background: #56544B">
@@ -28,7 +27,7 @@
                             </div>
                         @endif
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped" id="documentTableBody">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -183,7 +182,7 @@
             aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-                    <form action="" method="GET">
+                    <form action="{{ route('rule.validate', ['jenis' => $jenis, 'tipe' => $tipe]) }}" method="GET">
                         <div class="modal-header">
                             <h5 class="modal-title" id="filterModalLabel">Filter Documents</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -209,7 +208,7 @@
                                     <label class="col-form-label">Departemen</label>
                                 </div>
                                 <div class="col">
-                                    <select name="departemen_id" id="departemen_id" class="form-control select2"
+                                    <select name="departemen" id="departemen_id" class="form-control select2"
                                         style="width: 100%;">
                                         <option value="" selected>Select Departemen</option>
                                         @foreach ($allDepartemen as $departemen)
@@ -231,9 +230,32 @@
             </div>
         </div>
     @endforeach
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         setTimeout(function() {
             document.getElementById('error-alert')?.remove();
         }, 3000);
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Event handler untuk pencarian
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#documentTableBody tr').each(function() {
+                    var row = $(this);
+                    var text = row.text().toLowerCase();
+                    row.toggle(text.indexOf(value) > -1);
+                });
+            });
+
+            // Menghandle pagination agar pencarian bekerja
+            $(document).on('click', '.pagination a', function(e) {
+                e.preventDefault();
+                var url = $(this).attr('href');
+                $.get(url, function(data) {
+                    $('#documentTableBody').html($(data).find('#documentTableBody').html());
+                });
+            });
+        });
     </script>
 @endsection

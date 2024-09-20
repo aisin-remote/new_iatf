@@ -34,6 +34,7 @@
                                 <img src="../../images/aisin.png" alt="logo"
                                     style="width: 96px; height: auto; margin-left: auto;">
                             </div>
+                            
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
 
@@ -87,7 +88,6 @@
                                     Already have an account? <a href="{{ route('login') }}"
                                         class="text-primary">Login</a>
                                 </div>
-
                             </form>
                         </div>
                     </div>
@@ -111,7 +111,6 @@
     <script src="../../js/todolist.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('css/select2.min.js') }}"></script>
-    @include('sweetalert::alert')
     <script>
         $(document).ready(function() {
             $('.select2').select2();
