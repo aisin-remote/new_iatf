@@ -63,13 +63,16 @@
                                                         {{ $doc->departemen->nama_departemen }}
                                                     @endif
                                                 </td>
-                                                <td>{{ $doc->statusdoc }}</td>
+                                                <td>{{ $doc->status }}</td>
                                                 <td>
-                                                    @if (is_null($doc->file_pdf) && $doc->status == 'Finish Check by MS' && $doc->statusdoc == 'not yet active')
+                                                    {{-- @if ($doc->file_pdf == null && $doc->status == 'Finish check by MS')
+                                                        a
+                                                    @endif --}}
+                                                    @if (is_null($doc->file_pdf) && $doc->status == 'Finish check by MS' && $doc->statusdoc == 'not yet active')
                                                         @role('guest')
                                                             <!-- Tombol Upload Final untuk guest -->
                                                             <button class="btn btn-info btn-sm" data-toggle="modal"
-                                                                data-target="#uploadFinal-{{ $doc->id }}">
+                                                                data-target="#uploadFinalModal-{{ $doc->id }}">
                                                                 Upload Final
                                                             </button>
                                                         @else

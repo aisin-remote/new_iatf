@@ -184,7 +184,7 @@ class ValidateRuleController extends Controller
         $dokumen->tgl_upload = Carbon::now();
         $dokumen->departemen_id = $departemen_id;
         $dokumen->rule_id = $request->rule_id;
-        $dokumen->status = 'Finish check by MS';
+        $dokumen->status = 'Waiting Final Approval';
         $dokumen->statusdoc = 'not yet active';
         $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been checked.';
         $dokumen->save();

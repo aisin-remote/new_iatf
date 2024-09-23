@@ -63,6 +63,8 @@ class AuditController extends Controller
                         'audit_control_id' => $id,
                         'attachment' => 'documentsAudit/' . $filename,
                     ]);
+                    $auditControl->status = 'completed';
+                    $auditControl->save(); // Simpan perubahan status
                 }
             }
         }

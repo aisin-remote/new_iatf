@@ -85,8 +85,6 @@ class AuthController extends Controller
         ])->withInput();
     }
 
-
-
     public function register_form()
     {
         $departemens = Departemen::all();
@@ -95,6 +93,7 @@ class AuthController extends Controller
     // Fungsi untuk memproses registrasi
     public function register_proses(Request $request)
     {
+
         $message = [
             'npk.required' => 'NPK tidak boleh kosong.',
             'npk.unique' => 'NPK sudah terdaftar.',
@@ -119,6 +118,7 @@ class AuthController extends Controller
                 ->withInput($request->except(['password', 'password_confirmation']));
         }
 
+
         $defaultRoleName = 'guest';
         $role = Role::where('name', $defaultRoleName)->first();
 
@@ -126,8 +126,8 @@ class AuthController extends Controller
         $user = User::create([
             'npk' => $request->npk,
             'name' => $request->name,
+            'departemen_id' => $request->departemen, // Asumsikan kolom ini ada di tabel users
             'password' => Hash::make($request->password),
-            'departemen_id' => $request->departemen,
         ]);
 
         if ($role) {

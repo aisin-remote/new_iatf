@@ -24,7 +24,7 @@ class User extends Authenticatable
         'npk',
         'name',
         'password',
-        'selected_departemen_id'
+        'departemen_id'
     ];
 
     /**

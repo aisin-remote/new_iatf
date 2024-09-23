@@ -142,7 +142,7 @@ class RuleController extends Controller
 
     public function final_doc(Request $request, $jenis, $tipe)
     {
-        
+
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Ambil data untuk filter dropdown
@@ -164,7 +164,7 @@ class RuleController extends Controller
         if ($user->hasRole('admin')) {
             $query->whereIn('induk_dokumen.status', ['Waiting Final Approval', 'Approve by MS', 'Obsolete by MS']);
         } else {
-            $query->whereIn('induk_dokumen.status', ['Waiting Final Approval','Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
+            $query->whereIn('induk_dokumen.status', ['Waiting Final Approval', 'Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
                 ->where(function ($query) use ($user) {
                     $query->where('induk_dokumen.departemen_id', $user->departemen_id);
                 });
@@ -304,7 +304,13 @@ class RuleController extends Controller
             ->pluck('departemen_id')
             ->toArray();
 
-        $departemen = Departemen::all(); // Ambil semua departemen
+        // Ambil departemen terkait dari DocumentDepartement
+        $relatedDepartemenIds = DocumentDepartement::where('induk_dokumen_id', $documentId)
+            ->pluck('departemen_id')
+            ->toArray();
+
+        // Ambil hanya departemen yang terkait
+        $departemen = Departemen::whereIn('id', $relatedDepartemenIds)->get();
 
         // Buat daftar departemen dengan ceklis
         $departemenList = $departemen->map(function ($dept) use ($views) {
@@ -332,6 +338,7 @@ class RuleController extends Controller
             $this->sendWaReminderAudit($groupId, $message);
         }
     }
+
     protected function sendWaReminderAudit($groupId, $message)
     {
         // Send WA notification
@@ -360,5 +367,5 @@ class RuleController extends Controller
         $response = curl_exec($curl);
         $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
-    }   
+    }
 }
