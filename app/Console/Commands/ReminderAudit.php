@@ -63,11 +63,9 @@ class ReminderAudit extends Command
         if ($itemAudit) {
             // Mengambil nama audit melalui itemAudit
             $auditName = $itemAudit->audit ? $itemAudit->audit->nama : 'N/A';
-            $jenisItem = $itemAudit->nama_item ?? 'N/A';
             $dueDate = $itemAudit->audit ? $itemAudit->audit->duedate : 'N/A';
 
             $message .= "Audit Name: " . $auditName . "\n";
-            $message .= "Jenis Item: " . $jenisItem . "\n";
             $message .= "Due Date: " . $dueDate . "\n\n";
 
             // Ambil semua audit control untuk item_audit_id tertentu dan kelompokkan berdasarkan departemen
@@ -82,13 +80,13 @@ class ReminderAudit extends Command
                 if ($departemen) {
                     $totalTasks = $auditControls->count();
                     $completedTasks = $auditControls->where('status', 'completed')->count();
-                    $percentageComplete = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+                    $documentnotCompleted = $auditControls->where('status', 'not completed', null)->count();
 
                     $departemenName = $departemen->nama_departemen;
                     $departemenMessages[] = "Departemen: " . $departemenName . "\n" .
                         "Total Tasks: " . $totalTasks . "\n" .
                         "Completed Tasks: " . $completedTasks . "\n" .
-                        "Percentage Complete: " . number_format($percentageComplete, 2) . "%\n";
+                        "Document not completed: " . $documentnotCompleted . "\n";
                 }
             }
 

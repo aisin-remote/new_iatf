@@ -10,14 +10,12 @@ class ItemAudit extends Model
     protected $table = 'item_audit';
     protected $fillable = [
         'nama_item',
-        'audit_id',
     ];
     use HasFactory;
-    public function audit()
-    {
-        return $this->belongsTo(Audit::class, 'audit_id');
-    }
-    public function auditDepartemens()
+        public function 
+        
+        
+        emens()
     {
         return $this->hasMany(AuditControl::class, 'item_audit_id');
     }

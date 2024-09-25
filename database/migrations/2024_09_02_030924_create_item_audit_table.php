@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('item_audit', function (Blueprint $table) {
             $table->id();
             $table->string('nama_item');
-            $table->foreignId('audit_id')->constrained('audit')->onDelete('cascade');
+            $table->text('requirement');
+            $table->text('example_requirement');
             $table->timestamps();
         });
     }

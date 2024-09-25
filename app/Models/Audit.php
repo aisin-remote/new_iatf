@@ -11,7 +11,7 @@ class Audit extends Model
 
     protected $guarded = ['id'];
     protected $table = 'audit';
-    public function itemAudits()
+    public function auditControl()
     {
         return $this->hasMany(ItemAudit::class, 'audit_id');
     }

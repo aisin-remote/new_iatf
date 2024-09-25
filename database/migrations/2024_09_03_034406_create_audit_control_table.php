@@ -14,12 +14,14 @@ return new class extends Migration
         Schema::create('audit_control', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('departemen_id');
+            $table->unsignedBigInteger('audit_id');
             $table->unsignedBigInteger('item_audit_id');
             $table->string('status')->nullable();
             $table->text('comment')->nullable();
             $table->timestamps();
 
             $table->foreign('departemen_id')->references('id')->on('departemen')->onDelete('cascade');
+            $table->foreign('audit_id')->references('id')->on('audit')->onDelete('cascade');
             $table->foreign('item_audit_id')->references('id')->on('item_audit')->onDelete('cascade');
         });
     }

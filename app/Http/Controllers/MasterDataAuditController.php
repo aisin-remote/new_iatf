@@ -60,17 +60,25 @@ class MasterDataAuditController extends Controller
         // Validasi input
         $request->validate([
             'nama_item' => 'required|string|max:255',
-            'audit_id' => 'required|exists:audit,id', // Pastikan tabel 'audits' ada dan kolom 'id' benar
+            'requirement' => 'nullable|string',
+            'example_requirement' => 'nullable|file|mimes:pdf,xlsx,docx|max:10240'
+            // Pastikan tabel 'audits' ada dan kolom 'id' benar
         ]);
 
         // Ambil data input untuk nama item dan audit_id
         $namaItem = $request->input('nama_item');
-        $auditId = $request->input('audit_id');
+        $requirement = $request->input('requirement');
+        $filePath = null;
+        if ($request->hasFile('example_requirement')) {
+            // Simpan file di folder storage dan ambil path-nya
+            $filePath = $request->file('example_requirement')->store('example_files', 'public');
+        }
 
         // Buat entri baru di tabel ItemAudit
         ItemAudit::create([
             'nama_item' => $namaItem,
-            'audit_id' => $auditId,
+            'requirement' => $requirement,
+            'example_requirement' => $filePath,
         ]);
 
         // Kirim notifikasi sukses
@@ -101,13 +109,14 @@ class MasterDataAuditController extends Controller
         $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])->get();
 
         // Ambil data item audit untuk digunakan dalam dropdown di modal
-        $itemaudit = ItemAudit::with('audit')->get();
+        $itemaudit = ItemAudit::all();
+        $audit = Audit::all();
 
         // Ambil data departemen yang unik
         $uniqueDepartemens = Departemen::all()->unique('nama_departemen');
 
         // Mengirimkan data ke view
-        return view('audit.masterauditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens'));
+        return view('audit.masterauditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens', 'audit'));
     }
     public function store_auditControl(Request $request)
     {

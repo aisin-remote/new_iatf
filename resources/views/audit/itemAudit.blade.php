@@ -22,7 +22,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Item Name</th>
-                                        <th>Audit Name</th>
+                                        <th>Requirement</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -31,7 +31,6 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->nama_item }}</td>
-                                            <td>{{ $d->audit->nama }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
@@ -62,12 +61,12 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddocauditLabel">Add Audit</h5>
+                    <h5 class="modal-title" id="adddocauditLabel">Add Item Audit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('add.itemAudit') }}" method="post">
+                <form action="{{ route('add.itemAudit') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
@@ -75,14 +74,15 @@
                             <input type="text" class="form-control" id="nama_item" name="nama_item" required>
                         </div>
                         <div class="form-group">
-                            <label for="audit_id">Nama Audit</label>
-                            <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
-                                <option value="" selected>Select Audit</option>
-                                @foreach ($audit as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label for="requirement">Requirement</label>
+                            <textarea class="form-control" id="requirement" name="requirement" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="example_requirement">Example Requirement <span style="color: red;">*</span></label>
+                            <input type="file" class="form-control" id="example_requirement" name="example_requirement">
+                        </div>
+                        <div class="form-group">
+                            <small><span style="color: red;">*</span> Optional</small>
                         </div>
                     </div>
                     <div class="modal-footer">

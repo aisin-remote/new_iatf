@@ -86,12 +86,21 @@
                     @csrf
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="item_audit_id">Audit</label>
+                            <label for="audit_id">Audit</label>
+                            <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($audit as $d)
+                                    <option value="{{ $d->id }}">{{ $d->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="item_audit_id">Item Audit</label>
                             <select name="item_audit_id" id="item_audit_id" class="form-control select2"
                                 style="width: 100%;">
                                 <option value="" selected>Select item</option>
                                 @foreach ($itemaudit as $d)
-                                    <option value="{{ $d->id }}">{{ $d->nama_item }} - {{ $d->audit->nama }}</option>
+                                    <option value="{{ $d->id }}">{{ $d->nama_item }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -145,12 +154,23 @@
                         @csrf
                         <div class="modal-body">
                             <div class="form-group">
+                                <label for="audit_id">Audit</label>
+                                <select name="audit_id" id="audit_id" class="form-control select2"
+                                    style="width: 100%;">
+                                    <option value="" selected>Select item</option>
+                                    @foreach ($audit as $d)
+                                        <option value="{{ $d->id }}">{{ $d->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="item_audit_id">Audit</label>
                                 <select name="item_audit_id" id="item_audit_id" class="form-control select2"
                                     style="width: 100%;">
                                     <option value="" selected>Select item</option>
-                                    @foreach ($itemaudit as $d)
-                                        <option value="{{ $d->id }}">{{ $d->nama_item }} - {{ $d->audit->nama }}
+                                    @foreach ($itemAudit as $d)
+                                        <option value="{{ $d->id }}">{{ $d->nama_item }}
                                         </option>
                                     @endforeach
                                 </select>

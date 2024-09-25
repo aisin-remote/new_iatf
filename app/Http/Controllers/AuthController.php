@@ -77,7 +77,7 @@ class AuthController extends Controller
             // Set waktu lockout jika percobaan login mencapai 3
             session(['lockout_time' => now()->addMinutes(1)]);
         }
-        dd(session()->all());
+        // dd(session()->all());
 
         return back()->withErrors([
             'npk' => 'NPK atau Password salah.',

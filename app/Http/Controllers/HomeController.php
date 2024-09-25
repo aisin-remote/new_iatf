@@ -117,10 +117,10 @@ class HomeController extends Controller
 
         if ($isAdmin) {
             // Jika admin, ambil semua audit tanpa filter departemen
-            $audits = Audit::with('itemAudits.auditDepartemens')->get();
+            $audits = Audit::with('auditControl.auditDepartemens')->get();
         } else {
             // Jika bukan admin, ambil audit berdasarkan departemen user
-            $audits = Audit::with(['itemAudits.auditDepartemens' => function ($query) use ($userDepartemenId) {
+            $audits = Audit::with(['auditControl.auditDepartemens' => function ($query) use ($userDepartemenId) {
                 $query->where('departemen_id', $userDepartemenId);
             }])->get();
         }
@@ -150,7 +150,7 @@ class HomeController extends Controller
             $auditData[] = [
                 'auditName' => $audit->nama,
                 'completedTasks' => $completedTasks,
-                'notCompletedTasks' => $notCompletedTasks,
+                'incompletedTasks' => $notCompletedTasks,
             ];
         }
 

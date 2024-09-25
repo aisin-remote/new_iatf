@@ -15,6 +15,10 @@ class AuditControl extends Model
         'attachment'
     ];
 
+    public function audit()
+    {
+        return $this->belongsTo(ItemAudit::class, 'audit_id');
+    }
     public function itemAudit()
     {
         return $this->belongsTo(ItemAudit::class, 'item_audit_id');
