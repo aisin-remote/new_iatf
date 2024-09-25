@@ -27,10 +27,10 @@
         <!-- partial:partials/_navbar.html -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-                <a class="navbar-brand brand-logo mr-5" href="index.html"><img src="images/logo-iatf.png" class="mr-2"
-                        alt="logo" /></a>
-                <a class="navbar-brand brand-logo-mini" href="index.html"><img src="images/logo-iatf-mini.png"
-                        alt="logo" /></a>
+                <a class="navbar-brand brand-logo mr-5" href="{{ route('select.dashboard') }}"><img
+                        src="images/logo-iatf.png" class="mr-2" alt="logo" /></a>
+                <a class="navbar-brand brand-logo-mini" href="{{ route('select.dashboard') }}"><img
+                        src="images/logo-iatf-mini.png" alt="logo" /></a>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
                 <ul class="navbar-nav navbar-nav-right">
