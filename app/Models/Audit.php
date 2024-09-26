@@ -13,6 +13,6 @@ class Audit extends Model
     protected $table = 'audit';
     public function auditControl()
     {
-        return $this->hasMany(ItemAudit::class, 'audit_id');
+        return $this->hasMany(AuditControl::class, 'audit_id');
     }
 }

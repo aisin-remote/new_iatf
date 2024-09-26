@@ -45,7 +45,7 @@
                                     @foreach ($AuditControls as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $d->itemAudit->audit->nama }}</td>
+                                            <td>{{ $d->audit->nama }}</td>
                                             <td>{{ $d->itemAudit->nama_item }}</td>
                                             <td>{{ $d->departemen->nama_departemen }}</td>
                                             <td>
@@ -169,7 +169,7 @@
                                 <select name="item_audit_id" id="item_audit_id" class="form-control select2"
                                     style="width: 100%;">
                                     <option value="" selected>Select item</option>
-                                    @foreach ($itemAudit as $d)
+                                    @foreach ($itemaudit as $d)
                                         <option value="{{ $d->id }}">{{ $d->nama_item }}
                                         </option>
                                     @endforeach

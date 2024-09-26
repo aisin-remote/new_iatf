@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('nama')->nullable();
             $table->date('reminder')->nullable();
             $table->date('duedate')->nullable();
-            $table->date('tanggal_audit')->nullable();
+            $table->date('start_audit')->nullable();
+            $table->date('end_audit')->nullable();
             $table->timestamps();
         });
     }

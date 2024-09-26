@@ -8,6 +8,7 @@ use App\Models\Departemen;
 use App\Models\DocumentAudit;
 use App\Models\ItemAudit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class MasterDataAuditController extends Controller
@@ -21,10 +22,12 @@ class MasterDataAuditController extends Controller
     {
         Audit::create([
             'nama' => $request->input('nama'),
-            'tanggal_audit' => $request->input('tanggal_audit'),
             'reminder' => $request->input('reminder'),
-            'duedate' => $request->input('duedate')
+            'duedate' => $request->input('duedate'),
+            'start_audit' => $request->input('start_audit'),
+            'end_audit' => $request->input('end_audit'),
         ]);
+
         Alert::success('Success', 'Audit added successfully.');
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->route('masterdata.audit');
@@ -32,11 +35,19 @@ class MasterDataAuditController extends Controller
     public function update_audit(Request $request, $id)
     {
         $audit = Audit::findOrFail($id);
-        $audit->nama = $request->nama;
-        $audit->tanggal_audit = $request->tanggal_audit;
-        $audit->save();
-        Alert::success('Success', 'Audit code changed succesfully.');
-        return redirect()->back();
+
+        // Perbarui data audit
+        $audit->update([
+            'nama' => $request->input('nama'),
+            'reminder' => $request->input('reminder'),
+            'duedate' => $request->input('duedate'),
+            'start_audit' => $request->input('start_audit'),
+            'end_audit' => $request->input('end_audit'),
+        ]);
+        Alert::success('Success', 'Audit updated successfully.');
+
+        // Redirect ke halaman lain atau tetap di halaman form
+        return redirect()->route('masterdata.audit');
     }
     public function delete_audit($id)
     {
@@ -48,7 +59,7 @@ class MasterDataAuditController extends Controller
     }
     public function master_itemAudit()
     {
-        $itemAudit = ItemAudit::with('audit')->get();
+        $itemAudit = ItemAudit::all();
         $audit = Audit::all();
         $uniqueDepartemens = Departemen::distinct()->get(['id', 'nama_departemen']); // Ambil ID dan nama departemen
 
@@ -91,7 +102,18 @@ class MasterDataAuditController extends Controller
     {
         $documentAudit = ItemAudit::findOrFail($id);
         $documentAudit->nama_item = $request->nama_item;
-        $documentAudit->audit_id = $request->audit_id;
+        $documentAudit->requirement = $request->requirement;
+        if ($request->hasFile('example_requirement')) {
+            // Jika ada file baru, hapus file lama jika ada
+            if ($documentAudit->example_requirement) {
+                Storage::disk('public')->delete($documentAudit->example_requirement);
+            }
+
+            // Simpan file baru dan update path
+            $filePath = $request->file('example_requirement')->store('example_files', 'public');
+            $documentAudit->example_requirement = $filePath;
+        }
+
         $documentAudit->save();
         Alert::success('Success', 'Document Audit changed succesfully.');
         return redirect()->back();
@@ -106,7 +128,7 @@ class MasterDataAuditController extends Controller
     }
     public function master_auditcontrol(Request $request)
     {
-        $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])->get();
+        $AuditControls = AuditControl::with(['itemAudit', 'audit', 'departemen'])->get();
 
         // Ambil data item audit untuk digunakan dalam dropdown di modal
         $itemaudit = ItemAudit::all();
@@ -126,11 +148,14 @@ class MasterDataAuditController extends Controller
         // Ambil semua ID departemen yang dipilih
         $departemenIds = $request->input('departemen');
 
+        $auditId = $request->input('audit_id');
+
         // Iterasi melalui setiap departemen yang dipilih dan simpan ke database
         foreach ($departemenIds as $departemenId) {
             AuditControl::create([
                 'departemen_id' => $departemenId,
                 'item_audit_id' => $itemAuditId,
+                'audit_id' => $auditId,
             ]);
         }
 

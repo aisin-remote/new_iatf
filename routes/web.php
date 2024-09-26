@@ -210,3 +210,5 @@ Route::post('/audit/auditcontrol/uploaddocument/{id}', [AuditController::class, 
 Route::delete('/audit/auditcontrol/deletedocument/{id}', [AuditController::class, 'deleteDocumentAudit'])
     ->middleware(['auth', 'role:guest|admin'])
     ->name('deleteDocumentAudit');
+Route::get('/audit/detail/{audit_id}', [AuditController::class, 'showAuditDetails'])->name('audit.details');
+Route::get('/audit/details/{audit_id}/{item_audit_id}', [AuditController::class, 'showItemDetails'])->name('audit.item.details');

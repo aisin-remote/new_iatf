@@ -31,7 +31,26 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->nama_item }}</td>
+                                            <td>{{ $d->requirement }}</td>
                                             <td>
+                                                @php
+                                                    $fileUrl = $d->example_requirement
+                                                        ? asset('storage/' . $d->example_requirement)
+                                                        : null;
+                                                @endphp
+
+                                                @if ($fileUrl)
+                                                    <a href="{{ $fileUrl }}" target="_blank"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-eye"></i> Preview
+                                                    </a>
+                                                @else
+                                                    <a href="javascript:void(0)" onclick="showAlert()"
+                                                        class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-eye"></i> Preview
+                                                    </a>
+                                                @endif
+
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
                                                     data-target="#edititemaudit-{{ $d->id }}">
@@ -115,14 +134,19 @@
                                     value="{{ old('nama_item', $d->nama_item) }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="audit_id">Nama Audit</label>
-                                <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
-                                    <option value="" selected>Select Audit</option>
-                                    @foreach ($audit as $d)
-                                        <option value="{{ $d->id }}">{{ $d->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <label for="requirement">Requirement</label>
+                                <textarea class="form-control" id="requirement" name="requirement" rows="4"
+                                    value="{{ old('requirement', $d->requirement) }}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="example_requirement">Example Requirement <span
+                                        style="color: red;">*</span></label>
+                                <input type="file" class="form-control" id="example_requirement"
+                                    name="example_requirement"
+                                    value="{{ old('example_requirement', $d->example_requirement) }}">
+                            </div>
+                            <div class="form-group">
+                                <small><span style="color: red;">*</span> Optional</small>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -159,4 +183,10 @@
             </div>
         </div>
     @endforeach
+    <script>
+        function showAlert() {
+            alert('Dokumen tidak ditemukan');
+        }
+    </script>
+
 @endsection

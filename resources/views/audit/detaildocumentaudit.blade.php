@@ -8,7 +8,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Audit Control</h4>
+                        <h4 class="card-title">Detail Item {{ $AuditControls->first()->itemAudit->nama_item }}</h4>
                         <div class="row mb-3">
                             <!-- Kolom untuk input pencarian dan tombol filter -->
                             <div class="col-md-12 d-flex justify-content-end">
@@ -25,37 +25,39 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Audit Name</th>
-                                        <th>Audit Date</th>
+                                        <th>Item Audit</th>
+                                        <th>Departemen</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($groupedAuditControls as $key => $group)
+                                    @foreach ($AuditControls as $key => $auditControl)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $group['audit_name'] }}</td>
-                                            <td>{{ $group['start_audit'] }} s.d {{ $group['end_audit'] }}</td>
-                                            <!-- Rentang tanggal -->
-                                            <td>{{ $group['status'] }}</td>
+                                            <td>{{ $auditControl->itemAudit->nama_item }}</td>
+                                            <td>{{ $auditControl->departemen->nama_departemen }}</td>
+                                            <td>{{ $auditControl->status }}</td> <!-- Ambil status dari AuditControl -->
                                             <td>
-                                                <a href="{{ route('audit.details', ['audit_id' => $group['audit_id']]) }}"
-                                                    class="btn btn-info btn-sm">
-                                                    See Detail
-                                                </a>
+                                                @if ($auditControl->documentAudit->isNotEmpty())
+                                                    <!-- Cek apakah ada file yang diupload -->
+                                                    <a href="" class="btn btn-success btn-sm">Download</a>
+                                                @else
+                                                    <a href="" class="btn btn-primary btn-sm">Upload</a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {

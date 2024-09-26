@@ -22,8 +22,7 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Audit Name</th>
-                                        <th>Reminder Set Date</th>
-                                        <th>Duedate</th>
+                                        <th>Reminder</th>
                                         <th>Audit Date</th>
                                         <th>Action</th>
                                     </tr>
@@ -33,9 +32,8 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->nama }}</td>
-                                            <td>{{ $d->reminder }}</td>
-                                            <td>{{ $d->duedate }}</td>
-                                            <td>{{ $d->tanggal_audit }}</td>
+                                            <td>{{ $d->reminder }} s.d {{ $d->duedate }}</td>
+                                            <td>{{ $d->start_audit }} s.d {{ $d->end_audit }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
@@ -78,16 +76,33 @@
                             <input type="text" class="form-control" id="nama" name="nama" required>
                         </div>
                         <div class="form-group">
-                            <label for="reminder">Reminder Set</label>
-                            <input type="date" class="form-control" id="reminder" name="reminder" required>
+                            <label for="reminder">Reminder</label>
+                            <div class="row align-items-center">
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="reminder" name="reminder" required>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span>To</span>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="duedate" name="duedate" required>
+                                </div>
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label for="duedate">Due Date</label>
-                            <input type="date" class="form-control" id="duedate" name="duedate" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="tanggal_audit">Audit Date</label>
-                            <input type="date" class="form-control" id="tanggal_audit" name="tanggal_audit" required>
+                            <label for="Audit_Date">Audit Date</label>
+                            <div class="row align-items-center">
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="start_audit" name="start_audit" required>
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span>To</span>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="end_audit" name="end_audit" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

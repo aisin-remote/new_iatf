@@ -12,12 +12,15 @@ class AuditControl extends Model
     protected $fillable = [
         'departemen_id',
         'item_audit_id',
-        'attachment'
+        'audit_id',
+        'attachment',
+        'status',
+        'comment',
     ];
 
     public function audit()
     {
-        return $this->belongsTo(ItemAudit::class, 'audit_id');
+        return $this->belongsTo(Audit::class, 'audit_id');
     }
     public function itemAudit()
     {

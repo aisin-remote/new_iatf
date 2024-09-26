@@ -19,23 +19,87 @@ class AuditController extends Controller
         // Cek apakah pengguna adalah admin
         if (auth()->user()->hasRole('admin')) {
             // Admin dapat melihat semua data
-            $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])->get();
+            $AuditControls = AuditControl::with(['itemAudit', 'audit', 'departemen'])->get();
         } else {
             // Pengguna selain admin hanya melihat data sesuai departemen
-            $departemenId = auth()->user()->departemen_id; // Asumsi departemen_id menyimpan ID departemen pengguna
-            $AuditControls = AuditControl::with(['itemAudit.audit', 'departemen'])
+            $departemenId = auth()->user()->departemen_id; // Ambil ID departemen pengguna
+            $AuditControls = AuditControl::with(['itemAudit', 'audit', 'departemen'])
                 ->whereHas('departemen', function ($query) use ($departemenId) {
                     $query->where('id', $departemenId);
                 })->get();
         }
 
-        $itemaudit = ItemAudit::with('audit')->get();
+        // Mengelompokkan AuditControl berdasarkan audit_id dan menghitung statusnya
+        $groupedAuditControls = $AuditControls->groupBy('audit_id')->map(function ($group) {
+            // Cek apakah semua statusnya 'completed'
+            $allCompleted = $group->every(function ($item) {
+                return $item->status === 'completed';
+            });
 
-        // Ambil data departemen yang unik
-        $uniqueDepartemens = Departemen::all()->unique('nama_departemen');
+            return [
+                'audit_id' => $group->first()->audit_id,
+                'status' => $allCompleted ? 'completed' : 'uncompleted',
+                'data' => $group, // Menyimpan data audit yang terkait
+                'audit_name' => $group->first()->audit->nama, // Mengambil nama audit
+                'start_audit' => $group->first()->audit->start_audit, // Tanggal mulai paling awal
+                'end_audit' => $group->first()->audit->end_audit, // Mengambil tanggal audit
+            ];
+        });
 
         // Mengirimkan data ke view
-        return view('audit.auditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens'));
+        $itemaudit = ItemAudit::all();
+        $uniqueDepartemens = Departemen::all()->unique('nama_departemen');
+
+        return view('audit.auditcontrol', compact('groupedAuditControls', 'itemaudit', 'uniqueDepartemens'));
+    }
+    public function showAuditDetails($audit_id)
+    {
+        // Ambil data audit yang berhubungan dengan audit_id
+        $AuditControls = AuditControl::with(['itemAudit', 'departemen', 'documentAudit'])
+            ->where('audit_id', $audit_id)
+            ->get();
+
+        // Grup data berdasarkan item_audit_id
+        $groupedAuditControls = $AuditControls->groupBy('item_audit_id');
+
+        // Hitung jumlah dokumen yang di-upload per departemen terkait dengan item_audit
+        $uploadedItems = $groupedAuditControls->map(function ($group) {
+            $departemenIds = $group->pluck('departemen_id')->unique(); // Ambil unique departemen_id
+
+            $uploaded = $departemenIds->filter(function ($departemenId) use ($group) {
+                return $group->where('departemen_id', $departemenId)->first()->documentAudit->isNotEmpty(); // Cek apakah ada dokumen yang di-upload untuk departemen ini
+            })->count();
+
+            $total = $departemenIds->count(); // Hitung total departemen terkait
+
+            // Tentukan status berdasarkan uploaded/total
+            $status = ($uploaded === $total) ? 'Completed' : 'Uncompleted';
+
+            return [
+                'uploaded' => $uploaded,
+                'total' => $total,
+                'status' => $status,
+                'itemAudit' => $group->first()->itemAudit, // Ambil itemAudit untuk ditampilkan
+                'audit_id' => $group->first()->audit_id, // Ambil audit_id untuk detail
+            ];
+        });
+
+        return view('audit.detailauditcontrol', compact('uploadedItems', 'AuditControls'));
+    }
+    public function showItemDetails($audit_id, $item_audit_id)
+    {
+        // Ambil data audit control berdasarkan audit_id dan item_audit_id
+        $AuditControls = AuditControl::with(['itemAudit', 'departemen'])
+            ->where('audit_id', $audit_id)
+            ->where('item_audit_id', $item_audit_id)
+            ->get();
+
+        // Pastikan auditControl ditemukan
+        if ($AuditControls->isEmpty()) {
+            return redirect()->back()->with('error', 'Audit Control tidak ditemukan.');
+        }
+
+        return view('audit.detaildocumentaudit', compact('AuditControls'));
     }
 
 
@@ -78,5 +142,33 @@ class AuditController extends Controller
 
         Alert::success('Success', 'Document Audit Control has been deleted successfully.');
         return redirect()->back();
+    }
+    public function auditDetails()
+    {
+        if (auth()->user()->hasRole('admin')) {
+            // Admin dapat melihat semua data, ambil data unik berdasarkan audit_id
+            $AuditControls = AuditControl::with(['itemAudit', 'audit', 'departemen'])
+                ->select('item_audit_id') // Ganti dengan kolom yang Anda butuhkan
+                ->distinct()
+                ->get();
+        } else {
+            // Pengguna selain admin hanya melihat data sesuai departemen
+            $departemenId = auth()->user()->departemen_id; // Ambil ID departemen pengguna
+            $AuditControls = AuditControl::with(['itemAudit', 'audit', 'departemen'])
+                ->whereHas('departemen', function ($query) use ($departemenId) {
+                    $query->where('id', $departemenId);
+                })
+                ->select('item_audit_id') // Ganti dengan kolom yang Anda butuhkan
+                ->distinct()
+                ->get();
+        }
+
+        $itemaudit = ItemAudit::all();
+
+        // Ambil data departemen yang unik
+        $uniqueDepartemens = Departemen::all()->unique('nama_departemen');
+
+        // Mengirimkan data ke view
+        return view('audit.auditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens'));
     }
 }

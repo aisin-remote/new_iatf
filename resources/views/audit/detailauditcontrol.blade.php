@@ -8,7 +8,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Audit Control</h4>
+                        <h4 class="card-title">Detail Audit {{ $AuditControls->first()->audit->nama }} </h4>
                         <div class="row mb-3">
                             <!-- Kolom untuk input pencarian dan tombol filter -->
                             <div class="col-md-12 d-flex justify-content-end">
@@ -25,22 +25,21 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Audit Name</th>
-                                        <th>Audit Date</th>
+                                        <th>Item Audit</th>
+                                        <th>Uploaded</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($groupedAuditControls as $key => $group)
+                                    @foreach ($uploadedItems as $key => $item)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $group['audit_name'] }}</td>
-                                            <td>{{ $group['start_audit'] }} s.d {{ $group['end_audit'] }}</td>
-                                            <!-- Rentang tanggal -->
-                                            <td>{{ $group['status'] }}</td>
+                                            <td>{{ $item['itemAudit']->nama_item }}</td>
+                                            <td>{{ $item['uploaded'] }} / {{ $item['total'] }}</td>
+                                            <td>{{ $item['status'] }}</td>
                                             <td>
-                                                <a href="{{ route('audit.details', ['audit_id' => $group['audit_id']]) }}"
+                                                <a href="{{ route('audit.item.details', ['audit_id' => $item['audit_id'], 'item_audit_id' => $item['itemAudit']->id]) }}"
                                                     class="btn btn-info btn-sm">
                                                     See Detail
                                                 </a>
@@ -49,13 +48,14 @@
                                     @endforeach
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {

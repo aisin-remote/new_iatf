@@ -113,50 +113,35 @@ class HomeController extends Controller
     {
         $user = auth()->user();
         $userDepartemenId = $user->departemen_id;
-        $isAdmin = $user->hasRole('admin'); // Asumsi Anda memiliki metode `hasRole` untuk memeriksa peran
+        $isAdmin = $user->hasRole('admin');
 
         if ($isAdmin) {
-            // Jika admin, ambil semua audit tanpa filter departemen
-            $audits = Audit::with('auditControl.auditDepartemens')->get();
+            $auditControls = AuditControl::all();
         } else {
-            // Jika bukan admin, ambil audit berdasarkan departemen user
-            $audits = Audit::with(['auditControl.auditDepartemens' => function ($query) use ($userDepartemenId) {
-                $query->where('departemen_id', $userDepartemenId);
-            }])->get();
+            $auditControls = AuditControl::where('departemen_id', $userDepartemenId)->get();
         }
 
         $auditData = [];
 
-        foreach ($audits as $audit) {
-            $totalTasks = 0;
-            $completedTasks = 0;
+        $groupedAuditControls = $auditControls->groupBy('audit_id');
 
-            // Loop item audits dalam audit
-            foreach ($audit->itemAudits as $itemAudit) {
-                foreach ($itemAudit->auditDepartemens as $auditControl) {
-                    $totalTasks++;
-
-                    // Hitung task yang selesai (status = 'completed')
-                    if ($auditControl->status == 'completed') {
-                        $completedTasks++;
-                    }
-                }
-            }
-
-            // Hitung jumlah task yang tidak selesai
+        foreach ($groupedAuditControls as $auditId => $controls) {
+            $totalTasks = $controls->count();
+            $completedTasks = $controls->where('status', 'completed')->count();
             $notCompletedTasks = $totalTasks - $completedTasks;
 
-            // Masukkan data ke dalam array auditData
             $auditData[] = [
-                'auditName' => $audit->nama,
+                'auditId' => $auditId,
                 'completedTasks' => $completedTasks,
-                'incompletedTasks' => $notCompletedTasks,
+                'notCompletedTasks' => $notCompletedTasks,
+                'auditName' => $controls->first()->audit->name ?? 'Unknown Audit' // Sesuaikan dengan relasi yang ada
             ];
         }
 
         // Kirim data ke view
         return view('audit.dashboard', ['auditData' => $auditData]);
     }
+
 
 
     public function downloadExcel(Request $request)

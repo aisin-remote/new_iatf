@@ -8,8 +8,8 @@
                 <div class="row">
                     <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                         {{-- <h3 class="font-weight-bold">
-                            Welcome {{ Auth::user()->departemen->nama_departemen }}
-                        </h3> --}}
+                        Welcome {{ Auth::user()->departemen->nama_departemen }}
+                    </h3> --}}
                     </div>
 
                     <div class="col-12 col-xl-4">
@@ -32,7 +32,7 @@
                 <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">{{ $data['auditName'] }}</h4>
+                            <h4 class="card-title">{{ $data['auditName'] ?? 'Audit ' . ($index + 1) }}</h4>
                             <canvas id="chart-{{ $index }}" width="1668" height="834"
                                 style="display: block; height: 417px; width: 834px;"
                                 class="chartjs-render-monitor"></canvas>
@@ -58,17 +58,29 @@
     <script>
         @foreach ($auditData as $index => $data)
             var ctx{{ $index }} = document.getElementById('chart-{{ $index }}').getContext('2d');
-            new Chart(ctx{{ $index }}, {
-                type: 'pie',
+            var dataValues = [{{ $data['completedTasks'] }}, {{ $data['notCompletedTasks'] }}];
+
+            var chart = new Chart(ctx{{ $index }}, {
+                type: 'bar', // Mengubah dari pie menjadi bar
                 data: {
                     labels: ['Completed Tasks', 'Not Completed Tasks'],
                     datasets: [{
-                        data: [{{ $data['completedTasks'] }}, {{ $data['notCompletedTasks'] }}],
+                        label: 'Tasks',
+                        data: dataValues,
                         backgroundColor: ['#4CAF50', '#FF5252'],
                     }]
                 },
                 options: {
                     responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Tasks'
+                            }
+                        }
+                    },
                     plugins: {
                         legend: {
                             position: 'top',
@@ -78,9 +90,8 @@
                                 label: function(tooltipItem) {
                                     let dataLabel = tooltipItem.label || '';
                                     let dataValue = tooltipItem.raw || 0;
-                                    return dataLabel + ': ' + dataValue + ' (' + Math.round((dataValue /
-                                            {{ $data['completedTasks'] + $data['notCompletedTasks'] }}) *
-                                        100) + '%)';
+                                    return dataLabel + ': ' + dataValue + ' (' + Math.round((dataValue / (
+                                        dataValues.reduce((a, b) => a + b, 0) || 1)) * 100) + '%)';
                                 }
                             }
                         }
@@ -88,7 +99,7 @@
                 },
                 plugins: [{
                     afterDraw: function(chart) {
-                        if (chart.data.datasets[0].data.every(v => v === 0)) {
+                        if (dataValues.every(v => v === 0)) {
                             var ctx = chart.ctx;
                             var chartArea = chart.chartArea;
                             var x = (chartArea.left + chartArea.right) / 2;
@@ -97,6 +108,7 @@
                             ctx.font = '16px Arial';
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
+                            ctx.fillStyle = '#999'; // Set color for the text
                             ctx.fillText('No data available', x, y);
                             ctx.restore();
                         }
