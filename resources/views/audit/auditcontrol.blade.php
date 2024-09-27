@@ -26,7 +26,8 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Audit Name</th>
-                                        <th>Audit Date</th>
+                                        <th>Start Audit</th>
+                                        <th>End Audit</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -36,7 +37,8 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $group['audit_name'] }}</td>
-                                            <td>{{ $group['start_audit'] }} s.d {{ $group['end_audit'] }}</td>
+                                            <td>{{ $group['start_audit'] }}</td>
+                                            <td>{{ $group['end_audit'] }}</td>
                                             <!-- Rentang tanggal -->
                                             <td>{{ $group['status'] }}</td>
                                             <td>
