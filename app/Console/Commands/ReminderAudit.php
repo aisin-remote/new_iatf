@@ -54,7 +54,6 @@ class ReminderAudit extends Command
     protected function sendWaReminderAudit($groupId, $auditId, $auditControls)
     {
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
-        $message = "------ WARNING SUBMIT DOCUMENT ------\n\n";
 
         // Ambil audit yang terkait dengan audit_id
         $audit = $auditControls->first()->audit;
@@ -64,7 +63,8 @@ class ReminderAudit extends Command
             $auditName = $audit->nama;
             $dueDate = $audit->duedate;
 
-            // Bold pada Audit Name
+            // Format pesan untuk nama audit dan due date
+            $message = "------ *WARNING SUBMIT DOCUMENT AUDIT* ------\n\n";
             $message .= "*Audit Name: " . $auditName . "*\n";
             $message .= "Due Date: " . $dueDate . "\n\n";
 
@@ -73,7 +73,7 @@ class ReminderAudit extends Command
 
             // Inisialisasi variabel untuk mengumpulkan informasi per departemen
             $departemenMessages = [];
-            $counter = 1; // Untuk nomor urut departemen
+            $counter = 1; // Inisialisasi nomor urut departemen
 
             foreach ($departemenData as $departemenId => $auditControlsForDepartemen) {
                 $departemen = $auditControlsForDepartemen->first()->departemen;
@@ -82,32 +82,33 @@ class ReminderAudit extends Command
                     // Hitung total task, completed task, dan uncompleted task per departemen
                     $totalTasks = $auditControlsForDepartemen->count();
                     $completedTasks = $auditControlsForDepartemen->where('status', 'completed')->count();
-                    $uncompletedTasks = $auditControlsForDepartemen->where('status', 'not completed')->count() +
+                    $uncompletedTasks = $auditControlsForDepartemen->where('status', 'uncompleted')->count() +
                         $auditControlsForDepartemen->whereNull('status')->count();
 
                     // Cek apakah ada uncompleted task
-                    $statusSymbol = $uncompletedTasks > 0 ? "❌" : ""; // Tanda silang jika ada uncompleted task
+                    $statusSymbol = $uncompletedTasks > 0 ? "❌" : "✅"; // Tanda silang jika ada uncompleted task, tanda centang jika semua selesai
 
-                    // Buat pesan per departemen dengan nomor urut dan tanda silang jika ada uncompleted task
+                    // Buat pesan per departemen dengan nomor urut dan status task
                     $departemenName = $departemen->nama_departemen;
-                    $departemenMessages[] = $counter . ". *Departemen: " . $departemenName . " " . $statusSymbol . "*\n" .
-                        "Total Tasks: " . $totalTasks . "\n" .
-                        "Completed Tasks: " . $completedTasks . "\n" .
-                        "Uncompleted Tasks: " . $uncompletedTasks . "\n";
+                    $departemenMessages[] = "[" . $counter . "] *Departemen: " . $departemenName . "* " . $statusSymbol . "\n" .
+                        "- Total Tasks: " . $totalTasks . "\n" .
+                        "- Completed Tasks: " . $completedTasks . "\n" .
+                        "- Incomplete Tasks: " . $uncompletedTasks;
 
                     // Tampilkan daftar item_audit yang uncompleted atau null
                     if ($uncompletedTasks > 0) {
                         $uncompletedItems = $auditControlsForDepartemen->where('status', 'not completed')
                             ->merge($auditControlsForDepartemen->whereNull('status'));
 
-                        $departemenMessages[] .= "Items Uncompleted:\n";
+                        $departemenMessages[] .= "\n";
 
                         foreach ($uncompletedItems as $item) {
                             $itemAuditName = $item->itemAudit->nama_item ?? 'No Item Name'; // Nama item audit
-                            $departemenMessages[] .= "- " . $itemAuditName . "\n";
+                            $departemenMessages[] .= "        - " . $itemAuditName . "\n"; // Hapus nomor, hanya tampilkan item dengan "-"
                         }
                     }
 
+                    $departemenMessages[] .= "\n"; // Pisahkan tiap departemen dengan baris baru
                     $counter++; // Tambahkan nomor urut untuk departemen berikutnya
                 }
             }
@@ -116,7 +117,7 @@ class ReminderAudit extends Command
             if (empty($departemenMessages)) {
                 $message .= "No data available for departments.\n";
             } else {
-                $message .= implode("\n", $departemenMessages);
+                $message .= implode("", $departemenMessages); // Tidak ada tambahan newline di antara pesan
             }
         } else {
             // Jika audit tidak ada
@@ -124,6 +125,7 @@ class ReminderAudit extends Command
         }
 
         $message .= "\n------ BY AISIN BISA ------";
+
 
         // Kirim pesan sekali dengan informasi yang terkumpul
         $response = Http::asForm()->post('https://app.ruangwa.id/api/send_message', [

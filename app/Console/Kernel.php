@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:send-audit-reminder')
             ->days([Schedule::MONDAY, Schedule::FRIDAY]) // Hanya Senin dan Jumat
             ->timezone('Asia/Jakarta')
-            ->at('14:00');
+            ->at('07:00');
     }
 
     /**
