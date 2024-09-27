@@ -54,7 +54,7 @@ class AuditController extends Controller
     }
     public function showAuditDetails($audit_id)
     {
-        // Ambil data audit yang berhubungan dengan audit_id
+        // Ambil data audit yang berhubungan dengan audit_id dan relasi yang diperlukan
         $AuditControls = AuditControl::with(['itemAudit', 'departemen', 'documentAudit'])
             ->where('audit_id', $audit_id)
             ->get();
@@ -62,12 +62,27 @@ class AuditController extends Controller
         // Grup data berdasarkan item_audit_id
         $groupedAuditControls = $AuditControls->groupBy('item_audit_id');
 
+        // Dapatkan ID departemen pengguna yang sedang login
+        $userDepartemenIds = auth()->user()->departemen->pluck('id');
+
         // Hitung jumlah dokumen yang di-upload per departemen terkait dengan item_audit
-        $uploadedItems = $groupedAuditControls->map(function ($group) {
+        $uploadedItems = $groupedAuditControls->map(function ($group) use ($userDepartemenIds) {
             $departemenIds = $group->pluck('departemen_id')->unique(); // Ambil unique departemen_id
 
+            // Cek apakah ada departemen yang cocok dengan user
+            $isRelevant = $departemenIds->intersect($userDepartemenIds)->isNotEmpty();
+
+            // Jika tidak relevan, kembalikan null
+            if (!$isRelevant) {
+                return null;
+            }
+
+            // Hitung jumlah dokumen yang telah di-upload untuk setiap departemen
             $uploaded = $departemenIds->filter(function ($departemenId) use ($group) {
-                return $group->where('departemen_id', $departemenId)->first()->documentAudit->isNotEmpty(); // Cek apakah ada dokumen yang di-upload untuk departemen ini
+                $auditForDept = $group->where('departemen_id', $departemenId)->first();
+
+                // Cek apakah ada dokumen yang di-upload untuk departemen ini
+                return $auditForDept && $auditForDept->documentAudit->isNotEmpty();
             })->count();
 
             $total = $departemenIds->count(); // Hitung total departemen terkait
@@ -82,10 +97,12 @@ class AuditController extends Controller
                 'itemAudit' => $group->first()->itemAudit, // Ambil itemAudit untuk ditampilkan
                 'audit_id' => $group->first()->audit_id, // Ambil audit_id untuk detail
             ];
-        });
+        })->filter(); // Filter null values
 
         return view('audit.detailauditcontrol', compact('uploadedItems', 'AuditControls'));
     }
+
+
     public function showItemDetails($audit_id, $item_audit_id)
     {
         // Ambil data audit control berdasarkan audit_id dan item_audit_id
@@ -127,7 +144,7 @@ class AuditController extends Controller
                         'audit_control_id' => $id,
                         'attachment' => 'documentsAudit/' . $filename,
                     ]);
-                    $auditControl->status = 'completed';
+                    $auditControl->status = 'uncompleted';
                     $auditControl->save(); // Simpan perubahan status
                 }
             }
@@ -170,5 +187,47 @@ class AuditController extends Controller
 
         // Mengirimkan data ke view
         return view('audit.auditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens'));
+    }
+    public function approveDocument($id)
+    {
+        // Cari dokumen audit berdasarkan ID audit control
+        $auditControl = AuditControl::findOrFail($id);
+
+        // Pastikan dokumen audit ada
+        if ($auditControl->documentAudit->count()) {
+            foreach ($auditControl->documentAudit as $document) {
+                // Set status approved pada dokumen
+                $document->status = 'completed';
+                $document->save();
+            }
+
+            // Set pesan sukses
+            return redirect()->back()->with('success', 'Document(s) approved successfully.');
+        }
+
+        // Jika tidak ada dokumen audit ditemukan
+        return redirect()->back()->with('error', 'No documents found to approve.');
+    }
+
+    // Fungsi untuk reject dokumen
+    public function rejectDocument($id)
+    {
+        // Cari dokumen audit berdasarkan ID audit control
+        $auditControl = AuditControl::findOrFail($id);
+
+        // Pastikan dokumen audit ada
+        if ($auditControl->documentAudit->count()) {
+            foreach ($auditControl->documentAudit as $document) {
+                // Set status rejected pada dokumen
+                $document->status = 'rejected';
+                $document->save();
+            }
+
+            // Set pesan sukses
+            return redirect()->back()->with('success', 'Document(s) rejected successfully.');
+        }
+
+        // Jika tidak ada dokumen audit ditemukan
+        return redirect()->back()->with('error', 'No documents found to reject.');
     }
 }

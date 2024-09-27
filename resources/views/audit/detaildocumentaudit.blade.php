@@ -39,12 +39,49 @@
                                             <td>{{ $auditControl->departemen->nama_departemen }}</td>
                                             <td>{{ $auditControl->status }}</td> <!-- Ambil status dari AuditControl -->
                                             <td>
-                                                @if ($auditControl->documentAudit->isNotEmpty())
-                                                    <!-- Cek apakah ada file yang diupload -->
-                                                    <a href="" class="btn btn-success btn-sm">Download</a>
+                                                @if ($auditControl->documentAudit->count())
+                                                    <!-- Tombol Dropdown untuk preview dokumen -->
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-info btn-sm dropdown-toggle" type="button"
+                                                            id="dropdownMenuButton" data-toggle="dropdown"
+                                                            aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fa-solid fa-eye"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                                            @foreach ($auditControl->documentAudit as $document)
+                                                                <a class="dropdown-item"
+                                                                    href="{{ asset('storage/' . $document->attachment) }}"
+                                                                    target="_blank">
+                                                                    {{ preg_replace('/^\d+-/', '', basename($document->attachment)) }}
+                                                                </a>
+                                                            @endforeach
+                                                        </div>
+
+                                                        <!-- Tombol Approve dan Reject dengan Alert Konfirmasi -->
+                                                        <form action="{{ route('audit.approve', $auditControl->id) }}"
+                                                            method="POST" style="display:inline-block;">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="btn btn-success btn-sm"
+                                                                onclick="return confirm('Are you sure you want to approve this document?');">
+                                                                <i class="fas fa-check"></i>
+                                                            </button>
+                                                        </form>
+
+                                                        <form action="{{ route('audit.reject', $auditControl->id) }}"
+                                                            method="POST" style="display:inline-block;">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Are you sure you want to reject this document?');">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 @else
-                                                    <a href="" class="btn btn-primary btn-sm">Upload</a>
+                                                    <p>No document uploaded yet.</p>
                                                 @endif
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -56,7 +93,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
@@ -106,8 +142,8 @@
                     }
 
                     // Jika semua checkbox departemen dipilih, beri centang pada "Select All"
-                    if (document.querySelectorAll('input[name="departemen[]"]:checked')
-                        .length === checkboxes.length) {
+                    if (document.querySelectorAll('input[name="departemen[]"]:checked').length ===
+                        checkboxes.length) {
                         selectAllCheckbox.checked = true;
                     }
                 });

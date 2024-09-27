@@ -10,7 +10,6 @@
                     <div class="card-body">
                         <h4 class="card-title">Detail Audit {{ $AuditControls->first()->audit->nama }} </h4>
                         <div class="row mb-3">
-                            <!-- Kolom untuk input pencarian dan tombol filter -->
                             <div class="col-md-12 d-flex justify-content-end">
                                 <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
                                     placeholder="Search..." style="width: 250px;">
@@ -26,7 +25,11 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Item Audit</th>
-                                        <th>Uploaded</th>
+                                        <th>
+                                            @role('admin')
+                                                Uploaded
+                                            @endrole
+                                        </th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -36,13 +39,33 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $item['itemAudit']->nama_item }}</td>
-                                            <td>{{ $item['uploaded'] }} / {{ $item['total'] }}</td>
+                                            <td>
+                                                @role('admin')
+                                                    <!-- Cek role pengguna -->
+                                                    {{ $item['uploaded'] }} / {{ $item['total'] }}
+                                                @endrole
+                                            </td>
                                             <td>{{ $item['status'] }}</td>
                                             <td>
-                                                <a href="{{ route('audit.item.details', ['audit_id' => $item['audit_id'], 'item_audit_id' => $item['itemAudit']->id]) }}"
-                                                    class="btn btn-info btn-sm">
-                                                    See Detail
-                                                </a>
+                                                @role('guest')
+                                                    <!-- Cek role pengguna -->
+                                                    <form action="{{ route('uploadDocumentAudit', $item['audit_id']) }}"
+                                                        method="POST" enctype="multipart/form-data">
+                                                        @csrf
+                                                        <label for="attachments">Upload New File:</label>
+                                                        <input type="file" name="attachments" id="attachments" required>
+                                                        <br>
+                                                        <button type="submit"
+                                                            class="btn btn-primary btn-sm mt-2">Upload</button>
+                                                        <br>
+                                                    </form>
+                                                @endrole
+                                                @role('admin')
+                                                    <a href="{{ route('audit.item.details', ['audit_id' => $item['audit_id'], 'item_audit_id' => $item['itemAudit']->id]) }}"
+                                                        class="btn btn-info btn-sm">
+                                                        See Detail
+                                                    </a>
+                                                @endrole
                                             </td>
                                         </tr>
                                     @endforeach
@@ -55,11 +78,9 @@
         </div>
     </div>
 
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            // Event handler untuk pencarian
             $('#searchInput').on('keyup', function() {
                 var value = $(this).val().toLowerCase();
                 $('#documentTableBody tr').each(function() {
@@ -69,7 +90,6 @@
                 });
             });
 
-            // Menghandle pagination agar pencarian bekerja
             $(document).on('click', '.pagination a', function(e) {
                 e.preventDefault();
                 var url = $(this).attr('href');
@@ -81,31 +101,22 @@
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Dapatkan elemen checkbox "Select All"
             const selectAllCheckbox = document.getElementById('select_all');
-
-            // Dapatkan semua elemen checkbox departemen
             const checkboxes = document.querySelectorAll('input[name="departemen[]"]');
 
-            // Tambahkan event listener untuk checkbox "Select All"
             selectAllCheckbox.addEventListener('change', function() {
-                // Set status semua checkbox departemen sesuai dengan status checkbox "Select All"
                 checkboxes.forEach(checkbox => {
                     checkbox.checked = selectAllCheckbox.checked;
                 });
             });
 
-            // Tambahkan event listener untuk setiap checkbox departemen
             checkboxes.forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
-                    // Jika ada satu checkbox yang tidak dipilih, hapus centang dari "Select All"
                     if (!this.checked) {
                         selectAllCheckbox.checked = false;
                     }
-
-                    // Jika semua checkbox departemen dipilih, beri centang pada "Select All"
-                    if (document.querySelectorAll('input[name="departemen[]"]:checked')
-                        .length === checkboxes.length) {
+                    if (document.querySelectorAll('input[name="departemen[]"]:checked').length ===
+                        checkboxes.length) {
                         selectAllCheckbox.checked = true;
                     }
                 });

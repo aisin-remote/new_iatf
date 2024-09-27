@@ -38,66 +38,89 @@ class ReminderAudit extends Command
 
         // Ambil audit control yang perlu diingatkan berdasarkan rentang waktu
         $auditControls = AuditControl::select('audit_control.*')
-            ->join('item_audit', 'audit_control.item_audit_id', '=', 'item_audit.id')
-            ->join('audit', 'item_audit.audit_id', '=', 'audit.id')
+            ->join('audit', 'audit_control.audit_id', '=', 'audit.id') // Relasi langsung ke audit
             ->where('audit.reminder', '<=', $now)
             ->where('audit.duedate', '>=', $now)
-            ->with(['itemAudit.audit']) // Eager load itemAudit dan audit
+            ->with(['audit', 'departemen', 'itemAudit']) // Load relasi audit, departemen, dan item_audit
             ->get()
-            ->groupBy('item_audit_id'); // Kelompokkan berdasarkan item_audit_id
+            ->groupBy('audit_id'); // Kelompokkan berdasarkan item_audit_id
 
-        foreach ($auditControls as $itemAuditId => $auditControlsGroup) {
+        foreach ($auditControls as $auditId  => $auditControlsGroup) {
             // Mengirimkan pengingat WhatsApp menggunakan group_id
-            $this->sendWaReminderAudit($group_id, $itemAuditId, $auditControlsGroup);
+            $this->sendWaReminderAudit($group_id, $auditId, $auditControlsGroup);
         }
     }
 
-    protected function sendWaReminderAudit($groupId, $itemAuditId, $auditControls)
+    protected function sendWaReminderAudit($groupId, $auditId, $auditControls)
     {
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
         $message = "------ WARNING SUBMIT DOCUMENT ------\n\n";
 
-        // Ambil item audit yang terkait dengan itemAuditId
-        $itemAudit = $auditControls->first()->itemAudit;
+        // Ambil audit yang terkait dengan audit_id
+        $audit = $auditControls->first()->audit;
 
-        if ($itemAudit) {
-            // Mengambil nama audit melalui itemAudit
-            $auditName = $itemAudit->audit ? $itemAudit->audit->nama : 'N/A';
-            $dueDate = $itemAudit->audit ? $itemAudit->audit->duedate : 'N/A';
+        if ($audit) {
+            // Mengambil nama audit dan due date dari audit
+            $auditName = $audit->nama;
+            $dueDate = $audit->duedate;
 
-            $message .= "Audit Name: " . $auditName . "\n";
+            // Bold pada Audit Name
+            $message .= "*Audit Name: " . $auditName . "*\n";
             $message .= "Due Date: " . $dueDate . "\n\n";
 
-            // Ambil semua audit control untuk item_audit_id tertentu dan kelompokkan berdasarkan departemen
+            // Mengelompokkan audit controls berdasarkan departemen
             $departemenData = $auditControls->groupBy('departemen_id');
 
-            // Inisialisasi variabel untuk mengumpulkan informasi
+            // Inisialisasi variabel untuk mengumpulkan informasi per departemen
             $departemenMessages = [];
+            $counter = 1; // Untuk nomor urut departemen
 
-            foreach ($departemenData as $departemenId => $auditControls) {
-                $departemen = $auditControls->first()->departemen; // Ambil departemen dari salah satu audit control
+            foreach ($departemenData as $departemenId => $auditControlsForDepartemen) {
+                $departemen = $auditControlsForDepartemen->first()->departemen;
 
                 if ($departemen) {
-                    $totalTasks = $auditControls->count();
-                    $completedTasks = $auditControls->where('status', 'completed')->count();
-                    $documentnotCompleted = $auditControls->where('status', 'not completed', null)->count();
+                    // Hitung total task, completed task, dan uncompleted task per departemen
+                    $totalTasks = $auditControlsForDepartemen->count();
+                    $completedTasks = $auditControlsForDepartemen->where('status', 'completed')->count();
+                    $uncompletedTasks = $auditControlsForDepartemen->where('status', 'not completed')->count() +
+                        $auditControlsForDepartemen->whereNull('status')->count();
 
+                    // Cek apakah ada uncompleted task
+                    $statusSymbol = $uncompletedTasks > 0 ? "❌" : ""; // Tanda silang jika ada uncompleted task
+
+                    // Buat pesan per departemen dengan nomor urut dan tanda silang jika ada uncompleted task
                     $departemenName = $departemen->nama_departemen;
-                    $departemenMessages[] = "Departemen: " . $departemenName . "\n" .
+                    $departemenMessages[] = $counter . ". *Departemen: " . $departemenName . " " . $statusSymbol . "*\n" .
                         "Total Tasks: " . $totalTasks . "\n" .
                         "Completed Tasks: " . $completedTasks . "\n" .
-                        "Document not completed: " . $documentnotCompleted . "\n";
+                        "Uncompleted Tasks: " . $uncompletedTasks . "\n";
+
+                    // Tampilkan daftar item_audit yang uncompleted atau null
+                    if ($uncompletedTasks > 0) {
+                        $uncompletedItems = $auditControlsForDepartemen->where('status', 'not completed')
+                            ->merge($auditControlsForDepartemen->whereNull('status'));
+
+                        $departemenMessages[] .= "Items Uncompleted:\n";
+
+                        foreach ($uncompletedItems as $item) {
+                            $itemAuditName = $item->itemAudit->nama_item ?? 'No Item Name'; // Nama item audit
+                            $departemenMessages[] .= "- " . $itemAuditName . "\n";
+                        }
+                    }
+
+                    $counter++; // Tambahkan nomor urut untuk departemen berikutnya
                 }
             }
 
+            // Gabungkan semua pesan per departemen
             if (empty($departemenMessages)) {
-                $message .= "No item audit data available.\n";
+                $message .= "No data available for departments.\n";
             } else {
                 $message .= implode("\n", $departemenMessages);
             }
         } else {
-            // Jika itemAudit tidak ada
-            $message .= "No item audit data available.\n";
+            // Jika audit tidak ada
+            $message .= "No audit data available.\n";
         }
 
         $message .= "\n------ BY AISIN BISA ------";

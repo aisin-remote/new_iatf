@@ -212,3 +212,5 @@ Route::delete('/audit/auditcontrol/deletedocument/{id}', [AuditController::class
     ->name('deleteDocumentAudit');
 Route::get('/audit/detail/{audit_id}', [AuditController::class, 'showAuditDetails'])->name('audit.details');
 Route::get('/audit/details/{audit_id}/{item_audit_id}', [AuditController::class, 'showItemDetails'])->name('audit.item.details');
+Route::put('/audit/{id}/approve', [AuditController::class, 'approveAuditDocument'])->name('audit.approve');
+Route::put('/audit/{id}/reject', [AuditController::class, 'rejectAuditDocument'])->name('audit.reject');
