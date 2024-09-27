@@ -134,7 +134,7 @@ class HomeController extends Controller
                 'auditId' => $auditId,
                 'completedTasks' => $completedTasks,
                 'notCompletedTasks' => $notCompletedTasks,
-                'auditName' => $controls->first()->audit->name ?? 'Unknown Audit' // Sesuaikan dengan relasi yang ada
+                'auditName' => $controls->first()->audit->nama ?? 'Unknown Audit' // Sesuaikan dengan relasi yang ada
             ];
         }
 
