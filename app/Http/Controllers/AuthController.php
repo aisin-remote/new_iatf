@@ -109,7 +109,7 @@ class AuthController extends Controller
             'npk' => 'required|string|max:255|unique:users',
             'departemen' => 'required|exists:departemen,id',
             'name' => 'required|string|max:255',
-            'password' => 'required|string|size:8|confirmed',
+            'password' => 'required|string|min:8|confirmed',
         ], $message);
 
         if ($validator->fails()) {
