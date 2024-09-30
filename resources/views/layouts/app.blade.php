@@ -16,15 +16,17 @@
     <link rel="stylesheet" href="{{ asset('vendors/css/vendor.bundle.base.css') }}">
     <!-- endinject -->
     <!-- Plugin css for this page -->
-    <link rel="stylesheet" href="{{ asset('vendors/datatables.net-bs4/dataTables.bootstrap4.css') }}">
     <link rel="stylesheet" href="{{ asset('vendors/ti-icons/css/themify-icons.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ asset('js/select.dataTables.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('vendors/datatables.net-bs4/dataTables.bootstrap4.css') }}"> --}}
+    {{-- <link rel="stylesheet" type="text/css" href="{{ asset('js/select.dataTables.min.css') }}"> --}}
 
     <!-- End plugin css for this page -->
     <!-- inject:css -->
     <link rel="stylesheet" href="{{ asset('css/vertical-layout-light/style.css') }}">
     <!-- endinject -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}" />
+
+    @stack('styles')
 </head>
 <style>
     /* Dropdown notifications style */
@@ -114,7 +116,7 @@
             @endphp
             @if (request()->is('rule') || request()->is('rule/*'))
                 @include('partials.sidebar-rule')
-            @elseif (request()->is('audit') || request()->is('audit/*'))
+            @elseif (request()->is('audit') || request()->is('audit/*') || request()->is('document_control/*'))
                 @include('partials.sidebar-audit', ['departemens' => $departemens])
             @else
                 @include('partials.sidebar-default')
@@ -135,19 +137,20 @@
     <!-- container-scroller -->
 
     <!-- plugins:js -->
+    <script src="{{ asset('vendors/libs/jquery/jquery.js') }}"></script>
     <script src="{{ asset('vendors/js/vendor.bundle.base.js') }}"></script>
     <!-- endinject -->
     <!-- Plugin js for this page -->
     <script src="{{ asset('vendors/chart.js/Chart.min.js') }}"></script>
-    <script src="{{ asset('vendors/datatables.net/jquery.dataTables.js') }}"></script>
+    {{-- <script src="{{ asset('vendors/datatables.net/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('vendors/datatables.net-bs4/dataTables.bootstrap4.js') }}"></script>
-    <script src="{{ asset('js/dataTables.select.min.js') }}"></script>
+    <script src="{{ asset('js/dataTables.select.min.js') }}"></script> --}}
 
     <!-- End plugin js for this page -->
     <!-- inject:js -->
     <script src="{{ asset('js/off-canvas.js') }}"></script>
     <script src="{{ asset('js/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('js/template.js') }}"></script>
+    {{-- <script src="{{ asset('js/template.js') }}"></script> --}}
     <script src="{{ asset('js/settings.js') }}"></script>
     <script src="{{ asset('js/todolist.js') }}"></script>
     <!-- endinject -->
@@ -157,9 +160,10 @@
     <script src="{{ asset('css/select2.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
 
     @include('sweetalert::alert')
+    @stack('scripts')
     <!-- End custom js for this page-->
 </body>
 

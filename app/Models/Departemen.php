@@ -17,7 +17,7 @@ class Departemen extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'departemen_user', 'departemen_id', 'user_id');
+        return $this->hasMany(User::class, 'departemen_id');
     }
 
     // Relasi dengan dokumen (melalui pengguna)

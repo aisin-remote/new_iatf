@@ -36,8 +36,26 @@
             </li>
         </ul>
         <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button"
-            data-toggle="offcanvas">
+            data-toggle="minimize">
             <span class="icon-menu"></span>
         </button>
     </div>
 </nav>
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            var body = $("body");
+
+            // Mendengarkan klik pada tombol dengan data-toggle="minimize"
+            $('[data-toggle="minimize"]').on("click", function() {
+                // Cek kondisi body untuk menampilkan atau menyembunyikan sidebar
+                if (body.hasClass("sidebar-toggle-display") || body.hasClass("sidebar-absolute")) {
+                    body.toggleClass("sidebar-hidden"); // Menyembunyikan sidebar
+                } else {
+                    body.toggleClass("sidebar-icon-only"); // Mengaktifkan mode icon-only
+                }
+            });
+        });
+    </script>
+@endpush

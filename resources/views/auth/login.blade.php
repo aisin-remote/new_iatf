@@ -51,7 +51,7 @@
                                     <input type="text"
                                         class="form-control form-control-lg @error('npk') is-invalid @enderror"
                                         id="exampleInputnpk" placeholder="NPK" style="padding-left: 16px" name="npk"
-                                        value="{{ old('npk') }}">
+                                        value="{{ old('npk') }}" maxlength="6">
                                     @error('npk')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

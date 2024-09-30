@@ -469,5 +469,5 @@
             });
         });
     </script>
-    
+
 @endsection
