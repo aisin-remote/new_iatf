@@ -56,6 +56,7 @@ Route::get('/rule/filter-documents', [HomeController::class, 'filterDocuments'])
 Route::get('/rule/master-data/departemen', [MasterDataRuleController::class, 'index_departemen'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.departemen');
+
 Route::get('/rule/master-data/process-code', [MasterDataRuleController::class, 'index_prosescode'])
     ->middleware(['auth', 'role:admin'])
     ->name('masterdata.kodeproses');
@@ -195,6 +196,7 @@ Route::post('/audit/master-data/auditcontrol/update/{id}', [MasterDataAuditContr
 Route::delete('/audit/master-data/auditcontrol/delete/{id}', [MasterDataAuditController::class, 'delete_auditcontrol'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.auditControl');
+Route::get('departments/{id}', 'DepartmentController@show')->name('department.detail');
 
 
 //Audit Control 

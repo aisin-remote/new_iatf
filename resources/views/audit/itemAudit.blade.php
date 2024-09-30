@@ -11,13 +11,18 @@
                         <h4 class="card-title">Master Data Item Audit</h4>
                         <div class="d-flex justify-content-end mb-3">
                             @role('admin')
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#adddocaudit">
+                                {{-- <div class="col-md-6 d-flex justify-content-end align-items-center"> --}}
+                                <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                    placeholder="Search..." style="width: 300px;">
+                                </button>
+                                {{-- </div> --}}
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#additemaudit">
                                     Add New
                                 </button>
                             @endrole
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped" id="documentTableBody">
                                 <thead>
                                     <tr>
                                         <th>No</th>
@@ -75,12 +80,12 @@
     </div>
 
     {{-- Modal Add Template --}}
-    <div class="modal fade" id="adddocaudit" tabindex="-1" role="dialog" aria-labelledby="adddocauditLabel"
+    <div class="modal fade" id="additemaudit" tabindex="-1" role="dialog" aria-labelledby="additemauditLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="adddocauditLabel">Add Item Audit</h5>
+                    <h5 class="modal-title" id="additemauditLabel">Add Item Audit</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -169,7 +174,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Are you sure you want to delete this audit?
+                        Are you sure you want to delete this item audit?
                     </div>
                     <div class="modal-footer">
                         <form action="{{ route('delete.audit', $d->id) }}" method="POST">
@@ -187,6 +192,17 @@
         function showAlert() {
             alert('Dokumen tidak ditemukan');
         }
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#documentTableBody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
     </script>
 
 @endsection

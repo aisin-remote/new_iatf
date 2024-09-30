@@ -108,11 +108,14 @@
         <div class="container-fluid page-body-wrapper">
             <!-- partial:partials/_settings-panel.html -->
             {{-- @include('partials.settings-panel') --}}
-
+            @php
+                // Ambil semua departemen dari database
+                $departemens = App\Models\Departemen::all(); // Pastikan Anda menggunakan namespace yang benar
+            @endphp
             @if (request()->is('rule') || request()->is('rule/*'))
                 @include('partials.sidebar-rule')
             @elseif (request()->is('audit') || request()->is('audit/*'))
-                @include('partials.sidebar-audit')
+                @include('partials.sidebar-audit', ['departemens' => $departemens])
             @else
                 @include('partials.sidebar-default')
             @endif

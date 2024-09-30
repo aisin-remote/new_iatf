@@ -142,8 +142,6 @@ class HomeController extends Controller
         return view('audit.dashboard', ['auditData' => $auditData]);
     }
 
-
-
     public function downloadExcel(Request $request)
     {
         $user = auth()->user();

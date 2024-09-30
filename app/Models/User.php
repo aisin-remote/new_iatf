@@ -49,11 +49,7 @@ class User extends Authenticatable
 
     public function departemen()
     {
-        return $this->belongsTo(Departemen::class);
-    }
-    public function departemens()
-    {
-        return $this->belongsToMany(Departemen::class, 'departemen_user', 'user_id', 'departemen_id');
+        return $this->belongsToMany(Departemen::class,);
     }
 
     // Relasi dengan dokumen

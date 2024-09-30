@@ -15,79 +15,98 @@ class DepartemenSeeder extends Seeder
     {
         Departemen::create([
             'code' => 'AII',
-            'nama_departemen' => 'Aisin Indonesia'
+            'nama_departemen' => 'Aisin Indonesia',
+            'aliases' => 'AII'
         ]);
         Departemen::create([
             'code' => 'QAS',
-            'nama_departemen' => 'Quality Body'
+            'nama_departemen' => 'Quality Body',
+            'aliases' => 'QA Body'
         ]);
         Departemen::create([
             'code' => 'QAS',
-            'nama_departemen' => 'Quality Unit'
+            'nama_departemen' => 'Quality Unit',
+            'aliases' => 'QA Unit'
         ]);
         Departemen::create([
             'code' => 'QAS',
-            'nama_departemen' => 'Quality Electric'
+            'nama_departemen' => 'Quality Electric',
+            'aliases' => 'QA Electric'
         ]);
         Departemen::create([
             'code' => 'PPIC',
-            'nama_departemen' => 'PPIC Receiving'
+            'nama_departemen' => 'PPIC Receiving',
+            'aliases' => 'PPIC Receiving'
         ]);
         Departemen::create([
             'code' => 'PPIC',
-            'nama_departemen' => 'PPIC Delivery'
+            'nama_departemen' => 'PPIC Delivery',
+            'aliases' => 'PPIC Delivery'
         ]);
         Departemen::create([
             'code' => 'PPIC',
-            'nama_departemen' => 'PPIC Electric'
+            'nama_departemen' => 'PPIC Electric',
+            'aliases' => 'PPIC Electric'
         ]);
         Departemen::create([
             'code' => 'ENG',
-            'nama_departemen' => 'Engineering Body'
+            'nama_departemen' => 'Engineering Body',
+            'aliases' => 'ENG Body'
         ]);
         Departemen::create([
             'code' => 'ENG',
-            'nama_departemen' => 'Engineering Unit'
+            'nama_departemen' => 'Engineering Unit',
+            'aliases' => 'ENG Unit'
         ]);
         Departemen::create([
             'code' => 'ENG',
-            'nama_departemen' => 'Engineering Electric'
+            'nama_departemen' => 'Engineering Electric',
+            'aliases' => 'ENG Electric'
         ]);
         Departemen::create([
             'code' => 'MTE',
-            'nama_departemen' => 'Maintenance'
+            'nama_departemen' => 'Maintenance',
+            'aliases' => 'MTE'
         ]);
         Departemen::create([
             'code' => 'MTE',
-            'nama_departemen' => 'Maintenance Electric'
+            'nama_departemen' => 'Maintenance Electric',
+            'aliases' => 'MTE Electric'
         ]);
         Departemen::create([
             'code' => 'PRD',
-            'nama_departemen' => 'Production Unit'
+            'nama_departemen' => 'Production Unit',
+            'aliases' => 'PRD Unit'
         ]);
         Departemen::create([
             'code' => 'PRD',
-            'nama_departemen' => 'Production Body'
+            'nama_departemen' => 'Production Body',
+            'aliases' => 'PRD Body'
         ]);
         Departemen::create([
             'code' => 'PRD',
-            'nama_departemen' => 'Production Electric'
+            'nama_departemen' => 'Production Electric',
+            'aliases' => 'PRD Electric'
         ]);
         Departemen::create([
             'code' => 'PSD',
-            'nama_departemen' => 'Production System Development'
+            'nama_departemen' => 'Production System Development',
+            'aliases' => 'PSD'
         ]);
         Departemen::create([
             'code' => 'ITD',
-            'nama_departemen' => 'IT Development'
+            'nama_departemen' => 'IT Development',
+            'aliases' => 'ITD'
         ]);
         Departemen::create([
             'code' => 'MS',
-            'nama_departemen' => 'Management System'
+            'nama_departemen' => 'Management System',
+            'aliases' => 'MS'
         ]);
         Departemen::create([
             'code' => 'MR',
-            'nama_departemen' => 'Management Representative'
+            'nama_departemen' => 'Management Representative',
+            'aliases' => 'MR'
         ]);
     }
 }

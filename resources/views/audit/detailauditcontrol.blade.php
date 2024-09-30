@@ -47,19 +47,31 @@
                                             </td>
                                             <td>{{ $item['status'] }}</td>
                                             <td>
-                                                @role('guest')
-                                                    <!-- Cek role pengguna -->
-                                                    <form action="{{ route('uploadDocumentAudit', $item['audit_id']) }}"
-                                                        method="POST" enctype="multipart/form-data">
-                                                        @csrf
-                                                        <label for="attachments">Upload New File:</label>
-                                                        <input type="file" name="attachments" id="attachments" required>
-                                                        <br>
-                                                        <button type="submit"
-                                                            class="btn btn-primary btn-sm mt-2">Upload</button>
-                                                        <br>
-                                                    </form>
-                                                @endrole
+                                                @foreach ($uploadedItems as $item)
+                                                    @role('guest')
+                                                        @if ($item->documentAudit && $item->documentAudit->isNotEmpty())
+                                                            <p>Uploaded File: <a
+                                                                    href="{{ asset('storage/' . $item->documentAudit->first()->attachment) }}"
+                                                                    target="_blank">
+                                                                    View Uploaded Document
+                                                                </a></p>
+                                                        @else
+                                                            <form action="{{ route('uploadDocumentAudit', $item->id) }}"
+                                                                method="POST" enctype="multipart/form-data">
+                                                                @csrf
+                                                                <label for="attachments">Upload New File:</label>
+                                                                <input type="file" name="attachments" id="attachments"
+                                                                    required>
+                                                                <br>
+                                                                <button type="submit"
+                                                                    class="btn btn-primary btn-sm mt-2">Upload</button>
+                                                                <br>
+                                                            </form>
+                                                        @endif
+                                                    @endrole
+                                                @endforeach
+
+
                                                 @role('admin')
                                                     <a href="{{ route('audit.item.details', ['audit_id' => $item['audit_id'], 'item_audit_id' => $item['itemAudit']->id]) }}"
                                                         class="btn btn-info btn-sm">

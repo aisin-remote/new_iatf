@@ -9,26 +9,24 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Data Audit Control</h4>
-                        <div class="row mb-3">
-                            <!-- Kolom untuk tombol Upload Old Documents -->
-                            <div class="col-md-6 d-flex align-items-center">
-                                @role('admin')
-                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addauditcontrol"
-                                        style="margin-left: 0;">
-                                        Add new
-                                    </button>
-                                @endrole
-                            </div>
-                            <!-- Kolom untuk input pencarian dan tombol filter -->
-                            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                        {{-- <div class="row mb-3"> --}}
+                        <!-- Kolom untuk tombol Upload Old Documents -->
+                        <div class="d-flex justify-content-end mb-3">
+                            @role('admin')
+                                {{-- <div class="col-md-6 d-flex justify-content-end align-items-center"> --}}
                                 <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
                                     placeholder="Search..." style="width: 300px;">
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#auditfilterModal"
-                                    style="background: #56544B">
+                                <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#auditfilterModal"
+                                    style="background: #56544B;">
                                     Filter
                                 </button>
-                            </div>
+                                {{-- </div> --}}
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addauditcontrol">
+                                    Add New
+                                </button>
+                            @endrole
                         </div>
+                        {{-- </div> --}}
 
                         <div class="table-responsive">
                             <table class="table table-striped" id="documentTableBody">
@@ -221,57 +219,66 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog"
-            aria-labelledby="auditfilterModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <form action="{{ route('auditControl') }}" method="GET">
-                        @csrf
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="auditfilterModalLabel">Filter <i class="fa-solid fa-filter"></i>
-                            </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <!-- Filter berdasarkan Tanggal Upload -->
-                            <div class="row my-2">
-                                <div class="col-4">
-                                    <label class="col-form-label">Document</label>
-                                </div>
-                                <div class="col">
-                                    <select name="document_item_id" class="form-control select2">
-                                        <option value="">Select Document Audit</option>
-                                        @foreach ($documentAudits as $d)
-                                            <option value="{{ $d->id }}">{{ $d->nama_dokumen }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row my-2">
-                                <div class="col-4">
-                                    <label class="col-form-label">Audit</label>
-                                </div>
-                                <div class="col">
-                                    <select name="audit_id" class="form-control select2">
-                                        <option value="">Select Audit</option>
-                                        @foreach ($audit as $a)
-                                            <option value="{{ $a->id }}">{{ $a->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Apply Filter</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div> --}}
     @endforeach
+    {{-- Modal Filter --}}
+    <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog" aria-labelledby="auditfilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ route('masterdata.auditControl') }}" method="GET" id="filterForm">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="auditfilterModalLabel">Filter <i class="fa-solid fa-filter"></i>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Filter berdasarkan Tanggal Upload -->
+                        <div class="form-group">
+                            <label for="audit_id">Audit</label>
+                            <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($audit as $d)
+                                    <option value="{{ $d->id }}"
+                                        {{ request('audit_id') == $d->id ? 'selected' : '' }}>{{ $d->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="item_audit_id">Item Audit</label>
+                            <select name="item_audit_id" id="item_audit_id" class="form-control select2"
+                                style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($itemaudit as $d)
+                                    <option value="{{ $d->id }}"
+                                        {{ request('item_audit_id') == $d->id ? 'selected' : '' }}>{{ $d->nama_item }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Departemen">Departemen</label>
+                            <select name="departemen" id="departemen" class="form-control select2" style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($uniqueDepartemens as $d)
+                                    <option value="{{ $d->id }}"
+                                        {{ request('departemen') == $d->id ? 'selected' : '' }}>
+                                        {{ $d->nama_departemen }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -328,4 +335,28 @@
             });
         });
     </script>
+    <script>
+        window.onload = function() {
+            if (window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.href.split('?')[0]);
+            }
+        };
+    </script>
+    {{-- <script>
+        window.onload = function() {
+            // Clear selected values in the filters when the page is loaded
+            document.getElementById('audit_id').selectedIndex = 0;
+            document.getElementById('item_audit_id').selectedIndex = 0;
+            document.getElementById('departemen').selectedIndex = 0;
+
+            // Clear URL parameters to reset filters
+            if (history.replaceState) {
+                var url = new URL(window.location);
+                url.searchParams.delete('audit_id');
+                url.searchParams.delete('item_audit_id');
+                url.searchParams.delete('departemen');
+                history.replaceState(null, null, url);
+            }
+        };
+    </script> --}}
 @endsection

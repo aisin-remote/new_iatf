@@ -13,11 +13,46 @@ use RealRashid\SweetAlert\Facades\Alert;
 
 class MasterDataAuditController extends Controller
 {
-    public function master_audit()
+    public function master_audit(Request $request)
     {
-        $audit = Audit::all();
-        return view('audit.audit', compact('audit'));
+        // Initialize the query to fetch audits
+        $query = Audit::query();
+
+        // Check for reminder date range filtering
+        if (!empty($request->reminder) || !empty($request->duedate)) {
+            if ($request->has('reminder') && $request->has('duedate')) {
+                $query->whereBetween('reminder', [$request->reminder, $request->duedate]);
+            } elseif ($request->has('reminder')) {
+                $query->where('reminder', '>=', $request->reminder);
+            } elseif ($request->has('duedate')) {
+                $query->where('reminder', '<=', $request->duedate);
+            }
+        }
+
+        // Check if either audit dates are filled
+        if (!empty($request->start_audit) || !empty($request->end_audit)) {
+            if ($request->has('start_audit') && $request->has('end_audit')) {
+                $query->whereBetween('start_audit', [$request->start_audit, $request->end_audit]);
+            } elseif ($request->has('start_audit')) {
+                $query->where('start_audit', '>=', $request->start_audit);
+            } elseif ($request->has('end_audit')) {
+                $query->where('start_audit', '<=', $request->end_audit);
+            }
+        }
+
+        // Retrieve the filtered audits ordered by updated_at
+        $audit = $query->orderByDesc('updated_at')->get();
+
+        // Return the view with the filtered audits
+        return view('audit.audit', [
+            'audit' => $audit,
+            'reminder' => $request->reminder,
+            'duedate' => $request->duedate,
+            'start_audit' => $request->start_audit,
+            'end_audit' => $request->end_audit,
+        ]);
     }
+
     public function store_audit(Request $request)
     {
         Audit::create([
@@ -59,7 +94,8 @@ class MasterDataAuditController extends Controller
     }
     public function master_itemAudit()
     {
-        $itemAudit = ItemAudit::all();
+        $itemAudit = ItemAudit::orderByDesc('updated_at')
+            ->get();
         $audit = Audit::all();
         $uniqueDepartemens = Departemen::distinct()->get(['id', 'nama_departemen']); // Ambil ID dan nama departemen
 
@@ -128,18 +164,45 @@ class MasterDataAuditController extends Controller
     }
     public function master_auditcontrol(Request $request)
     {
-        $AuditControls = AuditControl::with(['itemAudit', 'audit', 'departemen'])->get();
+        // Start the query with AuditControl
+        $query = AuditControl::with(['itemAudit', 'audit', 'departemen']);
 
-        // Ambil data item audit untuk digunakan dalam dropdown di modal
+        // Apply filters if they are set in the request
+        if ($request->has('audit_id') && !empty($request->audit_id)) {
+            $query->where('audit_id', $request->audit_id);
+        }
+
+        if ($request->has('item_audit_id') && !empty($request->item_audit_id)) {
+            $query->where('item_audit_id', $request->item_audit_id);
+        }
+
+        if ($request->has('departemen') && !empty($request->departemen)) {
+            $query->where('departemen_id', $request->departemen);
+        }
+
+        // Get the filtered results
+        $AuditControls = $query->orderBy('updated_at', 'desc')->get();
+
+        // Fetch data for dropdowns
         $itemaudit = ItemAudit::all();
         $audit = Audit::all();
-
-        // Ambil data departemen yang unik
         $uniqueDepartemens = Departemen::all()->unique('nama_departemen');
 
-        // Mengirimkan data ke view
-        return view('audit.masterauditcontrol', compact('AuditControls', 'itemaudit', 'uniqueDepartemens', 'audit'));
+        // Send data to the view
+        return view('audit.masterauditcontrol')->with([
+            'AuditControls' => $AuditControls,
+            'itemaudit' => $itemaudit,
+            'audit' => $audit,
+            'uniqueDepartemens' => $uniqueDepartemens,
+            // Include the current filter values in case you want to reset them
+            'currentFilters' => [
+                'audit_id' => $request->audit_id,
+                'item_audit_id' => $request->item_audit_id,
+                'departemen' => $request->departemen,
+            ]
+        ]);
     }
+
     public function store_auditControl(Request $request)
     {
         // Ambil item_audit_id dari request
@@ -156,6 +219,7 @@ class MasterDataAuditController extends Controller
                 'departemen_id' => $departemenId,
                 'item_audit_id' => $itemAuditId,
                 'audit_id' => $auditId,
+                'status' => 'uncomplete'
             ]);
         }
 
@@ -167,6 +231,7 @@ class MasterDataAuditController extends Controller
         $AuditControls = AuditControl::findOrFail($id);
         $AuditControls->departemen_id = $request->departemen;
         $AuditControls->item_audit_id = $request->item_audit_id;
+        $AuditControls->sttatus = 'uncomplete';
         $AuditControls->save();
         Alert::success('Success', 'Document Audit changed succesfully.');
         return redirect()->back();

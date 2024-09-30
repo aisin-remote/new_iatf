@@ -22,15 +22,23 @@ class AuthController extends Controller
     }
     public function select_dashboard()
     {
-        // Ambil departemen dari pengguna yang sedang login
-        $departemen = Auth::user()->departemen;
+        // Ambil departemen_id dari pengguna yang sedang login
+        $userDepartemenId = Auth::user()->departemen_id;
 
-        // Jika tidak ada departemen, tampilkan halaman dengan pesan error
-        if (!$departemen) {
+        // Jika pengguna tidak memiliki departemen_id, tampilkan halaman dengan pesan error
+        if (!$userDepartemenId) {
             return view('select-dashboard')->withErrors(['departemen' => 'Departemen tidak ditemukan.']);
         }
 
-        // Tampilkan view select-dashboard
+        // Ambil data departemen berdasarkan departemen_id
+        $departemen = Departemen::find($userDepartemenId);
+
+        // Jika departemen tidak ditemukan di database, tampilkan pesan error
+        if (!$departemen) {
+            return view('select-dashboard')->withErrors(['departemen' => 'Departemen tidak ditemukan di database.']);
+        }
+
+        // Tampilkan view select-dashboard dengan data departemen
         return view('select-dashboard', compact('departemen'));
     }
 
@@ -43,25 +51,28 @@ class AuthController extends Controller
 
         $credentials = $request->only('npk', 'password');
 
+        // Lakukan proses login
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            // Ambil departemen pengguna
-            $departemen = $user->departemen;
-            if (!$departemen) {
-                return redirect()->route('login')->withErrors(['departemen' => 'Departemen tidak ditemukan.']);
+            // Ambil departemen_id dari tabel users
+            $userDepartemenId = $user->departemen_id;
+
+            // Jika user tidak memiliki departemen_id, berikan error
+            if (!$userDepartemenId) {
+                return redirect()->route('login')->withErrors(['departemen' => 'Departemen tidak ditemukan untuk user ini.']);
             }
 
-            // Arahkan ke route select.dashboard setelah login berhasil
+            // Arahkan ke halaman select dashboard setelah login berhasil
             return redirect()->route('select.dashboard');
         }
 
-        // Jika login gagal, cek jumlah percobaan gagal
+        // Jika login gagal, tambahkan jumlah percobaan login yang gagal
         $loginAttempts = session('login_attempts', 0);
         session(['login_attempts' => $loginAttempts + 1]);
 
+        // Jika sudah 3 kali percobaan gagal, berikan waktu tunggu
         if ($loginAttempts >= 2) {
-            // Jika percobaan login sudah 3 kali, tampilkan pesan tunggu
             $lockoutTime = session('lockout_time');
             if ($lockoutTime && now()->lt($lockoutTime)) {
                 $remainingTime = $lockoutTime->diffInSeconds(now());
@@ -70,15 +81,15 @@ class AuthController extends Controller
                 ]);
             }
 
-            // Reset percobaan login setelah waktu lockout berakhir
+            // Reset percobaan login setelah waktu lockout
             session(['login_attempts' => 1]);
             session(['lockout_time' => null]);
         } elseif ($loginAttempts >= 2) {
-            // Set waktu lockout jika percobaan login mencapai 3
+            // Set waktu lockout jika login gagal 3 kali
             session(['lockout_time' => now()->addMinutes(1)]);
         }
-        // dd(session()->all());
 
+        // Jika login gagal, kembalikan pesan kesalahan
         return back()->withErrors([
             'npk' => 'NPK atau Password salah.',
             'password' => 'NPK atau Password salah.',

@@ -4,7 +4,7 @@
         <li class="nav-item {{ request()->routeIs('dashboard.audit') ? 'active' : '' }}">
             <a class="nav-link" href="{{ route('dashboard.audit') }}">
                 <i class="fa-solid fa-house" style="margin-right: 8px"></i>
-                <span class="menu-title"> Dashboard</span>
+                <span class="menu-title">Dashboard</span>
             </a>
         </li>
 
@@ -14,7 +14,7 @@
                 <a class="nav-link" data-toggle="collapse" href="#masterdata"
                     aria-expanded="{{ request()->routeIs('masterdata.*') ? 'true' : 'false' }}" aria-controls="masterdata">
                     <i class="fa-solid fa-database" style="margin-right: 12px"></i>
-                    <span class="menu-title"> Master Data</span>
+                    <span class="menu-title">Master Data</span>
                     <i class="menu-arrow"></i>
                 </a>
                 <div class="collapse {{ request()->routeIs('masterdata.*') ? 'show' : '' }}" id="masterdata">
@@ -24,7 +24,7 @@
                                 href="{{ route('masterdata.audit') }}">Audit</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('masterdata.documentAudit') ? 'active' : '' }}"
+                            <a class="nav-link {{ request()->routeIs('masterdata.itemAudit') ? 'active' : '' }}"
                                 href="{{ route('masterdata.itemAudit') }}">Item Audit</a>
                         </li>
                         <li class="nav-item">
@@ -38,10 +38,26 @@
 
         <!-- Audit Control -->
         <li class="nav-item {{ request()->routeIs('index.auditControl') ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('index.auditControl') }}">
+            <a class="nav-link" data-toggle="collapse" href="#auditControlMenu"
+                aria-expanded="{{ request()->routeIs('index.auditControl') ? 'true' : 'false' }}"
+                aria-controls="auditControlMenu">
                 <i class="fa-solid fa-list-check" style="margin-right: 8px"></i>
-                <span class="menu-title"> Audit Control</span>
+                <span class="menu-title">Audit Control</span>
+                <i class="menu-arrow"></i>
             </a>
+            <div class="collapse {{ request()->routeIs('index.auditControl') ? 'show' : '' }}" id="auditControlMenu">
+                <ul class="nav flex-column sub-menu">
+                    @foreach ($departemens as $departemen)
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('index.auditControl', $departemen->id) ? 'active' : '' }}"
+                                href="{{ route('index.auditControl', $departemen->id) }}">
+                                <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
+                                <span class="menu-title">{{ $departemen->aliases }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
         </li>
     </ul>
 </nav>

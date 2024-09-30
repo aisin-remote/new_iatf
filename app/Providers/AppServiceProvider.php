@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Departemen;
 use App\Models\IndukDokumen;
 use App\Models\User;
 use App\Notifications\DocumentStatusChanged;
@@ -83,6 +84,13 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with('documents', $paginatedDocuments);
             $view->with('notificationCount', $notificationCount);
+        });
+        View::composer('partials.sidebar-audit', function ($view) {
+            // Ambil semua data departemen dari model
+            $departments = Departemen::all();
+
+            // Kirim data departemen ke view
+            $view->with('departments', $departments);
         });
     }
 }

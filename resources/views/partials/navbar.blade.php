@@ -18,7 +18,7 @@
 
             <li class="nav-item nav-profile dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-                    {{ Auth::user()->departemen ? Auth::user()->departemen->nama_departemen : 'No Department Assigned' }}
+                    {{ optional(\App\Models\Departemen::find(Auth::user()->departemen_id))->nama_departemen ?? 'No Department Assigned' }}
                     <i class="fa-solid fa-sort-down"></i>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">

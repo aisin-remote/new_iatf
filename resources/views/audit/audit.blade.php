@@ -11,29 +11,37 @@
                         <h4 class="card-title">Master Data Audit</h4>
                         <div class="d-flex justify-content-end mb-3">
                             @role('admin')
+                                {{-- <div class="col-md-6 d-flex justify-content-end align-items-center"> --}}
+                                <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                    placeholder="Search..." style="width: 300px;">
+                                <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#auditfilterModal"
+                                    style="background: #56544B;">
+                                    Filter
+                                </button>
+                                {{-- </div> --}}
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addaudit">
                                     Add New
                                 </button>
                             @endrole
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped" id="documentTableBody">
                                 <thead>
                                     <tr>
                                         <th>No</th>
                                         <th>Audit Name</th>
-                                        <th>Reminder</th>
-                                        <th>Audit Date</th>
+                                        <th>Start Audit</th>
+                                        <th>End Audit</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($audit as $d)
+                                    @forelse ($audit as $d)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $d->nama }}</td>
-                                            <td>{{ $d->reminder }} s.d {{ $d->duedate }}</td>
-                                            <td>{{ $d->start_audit }} s.d {{ $d->end_audit }}</td>
+                                            <td>{{ $d->start_audit }}</td>
+                                            <td>{{ $d->end_audit }}</td>
                                             <td>
                                                 <!-- Tombol Edit -->
                                                 <button class="btn btn-warning btn-sm" data-toggle="modal"
@@ -48,7 +56,11 @@
                                                 </button>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center">No data available</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -130,23 +142,41 @@
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="nama">Audit Name</label>
-                                <input type="text" class="form-control" id="nama"
-                                    name="nama"value="{{ old('nama', $d->nama) }}" required>
+                                <input type="text" class="form-control" id="nama" name="nama"
+                                    value="{{ old('nama', $d->nama) }}" required>
                             </div>
                             <div class="form-group">
-                                <label for="reminder">Reminder Set</label>
-                                <input type="date" class="form-control" id="reminder" name="reminder"
-                                    value="{{ old('reminder', $d->reminder) }}"required>
+                                <label for="reminder">Reminder</label>
+                                <div class="row align-items-center">
+                                    <div class="col-md-5">
+                                        <input type="date" class="form-control" id="reminder" name="reminder"
+                                            value="{{ old('reminder', $d->reminder) }}" required>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <span>To</span>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="date" class="form-control" id="duedate" name="duedate"
+                                            value="{{ old('duedate', $d->duedate) }}" required>
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="form-group">
-                                <label for="duedate">Due Date</label>
-                                <input type="date" class="form-control" id="duedate" name="duedate"
-                                    value="{{ old('duedate', $d->duedate) }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="tanggal_audit">Audit Date</label>
-                                <input type="date" class="form-control" id="tanggal_audit" name="tanggal_audit"
-                                    value="{{ old('tanggal_audit', $d->tanggal_audit) }}"required>
+                                <label for="Audit_Date">Audit Date</label>
+                                <div class="row align-items-center">
+                                    <div class="col-md-5">
+                                        <input type="date" class="form-control" id="start_audit" name="start_audit"
+                                            value="{{ old('start_audit', $d->start_audit) }}" required>
+                                    </div>
+                                    <div class="col-md-2 text-center">
+                                        <span>To</span>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="date" class="form-control" id="end_audit" name="end_audit"
+                                            value="{{ old('end_audit', $d->end_audit) }}" required>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -183,4 +213,66 @@
             </div>
         </div>
     @endforeach
+    {{-- Modal Filter --}}
+    <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog" aria-labelledby="auditfilterLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="auditfilterLabel">Filter Audit</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ route('masterdata.audit') }}" method="get">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="reminder">Reminder</label>
+                            <div class="row align-items-center">
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="reminder" name="reminder">
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span>To</span>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="duedate" name="duedate">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Audit_Date">Audit Date</label>
+                            <div class="row align-items-center">
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="start_audit" name="start_audit">
+                                </div>
+                                <div class="col-md-2 text-center">
+                                    <span>To</span>
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="date" class="form-control" id="end_audit" name="end_audit">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('#documentTableBody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
 @endsection
