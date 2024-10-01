@@ -49,9 +49,11 @@ class RuleController extends Controller
     {
         // Validasi file
         $request->validate([
-            'file' => 'required|mimes:doc,docx,xls,xlsx',
+            'file' => 'required|mimes:doc,docx,xls,xlsx|max:20480',
         ], [
+            'file.required' => 'The PDF file is required.',
             'file.mimes' => 'Only Word and Excel files are allowed.',
+            'file.max' => 'The PDF file must not be greater than 20 MB.',
         ]);
 
         // Simpan file
@@ -162,9 +164,9 @@ class RuleController extends Controller
 
         // Sesuaikan filter berdasarkan peran pengguna
         if ($user->hasRole('admin')) {
-            $query->whereIn('induk_dokumen.status', ['Waiting Final Approval', 'Approve by MS', 'Obsolete by MS']);
+            $query->whereIn('induk_dokumen.status', ['Finish check by MS', 'Approve by MS', 'Obsolete by MS']);
         } else {
-            $query->whereIn('induk_dokumen.status', ['Waiting Final Approval', 'Finish check by MS', 'Approve by MS', 'Obsolete by MS'])
+            $query->whereIn('induk_dokumen.status', ['Approve by MS', 'Obsolete by MS'])
                 ->where(function ($query) use ($user) {
                     $query->where('induk_dokumen.departemen_id', $user->departemen_id);
                 });
@@ -199,9 +201,10 @@ class RuleController extends Controller
     {
         // Validasi file hanya bisa PDF
         $request->validate([
-            'file' => 'required|mimes:pdf',
+            'file' => 'required|mimes:pdf|max:20480',
         ], [
             'file.mimes' => 'Only PDF files are allowed.',
+            'file.max' => 'The file must not be greater than 20 MB.',
         ]);
 
         // Ambil dokumen berdasarkan ID
@@ -216,7 +219,6 @@ class RuleController extends Controller
 
         // Update path file di database
         $doc->file_pdf = $path;
-        $doc->status = 'Waiting Final Approval';
         $doc->save();
 
         // Tampilkan pesan sukses

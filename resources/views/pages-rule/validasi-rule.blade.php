@@ -43,10 +43,7 @@
                                 <tbody>
                                     @php
                                         $filteredDocs = $indukDokumenList->filter(function ($doc) {
-                                            return in_array($doc->status, [
-                                                'Waiting check by MS',
-                                                'Finish check by MS',
-                                            ]);
+                                            return in_array($doc->status, ['Waiting check by MS']);
                                         });
                                     @endphp
 
@@ -167,7 +164,7 @@
                             <div class="form-group">
                                 <label for="file">File (.word, .excel) <small>(Optional)</small></label>
                                 <input type="file" class="form-control-file" id="file" name="file">
-                                <p>Maks 10 mb</p>
+                                <p>Maks 20 mb</p>
                             </div>
                         </div>
                         <div class="modal-footer">

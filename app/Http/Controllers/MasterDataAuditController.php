@@ -231,7 +231,7 @@ class MasterDataAuditController extends Controller
         $AuditControls = AuditControl::findOrFail($id);
         $AuditControls->departemen_id = $request->departemen;
         $AuditControls->item_audit_id = $request->item_audit_id;
-        $AuditControls->sttatus = 'uncomplete';
+        $AuditControls->status = 'uncomplete';
         $AuditControls->save();
         Alert::success('Success', 'Document Audit changed succesfully.');
         return redirect()->back();

@@ -70,9 +70,10 @@ class ValidateRuleController extends Controller
     public function approveDocument(Request $request, $id)
     {
         $request->validate([
-            'file' => 'nullable|mimes:doc,docx,xls,xlsx',
+            'file' => 'nullable|mimes:doc,docx,xls,xlsx|max:20480',
         ], [
-            'file.mimes' => 'Only Word and Excel files are allowed.',
+            'file.mimes' => 'Only Excel (xlsx) or Word (doc, docx) files are allowed for the file.',
+            'file.max' => 'The file must not be greater than 20 MB.',
         ]);
 
         try {
@@ -125,9 +126,10 @@ class ValidateRuleController extends Controller
     {
         // Validasi file
         $request->validate([
-            'file' => 'required|mimes:pdf',
+            'file' => 'required|mimes:pdf|max:20480',
         ], [
             'file.mimes' => 'Only PDF files are allowed.',
+            'file.max' => 'The file must not be greater than 20 MB.',
         ]);
 
         // Simpan file ke direktori public
@@ -233,11 +235,12 @@ class ValidateRuleController extends Controller
             $dokumen->statusdoc = 'active';
             $dokumen->status = 'Approve by MS';
             $dokumen->comment = 'The document has been successfully activated.';
-            $dokumen->tgl_efektif = $request->input('activation_date');
+            $dokumen->tgl_efektif = $request->input('tgl_efektif');
             $dokumen->save();
 
-            // Ambil nama dasar dari file yang telah di-watermark
-            $fileBaseName = pathinfo($dokumen->active_doc, PATHINFO_FILENAME);
+            $nomorDokumen = $dokumen->nomor_dokumen;
+            $namaDokumen = $dokumen->nama_dokumen;
+            $effectiveDate = $dokumen->tgl_efektif;
 
             $departemenIds = DocumentDepartement::where('induk_dokumen_id', $dokumen->id)
                 ->pluck('departemen_id')
@@ -253,7 +256,7 @@ class ValidateRuleController extends Controller
 
             // Buat pesan yang mencakup semua departemen yang mendapatkan distribusi
             $departemenList = implode("\n", $departemenNames); // Menggunakan newline untuk format daftar
-            $message = "------ DOCUMENT DISTRIBUTION NOTIFICATION ------\n\nDocument Activated: $fileBaseName\n\nDistributed To Departments:\n$departemenList\n\nSilakan lihat dan download pada menu distributed document\n\n------ BY AISIN BISA ------";
+            $message = "------ DOCUMENT DISTRIBUTION NOTIFICATION ------\n\nDocument Activated: $nomorDokumen _$namaDokumen\nActivation Date: $effectiveDate\n\nDistributed To Departments:\n$departemenList\n\nSilakan lihat dan download pada menu distributed document\n\n------ BY AISIN BISA ------";
 
             // Define group IDs for notifications
             $groupIds = [

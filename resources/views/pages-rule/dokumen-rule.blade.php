@@ -144,7 +144,7 @@
                                     <div class="col-sm-12">
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" id="select_all">
-                                            <label class="form-check-label" for="select_all">Select All</label>
+                                            <label class="form-check-label" for="select_all">Select all</label>
                                         </div>
                                     </div>
                                     @foreach ($uniqueDepartemens as $dept)
@@ -164,6 +164,7 @@
                         <div class="form-group">
                             <label for="file">Choose File (Word, Excel)</label>
                             <input type="file" class="form-control" id="file" name="file" required>
+                            <p>Maks 20 mb</p>
                             @if ($errors->has('file'))
                                 <div class="alert alert-danger mt-2">
                                     {{ $errors->first('file') }}

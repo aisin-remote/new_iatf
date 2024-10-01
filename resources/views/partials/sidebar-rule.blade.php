@@ -59,10 +59,6 @@
                             <a class="nav-link {{ Route::currentRouteName() === 'rule.index' && request('tipe') === 'STANDAR' ? 'active' : '' }}"
                                 href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'STANDAR']) }}">Standard</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() === 'rule.index' && request('tipe') === 'WIS' ? 'active' : '' }}"
-                                href="{{ route('rule.index', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
-                        </li>
                     </ul>
                 </div>
             </li>
@@ -90,10 +86,6 @@
                         <li class="nav-item">
                             <a class="nav-link {{ Route::currentRouteName() === 'rule.validate' && request('tipe') === 'STANDAR' ? 'active' : '' }}"
                                 href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'STANDAR']) }}">Standard</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() === 'rule.validate' && request('tipe') === 'WIS' ? 'active' : '' }}"
-                                href="{{ route('rule.validate', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
                         </li>
                     </ul>
                 </div>
@@ -123,10 +115,6 @@
                         <a class="nav-link {{ Route::currentRouteName() === 'documents.final' && request('tipe') === 'Standar' ? 'active' : '' }}"
                             href="{{ route('documents.final', ['jenis' => 'rule', 'tipe' => 'Standar']) }}">Standard</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::currentRouteName() === 'documents.final' && request('tipe') === 'WIS' ? 'active' : '' }}"
-                            href="{{ route('documents.final', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
-                    </li>
                 </ul>
             </div>
         </li>
@@ -153,10 +141,6 @@
                     <li class="nav-item">
                         <a class="nav-link {{ Route::currentRouteName() === 'document.share' && request('tipe') === 'STANDAR' ? 'active' : '' }}"
                             href="{{ route('document.share', ['jenis' => 'rule', 'tipe' => 'STANDAR']) }}">Standard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{ Route::currentRouteName() === 'document.share' && request('tipe') === 'WIS' ? 'active' : '' }}"
-                            href="{{ route('document.share', ['jenis' => 'rule', 'tipe' => 'WIS']) }}">WIS</a>
                     </li>
                 </ul>
             </div>

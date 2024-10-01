@@ -7,26 +7,21 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Final Document {{ ucfirst($jenis) }} - {{ ucfirst($tipe) }}</h4>
-                        <div class="container">
-                            <div class="row mb-3">
-                                <!-- Kolom untuk tombol Upload Old Documents -->
-                                <div class="col-md-6 d-flex align-items-center">
-                                    @role('admin')
-                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploadoldDoc">
-                                            Upload Old Documents
-                                        </button>
-                                    @endrole
-                                </div>
-                                <!-- Kolom untuk input pencarian dan tombol filter -->
-                                <div class="col-md-6 d-flex justify-content-end align-items-center">
-                                    <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
-                                        placeholder="Search..." style="width: 300px;">
-                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
-                                        style="background: #56544B">
-                                        Filter
-                                    </button>
-                                </div>
-                            </div>
+
+                        <!-- Kolom untuk input pencarian dan tombol filter -->
+                        <div class="d-flex justify-content-end mb-3">
+                            <!-- Input pencarian -->
+                            <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
+                                placeholder="Search..." style="width: 300px;">
+                            <!-- Tombol Filter -->
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#filterModal"
+                                style="background: #56544B">
+                                Filter
+                            </button>
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#uploadoldDoc"
+                                style="margin-left: 8px">
+                                Add Old Doc
+                            </button>
                         </div>
                         @if ($errors->any())
                             <div class="alert alert-danger" id="error-alert">
@@ -65,11 +60,8 @@
                                                 </td>
                                                 <td>{{ $doc->status }}</td>
                                                 <td>
-                                                    {{-- @if ($doc->file_pdf == null && $doc->status == 'Finish check by MS')
-                                                        a
-                                                    @endif --}}
                                                     @if (is_null($doc->file_pdf) && $doc->status == 'Finish check by MS' && $doc->statusdoc == 'not yet active')
-                                                        @role('guest')
+                                                        @role('admin')
                                                             <!-- Tombol Upload Final untuk guest -->
                                                             <button class="btn btn-info btn-sm" data-toggle="modal"
                                                                 data-target="#uploadFinalModal-{{ $doc->id }}">
@@ -289,7 +281,7 @@
                                         <div class="col-sm-12">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" id="select_all">
-                                                <label class="form-check-label" for="select_all">Select All</label>
+                                                <label class="form-check-label" for="select_all">Select all</label>
                                             </div>
                                         </div>
                                         @foreach ($uniqueDepartemens as $dept)
@@ -309,7 +301,7 @@
                             <div class="form-group">
                                 <label for="file">Choose File (.pdf)</label>
                                 <input type="file" class="form-control" id="file" name="file" required>
-                                <p>Maks 10 mb</p>
+                                <p>Maks 20 mb</p>
                             </div>
                             <input type="hidden" name="jenis_dokumen" value="{{ $jenis }}">
                             <input type="hidden" name="tipe_dokumen" value="{{ $tipe }}">
@@ -343,7 +335,7 @@
                                 <div class="form-group">
                                     <label for="file">Choose File</label>
                                     <input type="file" class="form-control" id="file" name="file" required>
-                                    <p>Maks 10 mb</p>
+                                    <p>Maks 20 mb</p>
                                 </div>
                             </div>
                             <div class="modal-footer">

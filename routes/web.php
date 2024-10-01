@@ -138,7 +138,7 @@ Route::get('/rule/documents/final/{jenis}/{tipe}', [RuleController::class, 'fina
     ->middleware(['auth', 'role:admin|guest'])
     ->name('documents.final');
 Route::post('/rule/documents/final/upload/{id}', [RuleController::class, 'uploadFinal'])
-    ->middleware(['auth', 'role:guest'])
+    ->middleware(['auth', 'role:admin'])
     ->name('upload.final');
 Route::get('/rule/documents/final/preview-final/{id}', [ValidateRuleController::class, 'previewFinal'])
     ->middleware(['auth', 'role:admin|guest'])
@@ -201,27 +201,28 @@ Route::get('departments/{id}', 'DepartmentController@show')->name('department.de
 
 
 //Audit Control 
-Route::group(['prefix' => 'audit'], function(){
+Route::group(['prefix' => 'audit'], function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard_audit'])
         ->middleware(['auth', 'role:admin|guest'])
         ->name('dashboard.audit');
-    Route::get('/auditcontrol', [AuditController::class, 'index_auditControl'])
+    Route::get('/auditcontrol/{departemenId}', [AuditController::class, 'index_auditControl'])
         ->middleware(['auth', 'role:guest|admin'])
         ->name('index.auditControl');
+    Route::get('/audit/{audit_id}/details/{departemen_id}', [AuditController::class, 'showAuditDetails'])
+        ->middleware(['auth', 'role:guest|admin'])
+        ->name('audit.details');
     Route::post('/auditcontrol/uploaddocument/{id}', [AuditController::class, 'uploadDocumentAudit'])
         ->middleware(['auth', 'role:guest|admin'])
         ->name('uploadDocumentAudit');
     Route::delete('/auditcontrol/deletedocument/{id}', [AuditController::class, 'deleteDocumentAudit'])
         ->middleware(['auth', 'role:guest|admin'])
         ->name('deleteDocumentAudit');
-    Route::get('/detail/{audit_id}', [AuditController::class, 'showAuditDetails'])->name('audit.details');
-    Route::get('/details/{audit_id}/{item_audit_id}', [AuditController::class, 'showItemDetails'])->name('audit.item.details');
-    Route::put('/{id}/approve', [AuditController::class, 'approveAuditDocument'])->name('audit.approve');
-    Route::put('/{id}/reject', [AuditController::class, 'rejectAuditDocument'])->name('audit.reject');
+    Route::post('/audit/document/{documentId}/approve', [AuditController::class, 'approveDocumentAudit'])->name('approveDocumentAudit');
+    Route::post('/audit/document/{documentId}/reject', [AuditController::class, 'rejectDocumentAudit'])->name('rejectDocumentAudit');
 });
 
 Route::middleware(['auth', 'role:admin|guest'])->group(function () {
-    Route::group(['prefix' => 'document_control'], function(){
+    Route::group(['prefix' => 'document_control'], function () {
         Route::get('/list', [DocumentControlController::class, 'list'])->name('document_control.list');
         Route::get('/list_ajax', [DocumentControlController::class, 'list_ajax'])->name('document_control.list_ajax');
         Route::post('/store', [DocumentControlController::class, 'store'])->name('document_control.store');

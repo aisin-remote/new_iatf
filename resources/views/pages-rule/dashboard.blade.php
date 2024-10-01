@@ -29,7 +29,7 @@
         <div class="row">
             <div class="col-md-12 grid-margin">
                 <div class="row">
-                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                    <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title">WI</h4>
@@ -37,15 +37,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">WIS</h4>
-                                <canvas id="statusBarChartWIS" width="400" height="400"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                    <!-- WIS chart removed -->
+                    <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title">Standard</h4>
@@ -53,7 +46,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 grid-margin grid-margin-lg-0 stretch-card">
+                    <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card">
                         <div class="card">
                             <div class="card-body">
                                 <h4 class="card-title">Procedure</h4>
@@ -64,35 +57,25 @@
                 </div>
             </div>
         </div>
+
         <!-- Div untuk count -->
         <div class="row">
-            <div class="col-md-6 grid-margin transparent">
+            <div class="col-md-12 grid-margin transparent">
                 <div class="row">
-                    <div class="col-md-6 mb-4 stretch-card transparent">
+                    <!-- WI Card 1 -->
+                    <div class="col-md-4 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
                                 <h4 class="mb-4">WI</h4>
                                 <p class="fs-30 mb-2">
                                     {{ $countByType->where('tipe_dokumen', 'WI')->first()->count ?? 0 }}
                                 </p>
+                            </div>
+                        </div>
+                    </div>
 
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-4 stretch-card transparent">
-                        <div class="card card-dark-blue">
-                            <div class="card-body">
-                                <h4 class="mb-4">WIS</h4>
-                                <p class="fs-30 mb-2">
-                                    {{ $countByType->where('tipe_dokumen', 'WIS')->first()->count ?? 0 }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 grid-margin transparent">
-                <div class="row">
-                    <div class="col-md-6 mb-4 stretch-card transparent">
+                    <!-- WI Card 2 -->
+                    <div class="col-md-4 mb-4 stretch-card transparent">
                         <div class="card card-tale">
                             <div class="card-body">
                                 <h4 class="mb-4">Standard</h4>
@@ -102,8 +85,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6 mb-4 stretch-card transparent">
-                        <div class="card card-dark-blue">
+
+                    <!-- WI Card 3 -->
+                    <div class="col-md-4 mb-4 stretch-card transparent">
+                        <div class="card card-tale">
                             <div class="card-body">
                                 <h4 class="mb-4">Procedure</h4>
                                 <p class="fs-30 mb-2">
@@ -115,6 +100,8 @@
                 </div>
             </div>
         </div>
+
+
         <!-- Row untuk filter dan pencarian -->
         <div class="row mb-4">
             <div class="col-md-12">
@@ -180,8 +167,6 @@
                                             WI</option>
                                         <option value="PROSEDUR" {{ request('dokumen_id') == '2' ? 'selected' : '' }}>
                                             Prosedur</option>
-                                        <option value="WIS" {{ request('dokumen_id') == '3' ? 'selected' : '' }}>
-                                            WIS</option>
                                         <option value="STANDAR" {{ request('dokumen_id') == '4' ? 'selected' : '' }}>
                                             Standar</option>
                                     </select>
@@ -334,7 +319,7 @@
         setInterval(updateDateTime, 1000);
 
         document.addEventListener("DOMContentLoaded", function() {
-            @foreach (['WI', 'WIS', 'STANDAR', 'PROSEDUR'] as $type)
+            @foreach (['WI', 'STANDAR', 'PROSEDUR'] as $type)
                 @php
                     $typeData = $countByStatusAndType->where('tipe_dokumen', $type);
                     $waitingCheck = $typeData->where('status', 'Waiting check by MS')->first()->count ?? 0;

@@ -24,35 +24,41 @@
                             <table class="table table-striped" id="documentTableBody">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
-                                        <th>Audit Name</th>
-                                        <th>Start Audit</th>
-                                        <th>End Audit</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
+                                        <th class="text-center">No</th>
+                                        <th class="text-center">Audit Name</th>
+                                        <th class="text-center">Start Audit</th>
+                                        <th class="text-center">End Audit</th>
+                                        <th class="text-center">Status</th>
+                                        <th class="text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($groupedAuditControls as $key => $group)
+                                    @if ($groupedAuditControls->isEmpty())
                                         <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $group['audit_name'] }}</td>
-                                            <td>{{ $group['start_audit'] }}</td>
-                                            <td>{{ $group['end_audit'] }}</td>
-                                            <!-- Rentang tanggal -->
-                                            <td>{{ $group['status'] }}</td>
-                                            <td>
-                                                <a href="{{ route('audit.details', ['audit_id' => $group['audit_id']]) }}"
-                                                    class="btn btn-info btn-sm">
-                                                    See Detail
-                                                </a>
-                                            </td>
+                                            <td colspan="6" class="text-center">No data available</td>
                                         </tr>
-                                    @endforeach
+                                    @else
+                                        @foreach ($groupedAuditControls as $key => $group)
+                                            <tr>
+                                                <td class="text-center">{{ $loop->iteration }}</td>
+                                                <td class="text-center">{{ $group['audit_name'] }}</td>
+                                                <td class="text-center">{{ $group['start_audit'] }}</td>
+                                                <td class="text-center">{{ $group['end_audit'] }}</td>
+                                                <td class="text-center">{{ $group['status'] }}</td>
+                                                <td class="text-center">
+                                                    <a href="{{ route('audit.details', ['audit_id' => $group['audit_id'], 'departemen_id' => $group['data']->first()->departemen->id]) }}"
+                                                        class="btn btn-info btn-sm">
+                                                        See Detail
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @endif
                                 </tbody>
                             </table>
 
                         </div>
+
                     </div>
                 </div>
             </div>

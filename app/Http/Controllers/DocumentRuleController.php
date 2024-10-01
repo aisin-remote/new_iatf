@@ -20,15 +20,15 @@ class DocumentRuleController extends Controller
 
         // Validasi input
         $request->validate([
-            'file_pdf' => 'required|mimes:pdf|max:10240', // Hanya file PDF yang diperbolehkan
-            'template' => 'required|mimes:xlsx,doc,docx|max:10240', // Hanya file Word/Excel yang diperbolehkan
+            'file_pdf' => 'required|mimes:pdf|max:20480', // Hanya file PDF yang diperbolehkan
+            'template' => 'required|mimes:xlsx,doc,docx|max:20480', // Hanya file Word/Excel yang diperbolehkan
         ], [
             'file_pdf.required' => 'The PDF file is required.',
             'file_pdf.mimes' => 'Only PDF files are allowed for the file_pdf.',
-            'file_pdf.max' => 'The PDF file must not be greater than 10 MB.',
+            'file_pdf.max' => 'The PDF file must not be greater than 20 MB.',
             'template.required' => 'The template file is required.',
             'template.mimes' => 'Only Excel (xlsx) or Word (doc, docx) files are allowed for the template.',
-            'template.max' => 'The template file must not be greater than 10 MB.',
+            'template.max' => 'The template file must not be greater than 20 MB.',
         ]);
 
         // Simpan file yang diunggah ke storage disk
@@ -63,8 +63,8 @@ class DocumentRuleController extends Controller
         $request->validate([
             'nomor_template' => 'required|string|max:255',
             'tgl_efektif' => 'required',
-            'file_pdf' => 'nullable|file|mimes:pdf|max:10240',
-            'template' => 'nullable|file|mimes:xlsx,doc,docx|max:10240', // Sesuaikan dengan kebutuhan
+            'file_pdf' => 'nullable|file|mimes:pdf|max:20480',
+            'template' => 'nullable|file|mimes:xlsx,doc,docx|max:20480', // Sesuaikan dengan kebutuhan
         ]);
 
         // Cari template berdasarkan id

@@ -51,18 +51,25 @@
             <div class="collapse {{ Route::currentRouteName() === 'index.auditControl' ? 'show' : '' }}"
                 id="auditControlMenu">
                 <ul class="nav flex-column sub-menu">
-                    @foreach ($departemens as $departemen)
+                    @if (auth()->user()->departemen)
+                        <!-- Pastikan pengguna memiliki departemen -->
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == $departemen->id ? 'active' : '' }}"
-                                href="{{ route('index.auditControl', $departemen->id) }}">
+                            <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == auth()->user()->departemen->id ? 'active' : '' }}"
+                                href="{{ route('index.auditControl', auth()->user()->departemen->id) }}">
                                 <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
-                                <span class="menu-title">{{ $departemen->nama_departemen }}</span>
+                                <span class="menu-title">{{ auth()->user()->departemen->aliases }}</span>
                             </a>
                         </li>
-                    @endforeach
+                    @else
+                        <li class="nav-item">
+                            <span class="nav-link">No departments available for this user.</span>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </li>
+
+
 
         <!-- Document Control -->
         <li class="nav-item {{ Route::currentRouteName() === 'document_control.list' ? 'active' : '' }}">

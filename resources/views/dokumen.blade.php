@@ -133,12 +133,12 @@
                         <div class="form-group">
                             <label for="file_pdf">Select Preview (.pdf)</label>
                             <input type="file" class="form-control-file" id="file_pdf" name="file_pdf" required>
-                            <p>Maks 10 mb</p>
+                            <p>Maks 20 mb</p>
                         </div>
                         <div class="form-group">
                             <label for="template">Select Template (.word, .excel)</label>
                             <input type="file" class="form-control-file" id="template" name="template">
-                            <p>Maks 10 mb</p>
+                            <p>Maks 20 mb</p>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -183,7 +183,7 @@
                                     <p>Current file: <a href="{{ asset('storage/' . $doc->file_pdf) }}"
                                             target="_blank">{{ basename($doc->file_pdf) }}</a></p>
                                 @endif
-                                <p>Maks 10 mb</p>
+                                <p>Maks 20 mb</p>
                             </div>
                             <div class="form-group">
                                 <label for="template">Select Template (.word, .excel)</label>
@@ -192,7 +192,7 @@
                                     <p>Current file: <a href="{{ asset('storage/' . $doc->template) }}"
                                             target="_blank">{{ basename($doc->template) }}</a></p>
                                 @endif
-                                <p>Maks 10 mb</p>
+                                <p>Maks 20 mb</p>
                             </div>
                         </div>
                         <div class="modal-footer">
