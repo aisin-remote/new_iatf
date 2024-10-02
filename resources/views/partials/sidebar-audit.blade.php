@@ -51,19 +51,36 @@
             <div class="collapse {{ Route::currentRouteName() === 'index.auditControl' ? 'show' : '' }}"
                 id="auditControlMenu">
                 <ul class="nav flex-column sub-menu">
-                    @if (auth()->user()->departemen)
-                        <!-- Pastikan pengguna memiliki departemen -->
-                        <li class="nav-item">
-                            <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == auth()->user()->departemen->id ? 'active' : '' }}"
-                                href="{{ route('index.auditControl', auth()->user()->departemen->id) }}">
-                                <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
-                                <span class="menu-title">{{ auth()->user()->departemen->aliases }}</span>
-                            </a>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <span class="nav-link">No departments available for this user.</span>
-                        </li>
+                    @if (auth()->user()->hasRole('admin'))
+                        <!-- Jika role adalah admin, tampilkan semua departemen -->
+                        @php
+                            $allDepartments = App\Models\Departemen::all(); // Mengambil semua departemen dari database
+                        @endphp
+
+                        @foreach ($allDepartments as $departemen)
+                            <li class="nav-item">
+                                <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == $departemen->id ? 'active' : '' }}"
+                                    href="{{ route('index.auditControl', $departemen->id) }}">
+                                    <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
+                                    <span class="menu-title">{{ $departemen->aliases }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    @elseif (auth()->user()->hasRole('guest'))
+                        <!-- Jika role adalah guest, tampilkan departemen pengguna saat ini saja -->
+                        @if (auth()->user()->departemen)
+                            <li class="nav-item">
+                                <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == auth()->user()->departemen->id ? 'active' : '' }}"
+                                    href="{{ route('index.auditControl', auth()->user()->departemen->id) }}">
+                                    <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
+                                    <span class="menu-title">{{ auth()->user()->departemen->aliases }}</span>
+                                </a>
+                            </li>
+                        @else
+                            <li class="nav-item">
+                                <span class="nav-link">No departments available for this user.</span>
+                            </li>
+                        @endif
                     @endif
                 </ul>
             </div>
