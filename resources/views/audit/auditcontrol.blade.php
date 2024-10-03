@@ -8,16 +8,16 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Audit Control</h4>
+                        <h4 class="card-title">List Audit Control</h4>
                         <div class="row mb-3">
                             <!-- Kolom untuk input pencarian dan tombol filter -->
                             <div class="col-md-12 d-flex justify-content-end">
                                 <input type="text" class="form-control form-control-sm mr-2" id="searchInput"
                                     placeholder="Search..." style="width: 250px;">
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#auditfilterModal"
+                                {{-- <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#auditfilterModal"
                                     style="background: #56544B">
                                     Filter
-                                </button>
+                                </button> --}}
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -64,6 +64,64 @@
             </div>
         </div>
     </div>
+    {{-- <div class="modal fade" id="auditfilterModal" tabindex="-1" role="dialog" aria-labelledby="auditfilterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form action="{{ route('masterdata.auditControl') }}" method="GET" id="filterForm">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="auditfilterModalLabel">Filter <i class="fa-solid fa-filter"></i>
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Filter berdasarkan Tanggal Upload -->
+                        <div class="form-group">
+                            <label for="audit_id">Audit</label>
+                            <select name="audit_id" id="audit_id" class="form-control select2" style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($audit as $d)
+                                    <option value="{{ $d->id }}"
+                                        {{ request('audit_id') == $d->id ? 'selected' : '' }}>{{ $d->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="item_audit_id">Item Audit</label>
+                            <select name="item_audit_id" id="item_audit_id" class="form-control select2"
+                                style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($itemaudit as $d)
+                                    <option value="{{ $d->id }}"
+                                        {{ request('item_audit_id') == $d->id ? 'selected' : '' }}>{{ $d->nama_item }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Departemen">Departemen</label>
+                            <select name="departemen" id="departemen" class="form-control select2" style="width: 100%;">
+                                <option value="" selected>Select item</option>
+                                @foreach ($uniqueDepartemens as $d)
+                                    <option value="{{ $d->id }}"
+                                        {{ request('departemen') == $d->id ? 'selected' : '' }}>
+                                        {{ $d->aliases }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> --}}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {

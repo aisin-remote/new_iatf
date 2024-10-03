@@ -217,8 +217,8 @@ Route::group(['prefix' => 'audit'], function () {
     Route::delete('/auditcontrol/deletedocument/{id}', [AuditController::class, 'deleteDocumentAudit'])
         ->middleware(['auth', 'role:guest|admin'])
         ->name('deleteDocumentAudit');
-    Route::post('/audit/document/{documentId}/approve', [AuditController::class, 'approveDocumentAudit'])->name('approveDocumentAudit');
-    Route::post('/audit/document/{documentId}/reject', [AuditController::class, 'rejectDocumentAudit'])->name('rejectDocumentAudit');
+    Route::post('/audit/approve/{id}', [AuditController::class, 'approveItemAudit'])->name('approveItemAudit');
+    Route::post('/audit/reject/{id}', [AuditController::class, 'rejectItemAudit'])->name('rejectItemAudit');
 });
 
 Route::middleware(['auth', 'role:admin|guest'])->group(function () {

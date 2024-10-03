@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
         $admin = User::create([
             'npk' => '000000',
             'name' => 'Rama',
-            'departemen_id' => 18,
+            'departemen_id' => 22,
             'password' => bcrypt('12345678'),
         ]);
         $admin->assignRole('admin');
@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
         $admin2 = User::create([
             'npk' => '111111',
             'name' => 'Fina',
-            'departemen_id' => 18,
+            'departemen_id' => 22,
             'password' => bcrypt('12345678'),
         ]);
         $admin2->assignRole('admin');
@@ -177,6 +177,34 @@ class UserSeeder extends Seeder
             'npk' => '000019',
             'name' => 'Fauzan',
             'departemen_id' => 19,
+            'password' => bcrypt('12345678'),
+        ]);
+        $guest->assignRole('guest');
+        $guest = User::create([
+            'npk' => '000020',
+            'name' => 'Fauji',
+            'departemen_id' => 20,
+            'password' => bcrypt('12345678'),
+        ]);
+        $guest->assignRole('guest');
+        $guest = User::create([
+            'npk' => '000021',
+            'name' => 'Otong',
+            'departemen_id' => 21,
+            'password' => bcrypt('12345678'),
+        ]);
+        $guest->assignRole('guest');
+        $guest = User::create([
+            'npk' => '000022',
+            'name' => 'Amin',
+            'departemen_id' => 22,
+            'password' => bcrypt('12345678'),
+        ]);
+        $guest->assignRole('guest');
+        $guest = User::create([
+            'npk' => '000023',
+            'name' => 'Tukiyem',
+            'departemen_id' => 23,
             'password' => bcrypt('12345678'),
         ]);
         $guest->assignRole('guest');

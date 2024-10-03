@@ -94,9 +94,9 @@
                         </div>
                         <div class="form-group">
                             <label for="item_audit_id">Item Audit</label>
-                            <select name="item_audit_id" id="item_audit_id" class="form-control select2"
-                                style="width: 100%;">
-                                <option value="" selected>Select item</option>
+                            <select name="item_audit_id[]" id="item_audit_id" class="form-control select2"
+                                multiple="multiple" style="width: 100%;">
+                                <option value="" disabled>Select item</option>
                                 @foreach ($itemaudit as $d)
                                     <option value="{{ $d->id }}">{{ $d->nama_item }}</option>
                                 @endforeach
@@ -119,7 +119,7 @@
                                                     id="dept_{{ $dept->id }}" name="departemen[]"
                                                     value="{{ $dept->id }}">
                                                 <label class="form-check-label"
-                                                    for="dept_{{ $dept->id }}">{{ $dept->nama_departemen }}</label>
+                                                    for="dept_{{ $dept->id }}">{{ $dept->aliases }}</label>
                                             </div>
                                         </div>
                                     @endforeach
@@ -179,7 +179,7 @@
                                     style="width: 100%;">
                                     <option value="" selected>Select Department</option>
                                     @foreach ($uniqueDepartemens as $d)
-                                        <option value="{{ $d->id }}">{{ $d->nama_departemen }}
+                                        <option value="{{ $d->id }}">{{ $d->aliases }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -266,7 +266,7 @@
                                 @foreach ($uniqueDepartemens as $d)
                                     <option value="{{ $d->id }}"
                                         {{ request('departemen') == $d->id ? 'selected' : '' }}>
-                                        {{ $d->nama_departemen }}</option>
+                                        {{ $d->aliases }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -280,6 +280,14 @@
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#item_audit_id').select2({
+                placeholder: "Select item",
+                allowClear: true
+            });
+        });
+        </script>
     <script>
         $(document).ready(function() {
             // Event handler untuk pencarian

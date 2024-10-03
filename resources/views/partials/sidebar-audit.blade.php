@@ -45,7 +45,7 @@
                 aria-expanded="{{ Route::currentRouteName() === 'index.auditControl' ? 'true' : 'false' }}"
                 aria-controls="auditControlMenu">
                 <i class="fa-solid fa-list-check" style="margin-right: 8px"></i>
-                <span class="menu-title">Audit Control</span>
+                <span class="menu-title">List Audit Control</span>
                 <i class="menu-arrow"></i>
             </a>
             <div class="collapse {{ Route::currentRouteName() === 'index.auditControl' ? 'show' : '' }}"
@@ -56,15 +56,16 @@
                         @php
                             $allDepartments = App\Models\Departemen::all(); // Mengambil semua departemen dari database
                         @endphp
-
                         @foreach ($allDepartments as $departemen)
-                            <li class="nav-item">
-                                <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == $departemen->id ? 'active' : '' }}"
-                                    href="{{ route('index.auditControl', $departemen->id) }}">
-                                    <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
-                                    <span class="menu-title">{{ $departemen->aliases }}</span>
-                                </a>
-                            </li>
+                            @if ($departemen->nama_departemen !== 'Aisin Indonesia')
+                                <li class="nav-item">
+                                    <a class="nav-link {{ Route::currentRouteName() === 'index.auditControl' && request()->route('id') == $departemen->id ? 'active' : '' }}"
+                                        href="{{ route('index.auditControl', $departemen->id) }}">
+                                        <i class="fa-solid fa-folder" style="margin-right: 8px"></i>
+                                        <span class="menu-title">{{ $departemen->aliases }}</span>
+                                    </a>
+                                </li>
+                            @endif
                         @endforeach
                     @elseif (auth()->user()->hasRole('guest'))
                         <!-- Jika role adalah guest, tampilkan departemen pengguna saat ini saja -->

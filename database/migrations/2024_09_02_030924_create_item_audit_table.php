@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama_item');
             $table->text('requirement');
-            $table->text('example_requirement');
+            $table->text('example_requirement')->nullable();
             $table->timestamps();
         });
     }

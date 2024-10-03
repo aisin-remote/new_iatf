@@ -19,6 +19,26 @@ class DepartemenSeeder extends Seeder
             'aliases' => 'AII'
         ]);
         Departemen::create([
+            'code' => 'AII',
+            'nama_departemen' => 'Marketing (AII)',
+            'aliases' => 'Marketing (AII)'
+        ]);
+        Departemen::create([
+            'code' => 'AII',
+            'nama_departemen' => 'Human Resource Development (AII)',
+            'aliases' => 'HRD (AII)'
+        ]);
+        Departemen::create([
+            'code' => 'AII',
+            'nama_departemen' => 'Purchasing Group (AII)',
+            'aliases' => 'Purchasing (AII)'
+        ]);
+        Departemen::create([
+            'code' => 'AII',
+            'nama_departemen' => 'IRL-GA (AII)',
+            'aliases' => 'IRL-GA (AII)'
+        ]);
+        Departemen::create([
             'code' => 'QAS',
             'nama_departemen' => 'Quality Body',
             'aliases' => 'QA Body'

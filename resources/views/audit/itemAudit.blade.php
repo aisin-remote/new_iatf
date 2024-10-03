@@ -102,11 +102,9 @@
                             <textarea class="form-control" id="requirement" name="requirement" rows="4"></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="example_requirement">Example Requirement <span style="color: red;">*</span></label>
+                            <label for="example_requirement">Example Requirement <span
+                                    style="color: red;">(opsional)</span></label>
                             <input type="file" class="form-control" id="example_requirement" name="example_requirement">
-                        </div>
-                        <div class="form-group">
-                            <small><span style="color: red;">*</span> Optional</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -140,18 +138,15 @@
                             </div>
                             <div class="form-group">
                                 <label for="requirement">Requirement</label>
-                                <textarea class="form-control" id="requirement" name="requirement" rows="4"
-                                    value="{{ old('requirement', $d->requirement) }}"></textarea>
+                                <textarea class="form-control" id="requirement" name="requirement" rows="4">{{ old('requirement', $d->requirement) }}</textarea>
                             </div>
+
                             <div class="form-group">
                                 <label for="example_requirement">Example Requirement <span
-                                        style="color: red;">*</span></label>
+                                        style="color: rgb(255, 0, 0);">(opsional)</span></label>
                                 <input type="file" class="form-control" id="example_requirement"
                                     name="example_requirement"
                                     value="{{ old('example_requirement', $d->example_requirement) }}">
-                            </div>
-                            <div class="form-group">
-                                <small><span style="color: red;">*</span> Optional</small>
                             </div>
                         </div>
                         <div class="modal-footer">
