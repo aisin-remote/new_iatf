@@ -123,10 +123,18 @@
                                     style="width: 100%;">
                                     <option value="" selected>Select Department</option>
                                     @foreach ($allDepartemen as $departemen)
-                                        <option value="{{ $departemen->nama_departemen }}"
-                                            {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
-                                            {{ $departemen->nama_departemen }}
-                                        </option>
+                                        @if (
+                                            !in_array($departemen->nama_departemen, [
+                                                'Marketing (AII)',
+                                                'Human Resource Development (AII)',
+                                                'Purchasing Group (AII)',
+                                                'IRL-GA (AII)',
+                                            ]))
+                                            <option value="{{ $departemen->nama_departemen }}"
+                                                {{ request('departemen_id') == $departemen->nama_departemen ? 'selected' : '' }}>
+                                                {{ $departemen->nama_departemen }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>

@@ -184,8 +184,16 @@
                                             style="width: 100%;">
                                             <option value="" selected>Select Department</option>
                                             @foreach ($allDepartemen as $departemen)
-                                                <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
-                                                </option>
+                                                @if (
+                                                    !in_array($departemen->nama_departemen, [
+                                                        'Marketing (AII)',
+                                                        'Human Resource Development (AII)',
+                                                        'Purchasing Group (AII)',
+                                                        'IRL-GA (AII)',
+                                                    ]))
+                                                    <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
+                                                    </option>
+                                                @endif
                                             @endforeach
                                         </select>
                                     </div>

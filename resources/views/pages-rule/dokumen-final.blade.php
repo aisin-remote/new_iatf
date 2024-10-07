@@ -176,8 +176,16 @@
                                             style="width: 100%;">
                                             <option value="" selected>Select Department</option>
                                             @foreach ($alldepartmens as $departemen)
-                                                <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
-                                                </option>
+                                                @if (
+                                                    !in_array($departemen->nama_departemen, [
+                                                        'Marketing (AII)',
+                                                        'Human Resource Development (AII)',
+                                                        'Purchasing Group (AII)',
+                                                        'IRL-GA (AII)',
+                                                    ]))
+                                                    <option value="{{ $departemen->id }}">{{ $departemen->nama_departemen }}
+                                                    </option>
+                                                @endif
                                             @endforeach
                                         </select>
                                     </div>
@@ -240,9 +248,17 @@
                                 <select class="form-control" id="department" name="department" required>
                                     <option value="">Select Department</option>
                                     @foreach ($alldepartmens as $d)
-                                        <option value="{{ $d['id'] }}">
-                                            {{ $d->nama_departemen }}
-                                        </option>
+                                        @if (
+                                            !in_array($d->nama_departemen, [
+                                                'Marketing (AII)',
+                                                'Human Resource Development (AII)',
+                                                'Purchasing Group (AII)',
+                                                'IRL-GA (AII)',
+                                            ]))
+                                            <option value="{{ $d['id'] }}">
+                                                {{ $d->nama_departemen }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 </select>
                             </div>

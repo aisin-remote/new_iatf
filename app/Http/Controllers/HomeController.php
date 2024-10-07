@@ -109,16 +109,20 @@ class HomeController extends Controller
     {
         return view('pages-process.dashboard');
     }
-    public function dashboard_audit()
+    public function dashboard_audit(Request $request)
     {
         $user = auth()->user();
         $isAdmin = $user->hasRole('admin');
+        $selectedDepartmentId = $request->input('department_id'); // Mengambil ID departemen yang dipilih
 
-        // Ambil semua audit controls jika admin
+        // Ambil semua departemen terkait jika bukan admin
         if ($isAdmin) {
-            $auditControls = AuditControl::with(['audit', 'departemen'])->get(); // Ambil semua kontrol audit dengan relasi audit dan departemen
+            $auditControls = AuditControl::with(['audit', 'departemen'])->get(); // Ambil semua kontrol audit
         } else {
-            $auditControls = AuditControl::where('departemen_id', $user->departemen_id)->with('audit')->get();
+            $departemenIds = $user->departemens->pluck('id'); // Mengambil semua departemen yang terkait dengan user
+            $auditControls = AuditControl::whereIn('departemen_id', $departemenIds)
+                ->with(['audit', 'departemen'])
+                ->get();
         }
 
         // Data untuk audit
@@ -128,6 +132,11 @@ class HomeController extends Controller
         foreach ($auditControls as $control) {
             $auditId = $control->audit_id;
             $departemenId = $control->departemen_id;
+
+            // Jika departemen ID yang dipilih ada, filter data berdasarkan itu
+            if ($selectedDepartmentId && $selectedDepartmentId != $departemenId) {
+                continue; // Lewati jika tidak sesuai dengan ID yang dipilih
+            }
 
             // Jika audit tidak ada, buat entri baru
             if (!isset($auditData[$auditId][$departemenId])) {
@@ -154,11 +163,17 @@ class HomeController extends Controller
             }
         }
 
-        // Kirim data ke view
-        return view('audit.dashboard', ['auditData' => $auditData, 'isAdmin' => $isAdmin]);
+        // Ambil semua departemen
+        $departemens = Departemen::all();
+
+        // Kirim data ke view, gunakan 'departemens' sebagai key
+        return view('audit.dashboard', [
+            'auditData' => $auditData,
+            'isAdmin' => $isAdmin,
+            'departemens' => $departemens,
+            'selectedDepartmentId' => $selectedDepartmentId, // Kirim ID departemen yang dipilih ke view
+        ]);
     }
-
-
 
     public function downloadExcel(Request $request)
     {
