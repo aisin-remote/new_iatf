@@ -28,9 +28,10 @@
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
                 <a class="navbar-brand brand-logo mr-5" href="{{ route('select.dashboard') }}"><img
-                        src="images/logo-iatf.png" class="mr-2" alt="logo" /></a>
+                        src="images/logodonna.png" class="mr-2" alt="logo"
+                        style="width: 200px; height: auto;" /></a>
                 <a class="navbar-brand brand-logo-mini" href="{{ route('select.dashboard') }}"><img
-                        src="images/logo-iatf-mini.png" alt="logo" /></a>
+                        src="images/logodonna.png" alt="logo" /></a>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
                 <ul class="navbar-nav navbar-nav-right">
@@ -77,7 +78,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <a href="{{ route('dashboard.rule') }}">
                                 <div class="card tale-bg">
                                     <div class="card-people mt-auto"
@@ -94,33 +95,14 @@
                                 </div>
                             </a>
                         </div>
-
-                        <div class="col-md-3">
-                            <div class="card tale-bg">
-                                <a href="{{ route('comingsoon') }}" style="text-decoration: none;">
-                                    <div class="card-people mt-auto"
-                                        style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
-                                        <img src="{{ asset('images/select-dashboard-2.jpg') }}" alt="process"
-                                            style="width: 100%; height: 100%; object-fit: cover;">
-                                        <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
-                                            <div class="d-flex align-items-center justify-content-center">
-                                                <h2 class="mb-0 font-weight-bold text-white"><i
-                                                        class="icon-sun mr-2"></i>Dashboard Process</h2>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="card tale-bg">
                                 <a href="{{ route('dashboard.audit') }}" style="text-decoration: none;">
                                     <div class="card-people mt-auto"
                                         style="position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100%;">
                                         <img src="{{ asset('images/auditcontrol.png') }}" alt="audit"
                                             style="width: 100%; height: 100%; object-fit: cover;">
-                                        <div class="weather-info"
-                                            style="position: absolute; bottom: 10px; left: 10px;">
+                                        <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
                                             <div class="d-flex align-items-center justify-content-center">
                                                 <h2 class="mb-0 font-weight-bold text-white"><i
                                                         class="icon-sun mr-2"></i>Audit Control</h2>
@@ -130,7 +112,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="card tale-bg">
                                 <a href="{{ route('document_control.list') }}" style="text-decoration: none;">
                                     <div class="card-people mt-auto"

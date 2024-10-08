@@ -17,7 +17,7 @@
     <!-- inject:css -->
     <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
     <!-- endinject -->
-    <link rel="shortcut icon" href="../../images/favicon.png" />
+    <link rel="shortcut icon" href="../../images/logodonna.png" />
 </head>
 
 <body>
@@ -34,16 +34,11 @@
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo"
                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                <img src="../../images/logo-iatf.png" alt="logo">
+                                <img src="../../images/logodonna.png" alt="logo" style="width: 120px; height: auto;">
                                 <img src="../../images/aisin.png" alt="logo"
-                                    style="width: 96px; height: auto; margin-left: auto;">
+                                    style="width: 64px; height: auto; margin-left: auto;">
                             </div>
-                            @if (session('success'))
-                                <div class="alert alert-success" id="alert-success">
-                                    {{ session('success') }}
-                                </div>
-                            @endif
-                            <h4>Hello! let's get started</h4>
+                            <h4 style="margin-top: -16px;">Hello! let's get started</h4> <!-- Atur jarak -->
                             <h6 class="font-weight-light">Sign in to continue.</h6>
                             <form action="{{ route('login.proses') }}" method="POST" class="pt-3">
                                 @csrf
@@ -78,6 +73,7 @@
                                 Forgot the password? contact ITD
                             </div>
                         </div>
+
 
                     </div>
                 </div>

@@ -30,11 +30,12 @@
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo"
                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                <img src="../../images/logo-iatf.png" alt="logo">
+                                <img src="../../images/logodonna.png" alt="logo"
+                                    style="width: 120px; height: auto;">
                                 <img src="../../images/aisin.png" alt="logo"
-                                    style="width: 96px; height: auto; margin-left: auto;">
+                                    style="width: 64px; height: auto; margin-left: auto;">
                             </div>
-                            
+
                             <h4>New here?</h4>
                             <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
 
