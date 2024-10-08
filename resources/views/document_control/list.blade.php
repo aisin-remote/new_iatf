@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'List Document Control')
+@section('sidebar')
 
+@endsection
 @section('content')
     <div class="content-wrapper">
         <div class="row">

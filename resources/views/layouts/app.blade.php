@@ -116,8 +116,10 @@
             @endphp
             @if (request()->is('rule') || request()->is('rule/*'))
                 @include('partials.sidebar-rule')
-            @elseif (request()->is('audit') || request()->is('audit/*') || request()->is('document_control/*'))
+            @elseif (request()->is('audit') || request()->is('audit/*'))
                 @include('partials.sidebar-audit', ['departemens' => $departemens])
+            @elseif (request()->is('document_control/*'))
+                @include('partials.sidebar-documentcontrol')
             @else
                 @include('partials.sidebar-default')
             @endif
