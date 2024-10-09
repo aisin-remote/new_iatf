@@ -19,7 +19,7 @@ class DocumentControlController extends Controller
         $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();
 
         $document_controls = DocumentControl::orderBy('name', 'ASC')->get();
-        
+
         return view('document_control.list', compact('departments', 'document_controls'));
     }
 
@@ -37,6 +37,7 @@ class DocumentControlController extends Controller
             'department' => 'required',
             'obsolete' => 'required',
             'set_reminder' => 'required',
+            'comment' => 'required',
         ]);
 
         try {
@@ -45,6 +46,8 @@ class DocumentControlController extends Controller
                 'department' => $request->department,
                 'obsolete' => $request->obsolete,
                 'set_reminder' => $request->set_reminder,
+                'comment' => $request->comment,
+                'status' => 'Unuploaded',
             ]);
 
             $document_control->save();

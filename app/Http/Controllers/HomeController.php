@@ -119,7 +119,7 @@ class HomeController extends Controller
         if ($isAdmin) {
             $auditControls = AuditControl::with(['audit', 'departemen'])->get(); // Ambil semua kontrol audit
         } else {
-            $departemenIds = $user->departemens->pluck('id'); // Mengambil semua departemen yang terkait dengan user
+            $departemenIds = $user->departemen->pluck('id'); // Mengambil semua departemen yang terkait dengan user
             $auditControls = AuditControl::whereIn('departemen_id', $departemenIds)
                 ->with(['audit', 'departemen'])
                 ->get();

@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('obsolete');
             $table->date('set_reminder');
             $table->string('department');
+            $table->string('comment');
+            $table->string('status');
             $table->timestamps();
         });
     }

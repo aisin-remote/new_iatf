@@ -27,7 +27,12 @@
                                         <th>Department</th>
                                         <th>Obsolete</th>
                                         <th>Set Reminder</th>
-                                        <th>Option</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                        @role('admin')
+                                            <th>Approval</th>
+                                        @endrole
+                                        <th>Comment</th>
                                     </tr>
                                 </thead>
                                 <tbody style="display: table-row-group;border-color: inherit;">
@@ -57,8 +62,8 @@
                     </div>
                     <div class="form-group">
                         <label for="department_create">Department <span class="text-danger">*</span></label>
-                        <select class="form-control" name="department_create" id="department_create" required>
-                            <option value="">-- Choose --</option>
+                        <select class="form-control select2" multiple="multiple" name="department_create[]"
+                            id="department_create" style="width: 100%;" required>
                             @foreach ($departments as $department)
                                 <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
                                 </option>
@@ -74,6 +79,11 @@
                         <input type="date" class="form-control" id="set_reminder_create" name="set_reminder_create"
                             required>
                     </div>
+                    <div class="form-group">
+                        <label for="comment_create">Comment <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="comment_create" name="comment_create" rows="4" required></textarea>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -117,6 +127,10 @@
                         <input type="date" class="form-control" id="set_reminder_edit" name="set_reminder_edit"
                             required>
                     </div>
+                    <div class="form-group">
+                        <label for="comment_edit">Comment <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="comment_edit" name="comment_edit" rows="4" required></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -130,13 +144,13 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Add Document Control</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Document Control</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Are you sure want to delte this item?
+                    Are you sure want to delete this item?
                     <input type="hidden" id="id_delete">
                     <div class="form-group">
                         <input type="text" readonly class="form-control-plaintext" id="name_delete">
@@ -177,11 +191,21 @@
     <script src="{{ asset('vendors/toastr/toastr.min.js') }}"></script>
     <script>
         $(document).ready(function() {
+            $('#department_create').select2({
+                placeholder: "--- Choose ---",
+                allowClear: true
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
             @if (session()->has('success'))
                 toastr['success']("{{ Session('success') }}")
             @endif
-        })
+        });
     </script>
+
     <script>
         $(document).ready(function() {
             var table = $('#app_table').DataTable({
@@ -200,7 +224,7 @@
                             var rowIndex = meta.row + meta.settings._iDisplayStart + 1;
                             return rowIndex;
                         },
-                        className: "text-center" // Menetapkan kelas CSS 'text-center'
+                        className: "text-center"
                     },
                     {
                         data: 'name',
@@ -219,26 +243,45 @@
                         name: 'set_reminder',
                     },
                     {
+                        data: 'status',
+                        name: 'status',
+                    },
+                    {
                         orderable: false,
                         searchable: false,
                         data: null,
                         render: function(data, type, row, meta) {
                             return `<div class="text-center">
-                                    <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}">Edit <i class="fa-solid fa-edit"></i></button>
-                                    <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}">Delete <i class="fa-solid fa-trash-alt"></i></button>
-                                </div>
-                        `;
+                                        <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}"> <i class="fa-solid fa-edit"></i></button>
+                                        <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-trash-alt"></i></button>
+                                        <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-eye"></i></button>
+                                    </div>`;
                         }
+                    },
+                    {
+                        orderable: false,
+                        searchable: false,
+                        data: null,
+                        render: function(data, type, row, meta) {
+                            return `<div class="text-center">
+                                        <button class="btn btn-success btn-sm btn-approve" data-toggle="modal" data-target="#approveModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}"> <i class="fa-solid fa-check"></i></button>
+                                        <button class="btn btn-danger btn-sm btn-reject" data-toggle="modal" data-target="#rejectModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-x"></i></button>
+                                    </div>`;
+                        }
+                    },
+                    {
+                        data: 'comment',
+                        name: 'comment',
                     },
                 ],
             });
 
             $('#createModal').on('show.bs.modal', function() {
-                // Kosongkan semua input dalam modal saat modal ditampilkan
                 $('#name_create').val('');
                 $('#department_create').val('');
                 $('#obsolete_create').val('');
                 $('#set_reminder_create').val('');
+                $('#comment_create').val('');
 
                 var createButton = document.getElementById('submit_create');
                 createButton.removeAttribute('disabled');
@@ -255,6 +298,7 @@
                         department: $('#department_create').val(),
                         obsolete: $('#obsolete_create').val(),
                         set_reminder: $('#set_reminder_create').val(),
+                        comment: $('#comment_create').val(),
                         '_token': "{{ csrf_token() }}",
                     },
                     success: function(response) {
@@ -284,17 +328,19 @@
                 var department_edit = $(this).data('department');
                 var obsolete_edit = $(this).data('obsolete');
                 var set_reminder_edit = $(this).data('set_reminder');
+                var comment_edit = $(this).data('comment');
 
                 var editButton = document.getElementById('submit_edit');
                 editButton.removeAttribute('disabled');
                 editButton.innerHTML = 'Update';
 
-                $('#id_edit').val(id_edit)
-                $('#name_edit').val(name_edit)
-                $('#department_edit').val(department_edit)
-                $('#obsolete_edit').val(obsolete_edit)
-                $('#set_reminder_edit').val(set_reminder_edit)
-            })
+                $('#id_edit').val(id_edit);
+                $('#name_edit').val(name_edit);
+                $('#department_edit').val(department_edit);
+                $('#obsolete_edit').val(obsolete_edit);
+                $('#set_reminder_edit').val(set_reminder_edit);
+                $('#comment_edit').val(comment_edit);
+            });
 
             $('#submit_edit').on('click', function() {
                 let id_edit = $('#id_edit').val();
@@ -302,6 +348,7 @@
                 let department_edit = $('#department_edit').val();
                 let obsolete_edit = $('#obsolete_edit').val();
                 let set_reminder_edit = $('#set_reminder_edit').val();
+                let comment_edit = $('#comment_edit').val();
                 $.ajax({
                     url: "{{ route('document_control.update') }}",
                     type: "POST",
@@ -311,12 +358,13 @@
                         department: department_edit,
                         obsolete: obsolete_edit,
                         set_reminder: set_reminder_edit,
+                        comment: comment_edit,
                         '_token': "{{ csrf_token() }}",
                     },
                     success: function(response) {
-                        toastr['success'](response)
+                        toastr['success'](response);
                         table.ajax.reload();
-                        $('#editModal').modal('hide')
+                        $('#editModal').modal('hide');
                     },
                     error: function(xhr, status, error) {
                         alert(error);
@@ -333,9 +381,9 @@
                 deleteButton.removeAttribute('disabled');
                 deleteButton.innerHTML = 'Delete';
 
-                $('#id_delete').val(id_delete)
-                $('#name_delete').val(name_delete)
-            })
+                $('#id_delete').val(id_delete);
+                $('#name_delete').val(name_delete);
+            });
 
             $('#submit_delete').on('click', function() {
                 let id_delete = $('#id_delete').val();
@@ -347,9 +395,9 @@
                         '_token': "{{ csrf_token() }}",
                     },
                     success: function(response) {
-                        toastr['success'](response)
+                        toastr['success'](response);
                         table.ajax.reload();
-                        $('#deleteModal').modal('hide')
+                        $('#deleteModal').modal('hide');
                     },
                     error: function(xhr, status, error) {
                         alert(error);

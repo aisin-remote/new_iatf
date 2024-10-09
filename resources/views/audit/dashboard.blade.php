@@ -61,20 +61,28 @@
                     @endforeach
                 @endforeach
             @else
-                <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card department-chart"
-                    data-department-id="{{ Auth::user()->departemen->id }}">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="card-title">{{ $auditName }}</h4>
-                            <h4 class="card-title">{{ Auth::user()->departemen->nama_departemen }}</h4>
-                            <canvas id="chart-{{ Auth::user()->departemen->id }}" width="1668" height="834"
-                                style="display: block; height: 417px; width: 834px;"
-                                class="chartjs-render-monitor"></canvas>
-                        </div>
-                    </div>
-                </div>
+                @foreach ($auditData as $auditId => $departemenData)
+                    @foreach ($departemenData as $departemenId => $data)
+                        @if ($departemenId == Auth::user()->departemen->id)
+                            <div class="col-lg-4 grid-margin grid-margin-lg-0 stretch-card department-chart"
+                                data-department-id="{{ Auth::user()->departemen->id }}">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h4 class="card-title">{{ $data['auditName'] }}</h4>
+                                        <!-- Menggunakan $data['auditName'] -->
+                                        <h4 class="card-title">{{ Auth::user()->departemen->nama_departemen }}</h4>
+                                        <canvas id="chart-{{ Auth::user()->departemen->id }}" width="1668" height="834"
+                                            style="display: block; height: 417px; width: 834px;"
+                                            class="chartjs-render-monitor"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    @endforeach
+                @endforeach
             @endif
         </div>
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -144,7 +152,7 @@
                             afterDraw: function(chart) {
                                 var dataValues = chart.data.datasets[0].data;
                                 if (dataValues.every(v => v ===
-                                    0)) { // Cek jika semua nilai adalah 0
+                                        0)) { // Cek jika semua nilai adalah 0
                                     var ctx = chart.ctx;
                                     var chartArea = chart.chartArea;
                                     var x = (chartArea.left + chartArea.right) / 2;
