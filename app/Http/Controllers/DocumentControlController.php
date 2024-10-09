@@ -25,26 +25,32 @@ class DocumentControlController extends Controller
 
     public function list_ajax(Request $request)
     {
-        $data = DocumentControl::orderBy('name', 'ASC');
-
+        $user = auth()->user();
+    
+        if ($user->hasRole('admin')) {
+            $data = DocumentControl::orderBy('name', 'ASC');
+        } else {
+            $data = DocumentControl::select('document_controls.*')
+                ->join('departemen', 'document_controls.department', '=', 'departemen.nama_departemen')
+                ->where('departemen.id', $user->departemen_id)
+                ->orderBy('document_controls.name', 'ASC');
+        }
+    
         return DataTables::eloquent($data)->make(true);
     }
 
     public function store(Request $request)
     {
-        // dd($request);
-        $departemens = $request->input('departemen_create', []);
         $request->validate([
             'name' => 'required',
             'department' => 'required|array',
-            'departemen.*' => 'exists:departemen,id',
             'obsolete' => 'required',
             'set_reminder' => 'required',
             'comment' => 'required',
         ]);
-
+    
         try {
-            foreach ($departemens as $department) {
+            foreach ($request->department as $department) {
                 $document_control = DocumentControl::create([
                     'name' => $request->name,
                     'department' => $department,
@@ -53,15 +59,17 @@ class DocumentControlController extends Controller
                     'comment' => $request->comment,
                     'status' => 'Unuploaded',
                 ]);
-
+    
                 $document_control->save();
-
-                return "Create Successfully";
             }
+    
+            return response()->json(['message' => 'Create Successfully'], 200);
+    
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+    
 
     public function update(Request $request)
     {
@@ -73,6 +81,7 @@ class DocumentControlController extends Controller
             'department' => $request->department,
             'obsolete' => $request->obsolete,
             'set_reminder' => $request->set_reminder,
+            'comment' => $request->comment,
         ]);
 
         return "Update Successfully";
@@ -86,5 +95,65 @@ class DocumentControlController extends Controller
         $document_control->delete();
 
         return "Delete Successfully";
+    }
+
+    public function approve(Request $request)
+    {
+        $id = $request->id;
+
+        $document_control = DocumentControl::findOrFail($id);
+        $document_control->update([
+            'status' => 'Approved',
+        ]);
+
+        return "Approve Successfully";
+    }
+
+    public function reject(Request $request)
+    {
+        $id = $request->id;
+
+        $document_control = DocumentControl::findOrFail($id);
+        $document_control->update([
+            'status' => 'Rejected',
+        ]);
+
+        return "Reject Successfully";
+    }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:pdf|max:20480',
+        ]);
+    
+        $document_control = DocumentControl::findOrFail($request->id);
+    
+        if ($request->hasFile('file')) {
+            if ($document_control->file) {
+                Storage::delete('document_control/' . $document_control->file);
+            }
+            
+            $fileName = time() . '_' . $request->file->getClientOriginalName();
+            $request->file->storeAs('document_control', $fileName, 'public');
+    
+            $document_control->update([
+                'file' => $fileName,
+            ]);
+        }
+    
+        return response()->json('File uploaded successfully');
+    }
+    
+    public function file(Request $request)
+    {
+        $document_control = DocumentControl::findOrFail($request->id);
+
+        if ($document_control->file) {
+            $fileUrl = asset('storage/document_control/' . $document_control->file);
+            return response()->json(['file_url' => $fileUrl]);
+        } else {
+            return response()->json(['error' => 'File not found'], 404);
+        }
     }
 }

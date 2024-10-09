@@ -19,7 +19,7 @@
                             @endrole
                         </div>
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered" id="app_table">
+                            <table class="table table-striped table-bordered" id="app_table" width="100%">
                                 <thead style="height: 3rem; background-color: #4B49AC;" class="text-white">
                                     <tr>
                                         <th width="50px">No</th>
@@ -152,7 +152,7 @@
                 <div class="modal-body">
                     Are you sure want to delete this item?
                     <input type="hidden" id="id_delete">
-                    <div class="form-group">
+                    <div class="form-group mb-0">
                         <input type="text" readonly class="form-control-plaintext" id="name_delete">
                     </div>
                 </div>
@@ -163,6 +163,103 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="approveModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel">Approve Document Control</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure want to approve this item?
+                    <input type="hidden" id="id_approve">
+                    <div class="form-group mb-0">
+                        <input type="text" readonly class="form-control-plaintext" id="name_approve">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" id="submit_approve">Approve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Reject Document Control</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure want to reject this item?
+                    <input type="hidden" id="id_reject">
+                    <div class="form-group mb-0">
+                        <input type="text" readonly class="form-control-plaintext" id="name_reject">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger" id="submit_reject">Reject</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="uploadModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Document Control</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-0">
+                        <input type="text" readonly class="form-control-plaintext" id="name_upload">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="file_edit">File Document <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" id="file_edit" name="file_edit" accept=".pdf"
+                            required>
+                    </div>
+                    <input type="hidden" id="id_upload">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success" id="submit_upload">Upload</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">View Document</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="pdfViewer" src="" width="100%" height="500px"></iframe>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('styles')
@@ -192,7 +289,7 @@
     <script>
         $(document).ready(function() {
             $('#department_create').select2({
-                placeholder: "--- Choose ---",
+                // placeholder: "--- Choose ---",
                 allowClear: true
             });
         });
@@ -208,6 +305,77 @@
 
     <script>
         $(document).ready(function() {
+            var isAdmin = @json(auth()->user()->hasRole('admin')); // Dapatkan informasi apakah user adalah admin
+
+            var columnsConfig = [{
+                    data: null,
+                    orderable: true,
+                    searchable: true,
+                    render: function(data, type, row, meta) {
+                        var rowIndex = meta.row + meta.settings._iDisplayStart + 1;
+                        return rowIndex;
+                    },
+                    className: "text-center"
+                },
+                {
+                    data: 'name',
+                    name: 'name',
+                },
+                {
+                    data: 'department',
+                    name: 'department',
+                },
+                {
+                    data: 'obsolete',
+                    name: 'obsolete',
+                },
+                {
+                    data: 'set_reminder',
+                    name: 'set_reminder',
+                },
+                {
+                    data: 'status',
+                    name: 'status',
+                },
+                {
+                    orderable: false,
+                    searchable: false,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        var viewButtonDisabled = data.file ? '' : 'disabled';
+
+                        return `<div class="text-center">
+                                    @role('admin')
+                                        <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}"> <i class="fa-solid fa-edit"></i></button>
+                                        <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-trash-alt"></i></button>
+                                    @endrole
+
+                                    <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-upload"></i></button>
+                                    <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}> <i class="fa-solid fa-eye"></i></button>
+                                </div>`;
+                    }
+                },
+                {
+                    data: 'comment',
+                    name: 'comment',
+                }
+            ];
+
+            // Hanya tambahkan kolom approval jika user adalah admin
+            if (isAdmin) {
+                columnsConfig.splice(7, 0, {
+                    orderable: false,
+                    searchable: false,
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        return `<div class="text-center">
+                        <button class="btn btn-success btn-sm btn-approve" data-toggle="modal" data-target="#approveModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}"> <i class="fa-solid fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm btn-reject" data-toggle="modal" data-target="#rejectModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}"> <i class="fa-solid fa-x"></i></button>
+                    </div>`;
+                    }
+                });
+            }
+
             var table = $('#app_table').DataTable({
                 'lengthChange': true,
                 'processing': true,
@@ -216,64 +384,7 @@
                 ajax: {
                     url: "{{ route('document_control.list_ajax') }}",
                 },
-                columns: [{
-                        data: null,
-                        orderable: true,
-                        searchable: true,
-                        render: function(data, type, row, meta) {
-                            var rowIndex = meta.row + meta.settings._iDisplayStart + 1;
-                            return rowIndex;
-                        },
-                        className: "text-center"
-                    },
-                    {
-                        data: 'name',
-                        name: 'name',
-                    },
-                    {
-                        data: 'department',
-                        name: 'department',
-                    },
-                    {
-                        data: 'obsolete',
-                        name: 'obsolete',
-                    },
-                    {
-                        data: 'set_reminder',
-                        name: 'set_reminder',
-                    },
-                    {
-                        data: 'status',
-                        name: 'status',
-                    },
-                    {
-                        orderable: false,
-                        searchable: false,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return `<div class="text-center">
-                                        <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}"> <i class="fa-solid fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-trash-alt"></i></button>
-                                        <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-eye"></i></button>
-                                    </div>`;
-                        }
-                    },
-                    {
-                        orderable: false,
-                        searchable: false,
-                        data: null,
-                        render: function(data, type, row, meta) {
-                            return `<div class="text-center">
-                                        <button class="btn btn-success btn-sm btn-approve" data-toggle="modal" data-target="#approveModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}"> <i class="fa-solid fa-check"></i></button>
-                                        <button class="btn btn-danger btn-sm btn-reject" data-toggle="modal" data-target="#rejectModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-x"></i></button>
-                                    </div>`;
-                        }
-                    },
-                    {
-                        data: 'comment',
-                        name: 'comment',
-                    },
-                ],
+                columns: columnsConfig
             });
 
             $('#createModal').on('show.bs.modal', function() {
@@ -290,12 +401,25 @@
 
             // CREATE
             $('#submit_create').on('click', function(e) {
+                var obsoleteDate = new Date($('#obsolete_create').val());
+                var setReminderDate = new Date($('#set_reminder_create').val());
+
+                if (setReminderDate >= obsoleteDate) {
+                    toastr['error']('Tanggal Reminder harus lebih awal dari Obselete');
+                    var createButton = document.getElementById('submit_create');
+                    createButton.removeAttribute('disabled');
+                    createButton.innerHTML = 'Submit';
+                    return;
+                }
+
+                var selectedDepartments = $('#department_create').val();
+
                 $.ajax({
                     url: "{{ route('document_control.store') }}",
                     type: "POST",
                     data: {
                         name: $('#name_create').val(),
-                        department: $('#department_create').val(),
+                        department: selectedDepartments,
                         obsolete: $('#obsolete_create').val(),
                         set_reminder: $('#set_reminder_create').val(),
                         comment: $('#comment_create').val(),
@@ -314,9 +438,14 @@
                                     toastr['error'](message);
                                 });
                             });
+                            var createButton = document.getElementById('submit_create');
+                            createButton.removeAttribute('disabled');
+                            createButton.innerHTML = 'Submit';
                         } else {
                             toastr['error'](xhr.responseText || error);
-
+                            var createButton = document.getElementById('submit_create');
+                            createButton.removeAttribute('disabled');
+                            createButton.innerHTML = 'Submit';
                         }
                     }
                 });
@@ -405,6 +534,143 @@
                     }
                 });
             });
+
+            // APPROVE
+            $('#app_table').on('click', '.btn-approve', function() {
+                var id_approve = $(this).data('id');
+                var name_approve = $(this).data('name');
+
+                var approveButton = document.getElementById('submit_approve');
+                approveButton.removeAttribute('disabled');
+                approveButton.innerHTML = 'Approve';
+
+                $('#id_approve').val(id_approve);
+                $('#name_approve').val(name_approve);
+            });
+
+            $('#submit_approve').on('click', function() {
+                let id_approve = $('#id_approve').val();
+                $.ajax({
+                    url: "{{ route('document_control.approve') }}",
+                    type: "POST",
+                    data: {
+                        id: id_approve,
+                        '_token': "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        toastr['success'](response);
+                        table.ajax.reload();
+                        $('#approveModal').modal('hide');
+                    },
+                    error: function(xhr, status, error) {
+                        alert(error);
+                        var approveButton = document.getElementById('submit_approve');
+                        approveButton.removeAttribute('disabled');
+                        approveButton.innerHTML = 'Approve';
+                    }
+                });
+            });
+
+            // REJECT
+            $('#app_table').on('click', '.btn-reject', function() {
+                var id_reject = $(this).data('id');
+                var name_reject = $(this).data('name');
+
+                var rejectButton = document.getElementById('submit_reject');
+                rejectButton.removeAttribute('disabled');
+                rejectButton.innerHTML = 'Reject';
+
+                $('#id_reject').val(id_reject);
+                $('#name_reject').val(name_reject);
+            });
+
+            $('#submit_reject').on('click', function() {
+                let id_reject = $('#id_reject').val();
+                $.ajax({
+                    url: "{{ route('document_control.reject') }}",
+                    type: "POST",
+                    data: {
+                        id: id_reject,
+                        '_token': "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        toastr['success'](response);
+                        table.ajax.reload();
+                        $('#rejectModal').modal('hide');
+                    },
+                    error: function(xhr, status, error) {
+                        alert(error);
+                        var rejectButton = document.getElementById('submit_reject');
+                        rejectButton.removeAttribute('disabled');
+                        rejectButton.innerHTML = 'Reject';
+                    }
+                });
+            });
+
+            // UPLOAD
+            $('#app_table').on('click', '.btn-upload', function() {
+                var id_upload = $(this).data('id');
+                var name_upload = $(this).data('name');
+
+                var uploadButton = document.getElementById('submit_upload');
+                uploadButton.removeAttribute('disabled');
+                uploadButton.innerHTML = 'Upload';
+
+                $('#id_upload').val(id_upload);
+                $('#name_upload').val(name_upload);
+            });
+
+            $('#submit_upload').on('click', function() {
+                let id_upload = $('#id_upload').val();
+                let file = $('#file_edit')[0].files[0];
+
+                let formData = new FormData();
+                formData.append('id', id_upload);
+                formData.append('file', file);
+                formData.append('_token', "{{ csrf_token() }}");
+
+                $.ajax({
+                    url: "{{ route('document_control.upload') }}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        toastr['success'](response);
+                        table.ajax.reload();
+                        $('#uploadModal').modal('hide');
+                    },
+                    error: function(xhr, status, error) {
+                        alert(error);
+                        var uploadButton = document.getElementById('submit_upload');
+                        uploadButton.removeAttribute('disabled');
+                        uploadButton.innerHTML = 'Upload';
+                    }
+                });
+            });
+
+            $('#app_table').on('click', '.btn-view', function() {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+
+                $('#viewModalLabel').text('View Document: ' + name);
+
+                $.ajax({
+                    url: "{{ route('document_control.file') }}",
+                    type: "GET",
+                    data: {
+                        id: id
+                    },
+                    success: function(response) {
+                        $('#pdfViewer').attr('src', response.file_url);
+                        $('#viewModal').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        toastr['error']('Unable to load file');
+                    }
+                });
+            });
+
         });
     </script>
 
@@ -440,6 +706,42 @@
             deleteButton.addEventListener('click', function() {
                 deleteButton.setAttribute('disabled', 'true');
                 deleteButton.innerHTML = spinner + ' Deleting...';
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var approveButton = document.getElementById('submit_approve');
+            var spinner = '<i class="fa-solid fa-spinner spin"></i>';
+
+            approveButton.addEventListener('click', function() {
+                approveButton.setAttribute('disabled', 'true');
+                approveButton.innerHTML = spinner + ' Approving...';
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var rejectButton = document.getElementById('submit_reject');
+            var spinner = '<i class="fa-solid fa-spinner spin"></i>';
+
+            rejectButton.addEventListener('click', function() {
+                rejectButton.setAttribute('disabled', 'true');
+                rejectButton.innerHTML = spinner + ' Rejecting...';
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var uploadButton = document.getElementById('submit_upload');
+            var spinner = '<i class="fa-solid fa-spinner spin"></i>';
+
+            uploadButton.addEventListener('click', function() {
+                uploadButton.setAttribute('disabled', 'true');
+                uploadButton.innerHTML = spinner + ' Uploading...';
             });
         });
     </script>

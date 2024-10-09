@@ -29404,11 +29404,12 @@ dl li {
 
 /* Modals */
 .modal .modal-dialog {
-    margin-top: 100px;
+    margin-top: 50px !important;
 }
 
 .modal .modal-dialog .modal-content .modal-header {
-    padding: 25px 26px;
+    /* padding: 25px 26px; */
+    padding: 15px 15px;
 }
 
 .modal .modal-dialog .modal-content .modal-header .close span {
@@ -29418,11 +29419,13 @@ dl li {
 }
 
 .modal .modal-dialog .modal-content .modal-body {
-    padding: 35px 26px;
+    /* padding: 35px 26px; */
+    padding: 15px 15px;
 }
 
 .modal .modal-dialog .modal-content .modal-footer {
-    padding: 15px 31px;
+    /* padding: 15px 31px; */
+    padding: 15px 15px;
 }
 
 @media (max-width: 400px) {

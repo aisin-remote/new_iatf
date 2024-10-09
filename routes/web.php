@@ -228,5 +228,9 @@ Route::middleware(['auth', 'role:admin|guest'])->group(function () {
         Route::post('/store', [DocumentControlController::class, 'store'])->name('document_control.store');
         Route::post('/update', [DocumentControlController::class, 'update'])->name('document_control.update');
         Route::post('/delete', [DocumentControlController::class, 'delete'])->name('document_control.delete');
+        Route::post('/approve', [DocumentControlController::class, 'approve'])->name('document_control.approve');
+        Route::post('/reject', [DocumentControlController::class, 'reject'])->name('document_control.reject');
+        Route::post('/upload', [DocumentControlController::class, 'upload'])->name('document_control.upload');
+        Route::get('/file', [DocumentControlController::class, 'file'])->name('document_control.file');
     });
 });
