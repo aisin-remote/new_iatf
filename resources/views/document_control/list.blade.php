@@ -278,7 +278,7 @@
 
             $('#createModal').on('show.bs.modal', function() {
                 $('#name_create').val('');
-                $('#department_create').val('');
+                $('#department_create').val([]);
                 $('#obsolete_create').val('');
                 $('#set_reminder_create').val('');
                 $('#comment_create').val('');
@@ -316,6 +316,7 @@
                             });
                         } else {
                             toastr['error'](xhr.responseText || error);
+
                         }
                     }
                 });

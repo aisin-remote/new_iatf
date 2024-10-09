@@ -32,27 +32,32 @@ class DocumentControlController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
+        $departemens = $request->input('departemen_create', []);
         $request->validate([
             'name' => 'required',
-            'department' => 'required',
+            'department' => 'required|array',
+            'departemen.*' => 'exists:departemen,id',
             'obsolete' => 'required',
             'set_reminder' => 'required',
             'comment' => 'required',
         ]);
 
         try {
-            $document_control = DocumentControl::create([
-                'name' => $request->name,
-                'department' => $request->department,
-                'obsolete' => $request->obsolete,
-                'set_reminder' => $request->set_reminder,
-                'comment' => $request->comment,
-                'status' => 'Unuploaded',
-            ]);
+            foreach ($departemens as $department) {
+                $document_control = DocumentControl::create([
+                    'name' => $request->name,
+                    'department' => $department,
+                    'obsolete' => $request->obsolete,
+                    'set_reminder' => $request->set_reminder,
+                    'comment' => $request->comment,
+                    'status' => 'Unuploaded',
+                ]);
 
-            $document_control->save();
+                $document_control->save();
 
-            return "Create Successfully";
+                return "Create Successfully";
+            }
         } catch (\Exception $e) {
             return $e->getMessage();
         }
