@@ -13,7 +13,7 @@
                         <h4 class="card-title">List Document Control</h4>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#filterModal">
-                                filter <i class="fa fa-filter" aria-hidden="true"></i>
+                                Filter <i class="fa fa-filter" aria-hidden="true"></i>
                             </button>
                             @role('admin')
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createModal">

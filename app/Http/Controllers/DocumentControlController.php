@@ -42,16 +42,29 @@ class DocumentControlController extends Controller
     public function list_ajax(Request $request)
     {
         $user = auth()->user();
-
+        $department = $request->input('department');
+        $status = $request->input('status');
+    
         if ($user->hasRole('admin')) {
+            // Admin dapat melihat semua data
             $data = DocumentControl::orderBy('name', 'ASC');
         } else {
+            // User biasa hanya bisa melihat data yang sesuai dengan departemennya
             $data = DocumentControl::select('document_controls.*')
                 ->join('departemen', 'document_controls.department', '=', 'departemen.nama_departemen')
                 ->where('departemen.id', $user->departemen_id)
                 ->orderBy('document_controls.name', 'ASC');
         }
-
+    
+        // Terapkan filter jika ada
+        if (!empty($department)) {
+            $data->where('document_controls.department', $department);
+        }
+    
+        if (!empty($status)) {
+            $data->where('document_controls.status', $status);
+        }
+    
         return DataTables::eloquent($data)->make(true);
     }
 
