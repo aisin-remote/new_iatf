@@ -12,14 +12,18 @@
                     <div class="card-body">
                         <h4 class="card-title">List Document Control</h4>
                         <div class="d-flex justify-content-end mb-3">
+                            <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#createModal">
+                                filter <i class="fa-solid fa-plus"></i>
+                            </button>
                             @role('admin')
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createModal">
                                     Add <i class="fa-solid fa-plus"></i>
                                 </button>
                             @endrole
                         </div>
+
                         <div class="table-responsive">
-                            <table class="table table-striped table-bordered" id="app_table" width="100%">
+                            <table class="table text-nowrap table-striped table-bordered" id="app_table" width="100%">
                                 <thead style="height: 3rem; background-color: #4B49AC;" class="text-white">
                                     <tr>
                                         <th width="50px">No</th>
@@ -198,10 +202,10 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    Are you sure want to reject this item?
-                    <input type="hidden" id="id_reject">
-                    <div class="form-group mb-0">
-                        <input type="text" readonly class="form-control-plaintext" id="name_reject">
+                    <input type="hidden" id="id_reject" name="id_reject">
+                    <div class="form-group">
+                        <label for="comment_reject">Comment</label>
+                        <textarea class="form-control" id="comment_reject" name="comment_reject" rows="3" required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -302,7 +306,48 @@
             @endif
         });
     </script>
+    <script>
+        const textarea = document.getElementById('comment_create');
 
+        // Fungsi untuk mengatur tinggi textarea berdasarkan isinya
+        function autoResizeTextarea() {
+            // Reset tinggi agar bisa dihitung ulang
+            this.style.height = 'auto';
+            // Set tinggi baru berdasarkan scrollHeight (tinggi konten di dalam textarea)
+            this.style.height = (this.scrollHeight) + 'px';
+        }
+
+        // Ketika textarea diisi atau ada perubahan (input event), panggil fungsi resize
+        textarea.addEventListener('input', autoResizeTextarea);
+    </script>
+    <script>
+        const textarea = document.getElementById('comment_edit');
+
+        // Fungsi untuk mengatur tinggi textarea berdasarkan isinya
+        function autoResizeTextarea() {
+            // Reset tinggi agar bisa dihitung ulang
+            this.style.height = 'auto';
+            // Set tinggi baru berdasarkan scrollHeight (tinggi konten di dalam textarea)
+            this.style.height = (this.scrollHeight) + 'px';
+        }
+
+        // Ketika textarea diisi atau ada perubahan (input event), panggil fungsi resize
+        textarea.addEventListener('input', autoResizeTextarea);
+    </script>
+    <script>
+        const textarea = document.getElementById('comment_reject');
+
+        // Fungsi untuk mengatur tinggi textarea berdasarkan isinya
+        function autoResizeTextarea() {
+            // Reset tinggi agar bisa dihitung ulang
+            this.style.height = 'auto';
+            // Set tinggi baru berdasarkan scrollHeight (tinggi konten di dalam textarea)
+            this.style.height = (this.scrollHeight) + 'px';
+        }
+
+        // Ketika textarea diisi atau ada perubahan (input event), panggil fungsi resize
+        textarea.addEventListener('input', autoResizeTextarea);
+    </script>
     <script>
         $(document).ready(function() {
             var isAdmin = @json(auth()->user()->hasRole('admin')); // Dapatkan informasi apakah user adalah admin
@@ -368,9 +413,10 @@
                     searchable: false,
                     data: null,
                     render: function(data, type, row, meta) {
+                        const isSubmitted = data.status === 'Submitted';
                         return `<div class="text-center">
-                        <button class="btn btn-success btn-sm btn-approve" data-toggle="modal" data-target="#approveModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}"> <i class="fa-solid fa-check"></i></button>
-                        <button class="btn btn-danger btn-sm btn-reject" data-toggle="modal" data-target="#rejectModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}"> <i class="fa-solid fa-x"></i></button>
+                        <button class="btn btn-success btn-sm btn-approve" data-toggle="modal" data-target="#approveModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}"data-status="${data.status}" ${!isSubmitted ? 'disabled' : ''}> <i class="fa-solid fa-check"></i></button>
+                        <button class="btn btn-danger btn-sm btn-reject" data-toggle="modal" data-target="#rejectModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-status="${data.status}" ${!isSubmitted ? 'disabled' : ''}> <i class="fa-solid fa-x"></i></button>
                     </div>`;
                     }
                 });
@@ -381,6 +427,7 @@
                 'processing': true,
                 'serverSide': false,
                 'orderable': true,
+                scrolX: true,
                 ajax: {
                     url: "{{ route('document_control.list_ajax') }}",
                 },
@@ -539,6 +586,12 @@
             $('#app_table').on('click', '.btn-approve', function() {
                 var id_approve = $(this).data('id');
                 var name_approve = $(this).data('name');
+                var status_approve = $(this).data('status'); // Get the status
+
+                if (status_approve !== 'Submitted') {
+                    alert('This document cannot be approved. Status: ' + status_approve);
+                    return;
+                }
 
                 var approveButton = document.getElementById('submit_approve');
                 approveButton.removeAttribute('disabled');
@@ -571,10 +624,17 @@
                 });
             });
 
+
             // REJECT
             $('#app_table').on('click', '.btn-reject', function() {
                 var id_reject = $(this).data('id');
                 var name_reject = $(this).data('name');
+                var status_reject = $(this).data('status'); // Get the status
+
+                if (status_reject !== 'Submitted') {
+                    alert('This document cannot be rejected. Status: ' + status_reject);
+                    return;
+                }
 
                 var rejectButton = document.getElementById('submit_reject');
                 rejectButton.removeAttribute('disabled');
@@ -584,13 +644,22 @@
                 $('#name_reject').val(name_reject);
             });
 
+            // Submit Reject Button
             $('#submit_reject').on('click', function() {
                 let id_reject = $('#id_reject').val();
+                let comment_reject = $('#comment_reject').val();
+
+                if (comment_reject === '') {
+                    alert('Comment is required');
+                    return;
+                }
+
                 $.ajax({
                     url: "{{ route('document_control.reject') }}",
                     type: "POST",
                     data: {
                         id: id_reject,
+                        comment_reject: comment_reject,
                         '_token': "{{ csrf_token() }}",
                     },
                     success: function(response) {

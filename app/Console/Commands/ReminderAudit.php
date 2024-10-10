@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Audit;
 use App\Models\AuditControl;
+use App\Models\DocumentControl;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -15,7 +16,7 @@ class ReminderAudit extends Command
      *
      * @var string
      */
-    protected $signature = 'command:send-audit-reminder';
+    protected $signature = 'command:send-documentobsolate-reminder';
     protected $description = 'Send WhatsApp reminders for upcoming audits';
 
     /**
@@ -37,97 +38,53 @@ class ReminderAudit extends Command
         $group_id = '120363311478624933'; // Ganti dengan Group ID Anda
 
         // Ambil audit control yang perlu diingatkan berdasarkan rentang waktu
-        $auditControls = AuditControl::select('audit_control.*')
-            ->join('audit', 'audit_control.audit_id', '=', 'audit.id') // Relasi langsung ke audit
-            ->where('audit.reminder', '<=', $now)
-            ->where('audit.duedate', '>=', $now)
-            ->with(['audit', 'departemen', 'itemAudit']) // Load relasi audit, departemen, dan item_audit
+        $documentControls = DocumentControl::select('document_controls.*')
+            ->where('status', 'Uncompleted')
+            ->where('set_reminder', '<=', $now)
+            ->where('obsolete', '>=', $now)
             ->get()
-            ->groupBy('audit_id'); // Kelompokkan berdasarkan item_audit_id
+            ->groupBy('department'); // Grupkan berdasarkan departemen
 
-        foreach ($auditControls as $auditId  => $auditControlsGroup) {
-            // Mengirimkan pengingat WhatsApp menggunakan group_id
-            $this->sendWaReminderAudit($group_id, $auditId, $auditControlsGroup);
-        }
+        $this->sendWaReminderDocument($group_id, $documentControls);
     }
 
-    protected function sendWaReminderAudit($groupId, $auditId, $auditControls)
+    protected function sendWaReminderDocument($groupId, $documentsByDepartment)
     {
         $token = 'v2n49drKeWNoRDN4jgqcdsR8a6bcochcmk6YphL6vLcCpRZdV1';
 
-        // Ambil audit yang terkait dengan audit_id
-        $audit = $auditControls->first()->audit;
+        // Format pesan utama
+        $message = "--- *WARNING DOCUMENT OBSOLATE* ---\n\n";
 
-        if ($audit) {
-            // Mengambil nama audit dan due date dari audit
-            $auditName = $audit->nama;
-            $dueDate = $audit->duedate;
+        // Iterasi melalui setiap departemen
+        $index = 1;
+        foreach ($documentsByDepartment as $departmentName => $documentsGroup) {
+            // Tambahkan nama departemen ke pesan
+            $message .= "[$index] *" . $departmentName . "*❌\n"; // Judul untuk departemen
 
-            // Format pesan untuk nama audit dan due date
-            $message = "------ *WARNING SUBMIT DOCUMENT AUDIT* ------\n\n";
-            $message .= "*Audit Name: " . $auditName . "*\n";
-            $message .= "Due Date: " . $dueDate . "\n\n";
+            // Iterasi dokumen dalam departemen
+            foreach ($documentsGroup as $document) {
+                // Mengambil nama document dan waktu obsolete dari document
+                $documentName = $document->name;
 
-            // Mengelompokkan audit controls berdasarkan departemen
-            $departemenData = $auditControls->groupBy('departemen_id');
+                // Mengonversi string menjadi objek Carbon
+                $obsoleteTime = Carbon::parse($document->obsolete);
+                $setReminderTime = Carbon::parse($document->set_reminder);
 
-            // Inisialisasi variabel untuk mengumpulkan informasi per departemen
-            $departemenMessages = [];
-            $counter = 1; // Inisialisasi nomor urut departemen
+                // Hitung rentang waktu dalam hari
+                $daysUntilObsolete = $obsoleteTime->diffInDays($setReminderTime);
 
-            foreach ($departemenData as $departemenId => $auditControlsForDepartemen) {
-                $departemen = $auditControlsForDepartemen->first()->departemen;
-
-                if ($departemen) {
-                    // Hitung total task, completed task, dan uncompleted task per departemen
-                    $totalTasks = $auditControlsForDepartemen->count();
-                    $completedTasks = $auditControlsForDepartemen->where('status', 'completed')->count();
-                    $uncompletedTasks = $auditControlsForDepartemen->where('status', 'uncompleted')->count() +
-                        $auditControlsForDepartemen->whereNull('status')->count();
-
-                    // Cek apakah ada uncompleted task
-                    $statusSymbol = $uncompletedTasks > 0 ? "❌" : "✅"; // Tanda silang jika ada uncompleted task, tanda centang jika semua selesai
-
-                    // Buat pesan per departemen dengan nomor urut dan status task
-                    $departemenName = $departemen->nama_departemen;
-                    $departemenMessages[] = "[" . $counter . "] *Departemen: " . $departemenName . "* " . $statusSymbol . "\n" .
-                        "- Total Tasks: " . $totalTasks . "\n" .
-                        "- Completed Tasks: " . $completedTasks . "\n" .
-                        "- Incomplete Tasks: " . $uncompletedTasks;
-
-                    // Tampilkan daftar item_audit yang uncompleted atau null
-                    if ($uncompletedTasks > 0) {
-                        $uncompletedItems = $auditControlsForDepartemen->where('status', 'not completed')
-                            ->merge($auditControlsForDepartemen->whereNull('status'));
-
-                        $departemenMessages[] .= "\n";
-
-                        foreach ($uncompletedItems as $item) {
-                            $itemAuditName = $item->itemAudit->nama_item ?? 'No Item Name'; // Nama item audit
-                            $departemenMessages[] .= "        - " . $itemAuditName . "\n"; // Hapus nomor, hanya tampilkan item dengan "-"
-                        }
-                    }
-
-                    $departemenMessages[] .= "\n"; // Pisahkan tiap departemen dengan baris baru
-                    $counter++; // Tambahkan nomor urut untuk departemen berikutnya
-                }
+                // Tambahkan setiap dokumen ke dalam pesan
+                $message .= "- " . $documentName . " : " . $daysUntilObsolete . " days left\n";
             }
 
-            // Gabungkan semua pesan per departemen
-            if (empty($departemenMessages)) {
-                $message .= "No data available for departments.\n";
-            } else {
-                $message .= implode("", $departemenMessages); // Tidak ada tambahan newline di antara pesan
-            }
-        } else {
-            // Jika audit tidak ada
-            $message .= "No audit data available.\n";
+            $message .= "\n"; // Tambahkan baris kosong setelah setiap departemen
+            $index++;
         }
+        $message .= "*Please submit and verify to MS Department*\n\n";
 
-        $message .= "\n------ BY AISIN BISA ------";
+        $message .= "------ BY AISIN BISA ------";
 
-
-        // Kirim pesan sekali dengan informasi yang terkumpul
+        // Kirim pesan sekali untuk semua departemen dan dokumen
         $response = Http::asForm()->post('https://app.ruangwa.id/api/send_message', [
             'token' => $token,
             'number' => $groupId,
@@ -136,9 +93,11 @@ class ReminderAudit extends Command
 
         if ($response->successful()) {
             $this->info("Pesan berhasil dikirim ke $groupId: " . $response->body());
-            // Update kolom `last_reminder_sent` untuk auditControl
-            $auditControls->each(function ($auditControl) {
-                $auditControl->update(['last_reminder_sent' => Carbon::now()]);
+            // Update kolom `last_reminder_sent` untuk semua dokumen di setiap grup departemen
+            $documentsByDepartment->each(function ($documentsGroup) {
+                $documentsGroup->each(function ($documentControl) {
+                    $documentControl->update(['last_reminder_sent' => Carbon::now()]);
+                });
             });
         } else {
             $this->error("Gagal mengirim pesan ke $groupId. Respons: " . $response->body());

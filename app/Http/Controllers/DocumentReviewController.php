@@ -2,23 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Departemen;
+use App\Models\DocumentReview;
 use Illuminate\Http\Request;
 
-use App\Models\DocumentControl;
-use App\Models\Departemen;
-
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use DataTables;
-use Auth;
-
-class DocumentControlController extends Controller
+class DocumentReviewController extends Controller
 {
     public function list()
     {
         $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();
 
-        $document_controls = DocumentControl::orderBy('name', 'ASC')->get();
+        $document_controls = DocumentReview::orderBy('name', 'ASC')->get();
 
         return view('document_control.list', compact('departments', 'document_controls'));
     }
@@ -28,9 +22,9 @@ class DocumentControlController extends Controller
         $user = auth()->user();
 
         if ($user->hasRole('admin')) {
-            $data = DocumentControl::orderBy('name', 'ASC');
+            $data = DocumentReview::orderBy('name', 'ASC');
         } else {
-            $data = DocumentControl::select('document_controls.*')
+            $data = DocumentReview::select('document_controls.*')
                 ->join('departemen', 'document_controls.department', '=', 'departemen.nama_departemen')
                 ->where('departemen.id', $user->departemen_id)
                 ->orderBy('document_controls.name', 'ASC');
@@ -51,13 +45,13 @@ class DocumentControlController extends Controller
 
         try {
             foreach ($request->department as $department) {
-                $document_control = DocumentControl::create([
+                $document_control = DocumentReview::create([
                     'name' => $request->name,
                     'department' => $department,
                     'obsolete' => $request->obsolete,
                     'set_reminder' => $request->set_reminder,
                     'comment' => $request->comment,
-                    'status' => 'Uncompleted',
+                    'status' => 'Unuploaded',
                 ]);
 
                 $document_control->save();
@@ -74,7 +68,7 @@ class DocumentControlController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentControl::findOrFail($id);
+        $document_control = DocumentReview::findOrFail($id);
         $document_control->update([
             'name' => $request->name,
             'department' => $request->department,
@@ -90,7 +84,7 @@ class DocumentControlController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentControl::findOrFail($id);
+        $document_control = DocumentReview::findOrFail($id);
         $document_control->delete();
 
         return "Delete Successfully";
@@ -100,7 +94,7 @@ class DocumentControlController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentControl::findOrFail($id);
+        $document_control = DocumentReview::findOrFail($id);
         $document_control->update([
             'status' => 'Approved',
             'comment' => 'Document has been approved!'
@@ -113,7 +107,7 @@ class DocumentControlController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentControl::findOrFail($id);
+        $document_control = DocumentReview::findOrFail($id);
         $document_control->update([
             'status' => 'Rejected',
             'comment' => $request->comment_reject,
@@ -128,7 +122,7 @@ class DocumentControlController extends Controller
             'file' => 'required|mimes:pdf|max:20480',
         ]);
 
-        $document_control = DocumentControl::findOrFail($request->id);
+        $document_control = DocumentReview::findOrFail($request->id);
 
         if ($request->hasFile('file')) {
             if ($document_control->file) {
@@ -149,7 +143,7 @@ class DocumentControlController extends Controller
 
     public function file(Request $request)
     {
-        $document_control = DocumentControl::findOrFail($request->id);
+        $document_control = DocumentReview::findOrFail($request->id);
 
         if ($document_control->file) {
             $fileUrl = asset('storage/document_control/' . $document_control->file);

@@ -12,10 +12,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('command:send-audit-reminder')
-            ->days([Schedule::MONDAY, Schedule::FRIDAY]) // Hanya Senin dan Jumat
+        $schedule->command('command:send-documentobsolate-reminder')
+            ->daily() // Setiap hari
             ->timezone('Asia/Jakarta')
-            ->at('07:00');
+            ->at('07:00'); // Waktu pengingat
+
     }
 
     /**
