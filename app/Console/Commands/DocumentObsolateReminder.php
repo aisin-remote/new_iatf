@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Audit;
-use App\Models\AuditControl;
+use Illuminate\Console\Command;
 use App\Models\DocumentControl;
 use Carbon\Carbon;
-use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-class ReminderAudit extends Command
+class DocumentObsolateReminder extends Command
 {
     /**
      * The name and signature of the console command.
@@ -17,18 +15,16 @@ class ReminderAudit extends Command
      * @var string
      */
     protected $signature = 'command:send-documentobsolate-reminder';
-    protected $description = 'Send WhatsApp reminders for upcoming audits';
+    protected $description = 'Send WhatsApp reminders for document obsolate';
 
     /**
      * The console command description.
      *
      * @var string
      */
-
     /**
      * Execute the console command.
      */
-
     public function handle()
     {
         $now = Carbon::now('Asia/Jakarta');
@@ -39,7 +35,7 @@ class ReminderAudit extends Command
 
         // Ambil audit control yang perlu diingatkan berdasarkan rentang waktu
         $documentControls = DocumentControl::select('document_controls.*')
-            ->where('status', 'Uncompleted')
+            ->where('status', 'Uncomplete')
             ->where('set_reminder', '<=', $now)
             ->where('obsolete', '>=', $now)
             ->get()

@@ -8,8 +8,8 @@
                     Obsolete Control</span>
             </a>
         </li>
-        <li class="nav-item {{ Route::currentRouteName() === 'document_control_review.list' ? 'active' : '' }}">
-            <a class="nav-link" href="{{ route('document_control_review.list') }}">
+        <li class="nav-item {{ Route::currentRouteName() === 'document_review.list' ? 'active' : '' }}">
+            <a class="nav-link" href="{{ route('document_review.list') }}">
                 <i class="fa-solid fa-file" style="margin-right: 8px"></i>
                 <span class="menu-title">Document<br>
                     Review Control</span>

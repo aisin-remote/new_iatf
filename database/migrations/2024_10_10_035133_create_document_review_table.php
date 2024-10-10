@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('document_review', function (Blueprint $table) {
+        Schema::create('document_reviews', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->date('review');
+            $table->date('set_reminder');
+            $table->string('department');
+            $table->string('comment');
+            $table->string('status');
             $table->timestamps();
         });
     }

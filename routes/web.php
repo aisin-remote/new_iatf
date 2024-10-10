@@ -237,15 +237,15 @@ Route::middleware(['auth', 'role:admin|guest'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin|guest'])->group(function () {
-    Route::group(['prefix' => 'document_control_review'], function () {
-        Route::get('/list', [DocumentReviewController::class, 'list'])->name('document_control_review.list');
-        Route::get('/list_ajax', [DocumentReviewController::class, 'list_ajax'])->name('document_control_review.list_ajax');
-        Route::post('/store', [DocumentReviewController::class, 'store'])->name('document_control_review.store');
-        Route::post('/update', [DocumentReviewController::class, 'update'])->name('document_control_review.update');
-        Route::post('/delete', [DocumentReviewController::class, 'delete'])->name('document_control_review.delete');
-        Route::post('/approve', [DocumentReviewController::class, 'approve'])->name('document_control_review.approve');
-        Route::post('/reject', [DocumentReviewController::class, 'reject'])->name('document_control_review.reject');
-        Route::post('/upload', [DocumentReviewController::class, 'upload'])->name('document_control_review.upload');
-        Route::get('/file', [DocumentReviewController::class, 'file'])->name('document_control_review.file');
+    Route::group(['prefix' => 'document_review'], function () {
+        Route::get('/list', [DocumentReviewController::class, 'list'])->name('document_review.list');
+        Route::get('/list_ajax', [DocumentReviewController::class, 'list_ajax'])->name('document_review.list_ajax');
+        Route::post('/store', [DocumentReviewController::class, 'store'])->name('document_review.store');
+        Route::post('/update', [DocumentReviewController::class, 'update'])->name('document_review.update');
+        Route::post('/delete', [DocumentReviewController::class, 'delete'])->name('document_review.delete');
+        Route::post('/approve', [DocumentReviewController::class, 'approve'])->name('document_review.approve');
+        Route::post('/reject', [DocumentReviewController::class, 'reject'])->name('document_review.reject');
+        Route::post('/upload', [DocumentReviewController::class, 'upload'])->name('document_review.upload');
+        Route::get('/file', [DocumentReviewController::class, 'file'])->name('document_review.file');
     });
 });

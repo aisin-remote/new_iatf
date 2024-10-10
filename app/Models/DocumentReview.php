@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class DocumentReview extends Model
 {
     use HasFactory;
+    protected $table = 'document_reviews';
+    protected $guarded = ['id'];
 }

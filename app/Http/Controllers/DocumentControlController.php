@@ -14,14 +14,30 @@ use Auth;
 
 class DocumentControlController extends Controller
 {
-    public function list()
+    public function list(Request $request)
     {
+        // Ambil semua departemen untuk dropdown
         $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();
 
-        $document_controls = DocumentControl::orderBy('name', 'ASC')->get();
+        // Inisialisasi query untuk DocumentControl
+        $document_controls = DocumentControl::query();
+
+        // Tambahkan filter untuk departemen jika ada
+        if ($request->has('department') && $request->department != '') {
+            $document_controls->where('department', $request->department);
+        }
+
+        // Tambahkan filter untuk status jika ada
+        if ($request->has('status') && $request->status != '') {
+            $document_controls->where('status', $request->status);
+        }
+
+        // Ambil data dokumen sesuai filter yang diterapkan
+        $document_controls = $document_controls->orderBy('name', 'ASC')->get();
 
         return view('document_control.list', compact('departments', 'document_controls'));
     }
+
 
     public function list_ajax(Request $request)
     {
@@ -57,7 +73,7 @@ class DocumentControlController extends Controller
                     'obsolete' => $request->obsolete,
                     'set_reminder' => $request->set_reminder,
                     'comment' => $request->comment,
-                    'status' => 'Uncompleted',
+                    'status' => 'Uncomplete',
                 ]);
 
                 $document_control->save();

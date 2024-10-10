@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Departemen;
 use App\Models\DocumentReview;
 use Illuminate\Http\Request;
+use DataTables;
+    
 
 class DocumentReviewController extends Controller
 {
@@ -14,7 +16,7 @@ class DocumentReviewController extends Controller
 
         $document_controls = DocumentReview::orderBy('name', 'ASC')->get();
 
-        return view('document_control.list', compact('departments', 'document_controls'));
+        return view('document_review.list', compact('departments', 'document_controls'));
     }
 
     public function list_ajax(Request $request)

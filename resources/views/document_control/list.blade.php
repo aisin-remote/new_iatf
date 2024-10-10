@@ -12,8 +12,8 @@
                     <div class="card-body">
                         <h4 class="card-title">List Document Control</h4>
                         <div class="d-flex justify-content-end mb-3">
-                            <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#createModal">
-                                filter <i class="fa-solid fa-plus"></i>
+                            <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#filterModal">
+                                filter <i class="fa fa-filter" aria-hidden="true"></i>
                             </button>
                             @role('admin')
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#createModal">
@@ -264,6 +264,49 @@
         </div>
     </div>
 
+    <!-- Modal Filter -->
+    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filter Documents</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="filterForm">
+                        <div class="form-group">
+                            <label for="departmentSelect">Select Department</label>
+                            <select class="form-control" id="departmentSelect">
+                                <option value="">-- Select Department --</option>
+                                <!-- Tambahkan opsi departemen secara dinamis di sini -->
+                                @foreach ($departments as $department)
+                                    <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="statusSelect">Select Status</label>
+                            <select class="form-control" id="statusSelect">
+                                <option value="">-- Select Status --</option>
+                                <!-- Tambahkan opsi status secara dinamis di sini -->
+                                <option value="Uncomplete">Uncomplete</option>
+                                <option value="Submitted">Submitted</option>
+                                <option value="Rejected">Rejected</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 @endsection
 
 @push('styles')
@@ -307,7 +350,7 @@
         });
     </script>
     <script>
-        const textarea = document.getElementById('comment_create');
+        const textarea1 = document.getElementById('comment_create');
 
         // Fungsi untuk mengatur tinggi textarea berdasarkan isinya
         function autoResizeTextarea() {
@@ -318,10 +361,10 @@
         }
 
         // Ketika textarea diisi atau ada perubahan (input event), panggil fungsi resize
-        textarea.addEventListener('input', autoResizeTextarea);
+        textarea1.addEventListener('input', autoResizeTextarea);
     </script>
     <script>
-        const textarea = document.getElementById('comment_edit');
+        const textarea2 = document.getElementById('comment_edit');
 
         // Fungsi untuk mengatur tinggi textarea berdasarkan isinya
         function autoResizeTextarea() {
@@ -332,10 +375,10 @@
         }
 
         // Ketika textarea diisi atau ada perubahan (input event), panggil fungsi resize
-        textarea.addEventListener('input', autoResizeTextarea);
+        textarea2.addEventListener('input', autoResizeTextarea);
     </script>
     <script>
-        const textarea = document.getElementById('comment_reject');
+        const textarea3 = document.getElementById('comment_reject');
 
         // Fungsi untuk mengatur tinggi textarea berdasarkan isinya
         function autoResizeTextarea() {
@@ -346,7 +389,28 @@
         }
 
         // Ketika textarea diisi atau ada perubahan (input event), panggil fungsi resize
-        textarea.addEventListener('input', autoResizeTextarea);
+        textarea3.addEventListener('input', autoResizeTextarea);
+    </script>
+    <script>
+        document.getElementById('filterForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah pengiriman form biasa
+
+            const department = document.getElementById('departmentSelect').value;
+            const status = document.getElementById('statusSelect').value;
+
+            // Panggil fungsi untuk memfilter data berdasarkan department dan status
+            filterDocuments(department, status);
+        });
+
+        function filterDocuments(department, status) {
+            // Lakukan panggilan AJAX atau pembaruan tampilan sesuai filter yang diterapkan
+            // Misalnya, jika menggunakan DataTables:
+            $('#app_table').DataTable().ajax.url('/document_control/list_ajax?department=' + department +
+                '&status=' + status).load();
+
+            // Tutup modal setelah menerapkan filter
+            $('#filterModal').modal('hide');
+        }
     </script>
     <script>
         $(document).ready(function() {
