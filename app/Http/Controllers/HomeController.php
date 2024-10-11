@@ -8,6 +8,7 @@ use App\Models\AuditControl;
 use App\Models\Departemen;
 use App\Models\DocumentAuditControl;
 use App\Models\DocumentControl;
+use App\Models\DocumentReview;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\ItemAudit;
@@ -175,14 +176,26 @@ class HomeController extends Controller
             'selectedDepartmentId' => $selectedDepartmentId, // Kirim ID departemen yang dipilih ke view
         ]);
     }
-
     public function dashboarddocumentcontrol(Request $request)
     {
-        // Mengambil semua data DocumentControl dan menghitung jumlah per departemen
-        $documentControls = DocumentControl::select('department')
+        // Mendapatkan bulan dan tahun dari request
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // Memulai query DocumentControl untuk kolom 'obsolete'
+        $documentControlsQuery = DocumentControl::select('department')
             ->groupBy('department')
             ->selectRaw('count(*) as total')
-            ->get();
+            ->whereNotNull('obsolete'); // Memastikan kolom 'obsolete' tidak null
+
+        // Menambahkan filter berdasarkan bulan dan tahun jika ada
+        if ($month && $year) {
+            $documentControlsQuery->whereYear('obsolete', $year)
+                ->whereMonth('obsolete', $month);
+        }
+
+        // Mengambil data DocumentControl yang telah difilter
+        $documentControls = $documentControlsQuery->get();
 
         // Membuat array dengan format yang diinginkan
         $departmentTotals = [];
@@ -204,13 +217,26 @@ class HomeController extends Controller
             'departmentTotals' => $departmentTotals, // Menambahkan total dokumen per departemen
         ]);
     }
-    public function dashboarddocumentreview()
+
+    public function dashboarddocumentreview(Request $request)
     {
-        // Mengambil semua data DocumentControl dan menghitung jumlah per departemen
-        $documentControls = DocumentControl::select('department')
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // Memulai query DocumentReview untuk kolom 'obsolete'
+        $documentReviewsQuery = DocumentReview::select('department')
             ->groupBy('department')
             ->selectRaw('count(*) as total')
-            ->get();
+            ->whereNotNull('review'); // Memastikan kolom 'review' tidak null
+
+        // Menambahkan filter berdasarkan bulan dan tahun jika ada
+        if ($month && $year) {
+            $documentReviewsQuery->whereYear('review', $year)
+                ->whereMonth('review', $month);
+        }
+
+        // Mengambil data DocumentReview yang telah difilter
+        $documentReviews = $documentReviewsQuery->get();
 
         // Membuat array dengan format yang diinginkan
         $departmentTotals = [];
@@ -222,7 +248,7 @@ class HomeController extends Controller
         }
 
         // Update total dokumen untuk departemen yang ada
-        foreach ($documentControls as $control) {
+        foreach ($documentReviews as $control) {
             $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
         }
 

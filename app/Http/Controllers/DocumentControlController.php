@@ -145,6 +145,7 @@ class DocumentControlController extends Controller
         $document_control = DocumentControl::findOrFail($id);
         $document_control->update([
             'status' => 'Rejected',
+            'file' => null,
             'comment' => $request->comment_reject,
         ]);
 
