@@ -7,6 +7,7 @@ use App\Models\Audit;
 use App\Models\AuditControl;
 use App\Models\Departemen;
 use App\Models\DocumentAuditControl;
+use App\Models\DocumentControl;
 use App\Models\Dokumen;
 use App\Models\IndukDokumen;
 use App\Models\ItemAudit;
@@ -175,6 +176,62 @@ class HomeController extends Controller
         ]);
     }
 
+    public function dashboarddocumentcontrol(Request $request)
+    {
+        // Mengambil semua data DocumentControl dan menghitung jumlah per departemen
+        $documentControls = DocumentControl::select('department')
+            ->groupBy('department')
+            ->selectRaw('count(*) as total')
+            ->get();
+
+        // Membuat array dengan format yang diinginkan
+        $departmentTotals = [];
+
+        // Inisialisasi semua departemen dengan nilai 0
+        $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();
+        foreach ($departments as $department) {
+            $departmentTotals[$department->nama_departemen] = 0; // Set nilai awal 0
+        }
+
+        // Update total dokumen untuk departemen yang ada
+        foreach ($documentControls as $control) {
+            $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
+        }
+
+        // Kirim data ke view
+        return view('document_control.dashboard', [
+            'departments' => $departments,
+            'departmentTotals' => $departmentTotals, // Menambahkan total dokumen per departemen
+        ]);
+    }
+    public function dashboarddocumentreview()
+    {
+        // Mengambil semua data DocumentControl dan menghitung jumlah per departemen
+        $documentControls = DocumentControl::select('department')
+            ->groupBy('department')
+            ->selectRaw('count(*) as total')
+            ->get();
+
+        // Membuat array dengan format yang diinginkan
+        $departmentTotals = [];
+
+        // Inisialisasi semua departemen dengan nilai 0
+        $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();
+        foreach ($departments as $department) {
+            $departmentTotals[$department->nama_departemen] = 0; // Set nilai awal 0
+        }
+
+        // Update total dokumen untuk departemen yang ada
+        foreach ($documentControls as $control) {
+            $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
+        }
+
+        // Kirim data ke view
+        return view('document_control.dashboard', [
+            'departments' => $departments,
+            'departmentTotals' => $departmentTotals, // Menambahkan total dokumen per departemen
+        ]);
+    }
     public function downloadExcel(Request $request)
     {
         $user = auth()->user();

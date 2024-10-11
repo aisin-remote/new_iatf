@@ -15,8 +15,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('command:send-documentobsolate-reminder')
             ->daily() // Setiap hari
             ->timezone('Asia/Jakarta')
-            ->at('07:00'); // Waktu pengingat
-
+            ->at('07.00'); // Waktu pengingat
+        $schedule->command('command:send-reviewdocument-reminder')
+            ->daily() // Setiap hari
+            ->timezone('Asia/Jakarta')
+            ->at('07:00');
     }
 
     /**

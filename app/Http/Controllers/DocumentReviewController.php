@@ -6,7 +6,10 @@ use App\Models\Departemen;
 use App\Models\DocumentReview;
 use Illuminate\Http\Request;
 use DataTables;
-    
+use Auth;
+use Illuminate\Support\Facades\DB;
+
+
 
 class DocumentReviewController extends Controller
 {
@@ -14,9 +17,9 @@ class DocumentReviewController extends Controller
     {
         $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();
 
-        $document_controls = DocumentReview::orderBy('name', 'ASC')->get();
+        $document_reviews = DocumentReview::orderBy('name', 'ASC')->get();
 
-        return view('document_review.list', compact('departments', 'document_controls'));
+        return view('document_review.list', compact('departments', 'document_reviews'));
     }
 
     public function list_ajax(Request $request)
@@ -26,10 +29,10 @@ class DocumentReviewController extends Controller
         if ($user->hasRole('admin')) {
             $data = DocumentReview::orderBy('name', 'ASC');
         } else {
-            $data = DocumentReview::select('document_controls.*')
-                ->join('departemen', 'document_controls.department', '=', 'departemen.nama_departemen')
+            $data = DocumentReview::select('document_reviews.*')
+                ->join('departemen', 'document_reviews.department', '=', 'departemen.nama_departemen')
                 ->where('departemen.id', $user->departemen_id)
-                ->orderBy('document_controls.name', 'ASC');
+                ->orderBy('document_reviews.name', 'ASC');
         }
 
         return DataTables::eloquent($data)->make(true);
@@ -40,23 +43,23 @@ class DocumentReviewController extends Controller
         $request->validate([
             'name' => 'required',
             'department' => 'required|array',
-            'obsolete' => 'required',
+            'review' => 'required',
             'set_reminder' => 'required',
             'comment' => 'required',
         ]);
 
         try {
             foreach ($request->department as $department) {
-                $document_control = DocumentReview::create([
+                $document_review = DocumentReview::create([
                     'name' => $request->name,
                     'department' => $department,
-                    'obsolete' => $request->obsolete,
+                    'review' => $request->review,
                     'set_reminder' => $request->set_reminder,
                     'comment' => $request->comment,
-                    'status' => 'Unuploaded',
+                    'status' => 'Uncomplete',
                 ]);
 
-                $document_control->save();
+                $document_review->save();
             }
 
             return response()->json(['message' => 'Create Successfully'], 200);
@@ -70,11 +73,11 @@ class DocumentReviewController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentReview::findOrFail($id);
-        $document_control->update([
+        $document_review = DocumentReview::findOrFail($id);
+        $document_review->update([
             'name' => $request->name,
             'department' => $request->department,
-            'obsolete' => $request->obsolete,
+            'review' => $request->review,
             'set_reminder' => $request->set_reminder,
             'comment' => $request->comment,
         ]);
@@ -86,8 +89,8 @@ class DocumentReviewController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentReview::findOrFail($id);
-        $document_control->delete();
+        $document_review = DocumentReview::findOrFail($id);
+        $document_review->delete();
 
         return "Delete Successfully";
     }
@@ -96,9 +99,9 @@ class DocumentReviewController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentReview::findOrFail($id);
-        $document_control->update([
-            'status' => 'Approved',
+        $document_review = DocumentReview::findOrFail($id);
+        $document_review->update([
+            'status' => 'Completed',
             'comment' => 'Document has been approved!'
         ]);
 
@@ -109,8 +112,8 @@ class DocumentReviewController extends Controller
     {
         $id = $request->id;
 
-        $document_control = DocumentReview::findOrFail($id);
-        $document_control->update([
+        $document_review = DocumentReview::findOrFail($id);
+        $document_review->update([
             'status' => 'Rejected',
             'comment' => $request->comment_reject,
         ]);
@@ -124,17 +127,17 @@ class DocumentReviewController extends Controller
             'file' => 'required|mimes:pdf|max:20480',
         ]);
 
-        $document_control = DocumentReview::findOrFail($request->id);
+        $document_review = DocumentReview::findOrFail($request->id);
 
         if ($request->hasFile('file')) {
-            if ($document_control->file) {
-                Storage::delete('document_control/' . $document_control->file);
+            if ($document_review->file) {
+                Storage::delete('document_review/' . $document_review->file);
             }
 
             $fileName = time() . '_' . $request->file->getClientOriginalName();
-            $request->file->storeAs('document_control', $fileName, 'public');
+            $request->file->storeAs('document_review', $fileName, 'public');
 
-            $document_control->update([
+            $document_review->update([
                 'file' => $fileName,
                 'status' => 'Submitted',
             ]);
@@ -145,10 +148,10 @@ class DocumentReviewController extends Controller
 
     public function file(Request $request)
     {
-        $document_control = DocumentReview::findOrFail($request->id);
+        $document_review = DocumentReview::findOrFail($request->id);
 
-        if ($document_control->file) {
-            $fileUrl = asset('storage/document_control/' . $document_control->file);
+        if ($document_review->file) {
+            $fileUrl = asset('storage/document_review/' . $document_review->file);
             return response()->json(['file_url' => $fileUrl]);
         } else {
             return response()->json(['error' => 'File not found'], 404);

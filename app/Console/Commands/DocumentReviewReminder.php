@@ -57,7 +57,7 @@ class DocumentReviewReminder extends Command
         $index = 1;
         foreach ($documentsByDepartment as $departmentName => $documentsGroup) {
             // Tambahkan nama departemen ke pesan
-            $message .= "[$index] *" . $departmentName . "*❌\n"; // Judul untuk departemen
+            $message .= "[$index] *" . $departmentName . "*\n"; // Judul untuk departemen
 
             // Iterasi dokumen dalam departemen
             foreach ($documentsGroup as $document) {
@@ -72,7 +72,7 @@ class DocumentReviewReminder extends Command
                 $daysUntilObsolete = $obsoleteTime->diffInDays($setReminderTime);
 
                 // Tambahkan setiap dokumen ke dalam pesan
-                $message .= "- " . $documentName . " : " . $daysUntilObsolete . " days left\n";
+                $message .= "- " . $documentName . " : " . $daysUntilObsolete . " days left ❗n";
             }
 
             $message .= "\n"; // Tambahkan baris kosong setelah setiap departemen

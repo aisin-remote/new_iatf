@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'List Document Control')
+@section('title', 'List Document Review')
 @section('sidebar')
 
 @endsection
@@ -10,7 +10,7 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">List Document Control</h4>
+                        <h4 class="card-title">List Document Review</h4>
                         <div class="d-flex justify-content-end mb-3">
                             <button class="btn btn-primary btn-sm mr-2" data-toggle="modal" data-target="#filterModal">
                                 Filter <i class="fa fa-filter" aria-hidden="true"></i>
@@ -54,7 +54,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createModalLabel">Add Document Control</h5>
+                    <h5 class="modal-title" id="createModalLabel">Add Document Review</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -101,7 +101,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Add Document Control</h5>
+                    <h5 class="modal-title" id="editModalLabel">Add Document Review</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -148,7 +148,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete Document Control</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Delete Document Review</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -172,7 +172,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="approveModalLabel">Approve Document Control</h5>
+                    <h5 class="modal-title" id="approveModalLabel">Approve Document Review</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -196,7 +196,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="rejectModalLabel">Reject Document Control</h5>
+                    <h5 class="modal-title" id="rejectModalLabel">Reject Document Review</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -220,7 +220,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="uploadModalLabel">Upload Document Control</h5>
+                    <h5 class="modal-title" id="uploadModalLabel">Upload Document Review</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

@@ -44,7 +44,7 @@ class DocumentControlController extends Controller
         $user = auth()->user();
         $department = $request->input('department');
         $status = $request->input('status');
-    
+
         if ($user->hasRole('admin')) {
             // Admin dapat melihat semua data
             $data = DocumentControl::orderBy('name', 'ASC');
@@ -55,16 +55,16 @@ class DocumentControlController extends Controller
                 ->where('departemen.id', $user->departemen_id)
                 ->orderBy('document_controls.name', 'ASC');
         }
-    
+
         // Terapkan filter jika ada
         if (!empty($department)) {
             $data->where('document_controls.department', $department);
         }
-    
+
         if (!empty($status)) {
             $data->where('document_controls.status', $status);
         }
-    
+
         return DataTables::eloquent($data)->make(true);
     }
 
@@ -131,7 +131,7 @@ class DocumentControlController extends Controller
 
         $document_control = DocumentControl::findOrFail($id);
         $document_control->update([
-            'status' => 'Approved',
+            'status' => 'Completed',
             'comment' => 'Document has been approved!'
         ]);
 
