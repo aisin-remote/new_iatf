@@ -7,7 +7,7 @@ use App\Models\DocumentControl;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
-class DocumentObsolateReminder extends Command
+class DocumentobsoleteReminder extends Command
 {
     /**
      * The name and signature of the console command.
@@ -15,7 +15,7 @@ class DocumentObsolateReminder extends Command
      * @var string
      */
     protected $signature = 'command:send-documentobsolete-reminder';
-    protected $description = 'Send WhatsApp reminders for document obsolate';
+    protected $description = 'Send WhatsApp reminders for document obsolete';
 
     /**
      * The console command description.
@@ -47,6 +47,13 @@ class DocumentObsolateReminder extends Command
             ->get()
             ->groupBy('department');
 
+        // Jika tidak ada dokumen yang perlu diingatkan atau tidak ada dokumen bermasalah, hentikan proses
+        if ($documentControls->isEmpty() && $documentIssues->isEmpty()) {
+            $this->info("Tidak ada dokumen yang perlu diingatkan atau yang sudah melewati tanggal review.");
+            return; // Berhenti jika tidak ada data
+        }
+
+        // Lanjutkan jika ada dokumen untuk diingatkan atau yang bermasalah
         $this->sendWaReminderDocument($group_id, $documentControls, $documentIssues, $now);
     }
 
@@ -101,7 +108,7 @@ class DocumentObsolateReminder extends Command
                 $daysOverdue = $obsoleteDate->diffInDays($now);
 
                 // Tambahkan ke pesan "Dokumen issue"
-                $message .= "- " . $documentName . " : Overdue by " . $daysOverdue . "days ❗\n";
+                $message .= "- " . $documentName . " : Overdue by " . $daysOverdue . " days ❗\n";
             }
 
             $message .= "\n"; // Tambahkan baris kosong setelah setiap departemen

@@ -8,6 +8,7 @@ use App\Models\DocumentControl;
 use App\Models\Departemen;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use DataTables;
 use Auth;
@@ -155,7 +156,7 @@ class DocumentControlController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf|max:20480',
+            'file' => 'required|mimes:pdf,doc,docx,xls,xlsx|max:20480',
         ]);
 
         $document_control = DocumentControl::findOrFail($request->id);

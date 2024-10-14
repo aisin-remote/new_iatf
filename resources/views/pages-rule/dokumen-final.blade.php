@@ -94,7 +94,7 @@
                                                                     Activate
                                                                 </button>
                                                                 <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                                    data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                    data-target="#obsoleteDokumen-{{ $doc->id }}">
                                                                     Obsolete
                                                                 </button>
                                                             @endrole
@@ -105,7 +105,7 @@
                                                         @role('admin')
                                                             <!-- Tombol Obsolete hanya untuk admin -->
                                                             <button class="btn btn-danger btn-sm" data-toggle="modal"
-                                                                data-target="#obsolateDokumen-{{ $doc->id }}">
+                                                                data-target="#obsoleteDokumen-{{ $doc->id }}">
                                                                 Obsolete
                                                             </button>
                                                         @endrole
@@ -395,16 +395,16 @@
             </div>
         @endforeach
 
-        <!-- Modal untuk obsolate dokumen -->
+        <!-- Modal untuk obsolete dokumen -->
         @foreach ($dokumenfinal as $doc)
-            <div class="modal fade" id="obsolateDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
-                aria-labelledby="obsolateDokumenLabel-{{ $doc->id }}" aria-hidden="true">
+            <div class="modal fade" id="obsoleteDokumen-{{ $doc->id }}" tabindex="-1" role="dialog"
+                aria-labelledby="obsoleteDokumenLabel-{{ $doc->id }}" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <form action="{{ route('obsolete.document', ['id' => $doc->id]) }}" method="POST">
                             @csrf
                             <div class="modal-header">
-                                <h5 class="modal-title" id="obsolateDokumenLabel-{{ $doc->id }}">Obsolate Document
+                                <h5 class="modal-title" id="obsoleteDokumenLabel-{{ $doc->id }}">obsolete Document
                                 </h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
@@ -418,7 +418,7 @@
                                 </div>
                             </div>
                             <div class="modal-footer">
-                                <button type="submit" class="btn btn-danger">Obsolate</button>
+                                <button type="submit" class="btn btn-danger">obsolete</button>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                             </div>
                         </form>

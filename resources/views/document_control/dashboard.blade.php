@@ -9,48 +9,17 @@
                     <div class="col-12 col-xl-8 mb-4 mb-xl-0">
                         <h3 class="font-weight-bold">
                             Welcome
-                            {{ Auth::user()->departemen ? Auth::user()->departemen->nama_departemen : 'No Department Assigned' }}
+                            @if (Auth::user()->hasRole('admin'))
+                                {{ Auth::user()->getRoleNames()->first() }} <!-- Menampilkan nama role jika admin -->
+                            @else
+                                {{ Auth::user()->departemen ? Auth::user()->departemen->nama_departemen : 'No Department Assigned' }}
+                                <!-- Menampilkan nama departemen jika bukan admin -->
+                            @endif
                         </h3>
                     </div>
                     <div class="col-12 col-xl-4">
                         <div class="d-flex justify-content-end">
-                            <form id="filterForm" method="GET" action="{{ route('document_control.dashboard') }}"
-                                class="me-2 d-flex align-items-center">
-                                <div class="input-group me-2">
-                                    <select name="month" class="form-select me-2" required>
-                                        <option value="" disabled {{ old('month') ? '' : 'selected' }}>Bulan</option>
-                                        <option value="1" {{ old('month') == 1 ? 'selected' : '' }}>Januari</option>
-                                        <option value="2" {{ old('month') == 2 ? 'selected' : '' }}>Februari</option>
-                                        <option value="3" {{ old('month') == 3 ? 'selected' : '' }}>Maret</option>
-                                        <option value="4" {{ old('month') == 4 ? 'selected' : '' }}>April</option>
-                                        <option value="5" {{ old('month') == 5 ? 'selected' : '' }}>Mei</option>
-                                        <option value="6" {{ old('month') == 6 ? 'selected' : '' }}>Juni</option>
-                                        <option value="7" {{ old('month') == 7 ? 'selected' : '' }}>Juli</option>
-                                        <option value="8" {{ old('month') == 8 ? 'selected' : '' }}>Agustus</option>
-                                        <option value="9" {{ old('month') == 9 ? 'selected' : '' }}>September</option>
-                                        <option value="10" {{ old('month') == 10 ? 'selected' : '' }}>Oktober</option>
-                                        <option value="11" {{ old('month') == 11 ? 'selected' : '' }}>November</option>
-                                        <option value="12" {{ old('month') == 12 ? 'selected' : '' }}>Desember</option>
-                                    </select>
-                                </div>
-                                <div class="input-group me-2">
-                                    <select name="year" class="form-select me-2" required>
-                                        <option value="" disabled {{ old('year') ? '' : 'selected' }}>Tahun</option>
-                                        @for ($i = date('Y'); $i >= 2000; $i--)
-                                            <option value="{{ $i }}" {{ old('year') == $i ? 'selected' : '' }}>
-                                                {{ $i }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <button type="submit" class="btn btn-primary"
-                                        style="height: 28px; line-height: 28px; text-align: center; padding: 0 10px;">
-                                        Filter
-                                    </button>
-                                </div>
-                            </form>
-                            <span class="btn btn-sm btn-light bg-white" id="currentDateText"
-                                style="margin-left: 24px"></span>
+                            <span class="btn btn-sm btn-light bg-white" id="currentDateText" style="margin-left: 24px"></span>
                         </div>
                     </div>
                 </div>
@@ -58,16 +27,29 @@
         </div>
 
         <!-- Div untuk chart -->
-        <div class="row" id="chartsContainer">
-            <div class="col-lg-12 grid-margin grid-margin-lg-0 stretch-card">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Uncomplete Document Obsolate</h4>
-                        <div id="departmentChart" style="height: 417px;"></div>
+        @role('admin')
+            <div class="row" id="chartsContainer">
+                <div class="col-lg-12 grid-margin grid-margin-lg-0 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Uncomplete Document Obsolete</h4>
+                            <div id="departmentChart" style="height: 417px;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @else
+            <div class="row mt-4" id="guestChartsContainer">
+                <div class="col-lg-12 grid-margin grid-margin-lg-0 stretch-card">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Document Status Department</h4>
+                            <div id="guestRoleChart" style="height: 417px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endrole
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -85,13 +67,13 @@
         setInterval(updateDateTime, 1000);
 
         // Fungsi untuk menggambar chart menggunakan Highcharts
-        function drawHighchart(containerId, departmentNames, departmentCounts) {
+        function drawColumnChart(containerId, departmentNames, departmentCounts) {
             Highcharts.chart(containerId, {
                 chart: {
                     type: 'column'
                 },
                 title: {
-                    text: 'Department Document Obsolate Counts'
+                    text: 'Department Document Obsolete Counts'
                 },
                 xAxis: {
                     categories: departmentNames // Mengambil nama departemen dari model
@@ -121,14 +103,58 @@
             });
         }
 
+        function drawPieChart(containerId, statusData) {
+            Highcharts.chart(containerId, {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: '{{ Auth::user()->departemen->nama_departemen }}'
+                },
+                series: [{
+                    name: 'Total Documents',
+                    colorByPoint: true,
+                    data: statusData
+                }],
+                tooltip: {
+                    pointFormat: '<b>{point.name}</b>: {point.y}'
+                }
+            });
+        }
+
         // Ambil data departemen dari PHP ke JavaScript
         const departmentNames = @json($departments->pluck('nama_departemen'));
 
         // Ambil data total dokumen per departemen dari PHP ke JavaScript
         const departmentCounts = @json(array_values($departmentTotals)); // Ambil total dokumen
 
+        // Ambil data status dokumen untuk pengguna guest
+        const statusCounts = @json($statusCounts); // Data untuk pie chart status dokumen
+
         // Menggambar chart dengan nama departemen dan total dokumen
-        drawHighchart('departmentChart', departmentNames, departmentCounts);
+        @role('admin')
+            drawColumnChart('departmentChart', departmentNames, departmentCounts);
+        @else
+            // Format data untuk pie chart dari statusCounts
+            const statusData = [{
+                    name: 'Uncomplete',
+                    y: statusCounts.Uncomplete || 0
+                },
+                {
+                    name: 'Submitted',
+                    y: statusCounts.Submitted || 0
+                },
+                {
+                    name: 'Completed',
+                    y: statusCounts.Completed || 0
+                },
+                {
+                    name: 'Rejected',
+                    y: statusCounts.Rejected || 0
+                }
+            ];
+            drawPieChart('guestRoleChart', statusData);
+        @endrole
     </script>
 
 @endsection

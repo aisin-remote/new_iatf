@@ -27,7 +27,7 @@ class IndukDokumen extends Model
         'statusdoc',
         'file',
         'tgl_efektif',
-        'tgl_obsolate'
+        'tgl_obsolete'
     ];
 
     // Relasi dengan pengguna (user)

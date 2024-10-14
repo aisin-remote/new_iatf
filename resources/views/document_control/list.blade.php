@@ -230,7 +230,8 @@
                         <input type="text" readonly class="form-control-plaintext" id="name_upload">
                     </div>
                     <div class="form-group mb-0">
-                        <label for="file_edit">File Document <span class="text-danger">*</span></label>
+                        <label for="file_edit">File Document <span class="text-danger">*</span><span>(pdf, word,
+                                excel)</span></label>
                         <input type="file" class="form-control" id="file_edit" name="file_edit" accept=".pdf"
                             required>
                     </div>
@@ -452,18 +453,33 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         var viewButtonDisabled = data.file ? '' : 'disabled';
+                        // Menonaktifkan tombol upload jika status adalah Approved atau Rejected
+                        var uploadButtonDisabled = (data.status === 'Approved' || data.status ===
+                            'Rejected') ? 'disabled' : '';
 
                         return `<div class="text-center">
-                                    @role('admin')
-                                        <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}"> <i class="fa-solid fa-edit"></i></button>
-                                        <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-trash-alt"></i></button>
-                                    @endrole
+                    @role('admin')
+                        <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}">
+                            <i class="fa-solid fa-edit"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}">
+                            <i class="fa-solid fa-trash-alt"></i>
+                        </button>
+                    @endrole
 
-                                    <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-upload"></i></button>
-                                    <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}> <i class="fa-solid fa-eye"></i></button>
-                                </div>`;
+                    @role('guest')
+                        <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}" ${uploadButtonDisabled}>
+                            <i class="fa-solid fa-upload"></i>
+                        </button>
+                    @endrole
+
+                    <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}>
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>`;
                     }
                 },
+
                 {
                     data: 'comment',
                     name: 'comment',
@@ -773,14 +789,22 @@
                         table.ajax.reload();
                         $('#uploadModal').modal('hide');
                     },
-                    error: function(xhr, status, error) {
-                        alert(error);
+                    error: function(xhr) {
+                        // Mengambil pesan error dari respons
+                        let errorMessage = xhr.responseJSON.message ||
+                            'File upload failed. Please try again.';
+                        toastr['error'](errorMessage, 'Error', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+
                         var uploadButton = document.getElementById('submit_upload');
                         uploadButton.removeAttribute('disabled');
                         uploadButton.innerHTML = 'Upload';
                     }
                 });
             });
+
 
             $('#app_table').on('click', '.btn-view', function() {
                 var id = $(this).data('id');

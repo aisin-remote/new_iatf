@@ -92,14 +92,14 @@ class HomeController extends Controller
         $waitingCheckCount = $countByStatusAndType->where('status', 'Waiting check by MS')->sum('count');
         $finishCheckCount = $countByStatusAndType->where('status', 'Finish check by MS')->sum('count');
         $activeCount = $countByStatusAndType->where('status', 'Approve by MS')->sum('count');
-        $obsolateCount = $countByStatusAndType->where('status', 'Obsolete by MS')->sum('count');
+        $obsoleteCount = $countByStatusAndType->where('status', 'Obsolete by MS')->sum('count');
 
         return view('pages-rule.dashboard', compact(
             'countByType',
             'waitingCheckCount',
             'finishCheckCount',
             'activeCount',
-            'obsolateCount',
+            'obsoleteCount',
             'countByStatusAndType',
             'dokumenall',
             'allDepartemen',
@@ -176,26 +176,27 @@ class HomeController extends Controller
             'selectedDepartmentId' => $selectedDepartmentId, // Kirim ID departemen yang dipilih ke view
         ]);
     }
-    public function dashboarddocumentcontrol(Request $request)
+    public function dashboarddocumentcontrol()
     {
-        // Mendapatkan bulan dan tahun dari request
-        $month = $request->input('month');
-        $year = $request->input('year');
+        $currentDate = now(); // Mengambil tanggal dan waktu saat ini
 
-        // Memulai query DocumentControl untuk kolom 'obsolete'
-        $documentControlsQuery = DocumentControl::select('department')
-            ->groupBy('department')
-            ->selectRaw('count(*) as total')
-            ->whereNotNull('obsolete'); // Memastikan kolom 'obsolete' tidak null
+        // Memulai query DocumentControl
+        $documentControlsQuery = DocumentControl::select('department', 'set_reminder', 'obsolete', 'status')
+            ->whereNotNull('obsolete') // Memastikan kolom 'obsolete' tidak null
+            ->where('set_reminder', '<=', $currentDate) // Dokumen dengan tanggal set_reminder sebelum atau sama dengan hari ini
+            ->where('obsolete', '>=', $currentDate) // Dokumen dengan tanggal obsolete setelah atau sama dengan hari ini
+            ->groupBy('department', 'set_reminder', 'obsolete', 'status')
+            ->selectRaw('count(*) as total'); // Hitung total dokumen
 
-        // Menambahkan filter berdasarkan bulan dan tahun jika ada
-        if ($month && $year) {
-            $documentControlsQuery->whereYear('obsolete', $year)
-                ->whereMonth('obsolete', $month);
+        // Cek peran pengguna
+        if (auth()->user()->hasRole('admin')) {
+            // Jika pengguna adalah admin, ambil semua dokumen dalam rentang tanggal
+            $documentControls = $documentControlsQuery->get();
+        } else {
+            // Jika pengguna bukan admin, ambil dokumen hanya untuk departemennya sendiri
+            $userDepartments = auth()->user()->departemen->pluck('nama_departemen')->toArray(); // Ambil departemen pengguna
+            $documentControls = $documentControlsQuery->where('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
         }
-
-        // Mengambil data DocumentControl yang telah difilter
-        $documentControls = $documentControlsQuery->get();
 
         // Membuat array dengan format yang diinginkan
         $departmentTotals = [];
@@ -206,37 +207,54 @@ class HomeController extends Controller
             $departmentTotals[$department->nama_departemen] = 0; // Set nilai awal 0
         }
 
-        // Update total dokumen untuk departemen yang ada
+        // Update total dokumen untuk departemen yang ada dalam rentang tanggal
         foreach ($documentControls as $control) {
             $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
         }
 
+        // Menghitung jumlah dokumen berdasarkan status, dengan filter untuk pengguna non-admin
+        if (!auth()->user()->hasRole('admin')) {
+            // Untuk pengguna non-admin, filter dokumen berdasarkan departemen yang bersangkutan dalam rentang tanggal
+            $documentControls = DocumentControl::where('department', $userDepartments)
+                ->where('set_reminder', '<=', $currentDate) // Hanya dokumen yang masih dalam rentang tanggal
+                ->where('obsolete', '>=', $currentDate)
+                ->select('department', 'set_reminder', 'obsolete', 'status')
+                ->get();
+        }
+
         // Kirim data ke view
         return view('document_control.dashboard', [
             'departments' => $departments,
             'departmentTotals' => $departmentTotals, // Menambahkan total dokumen per departemen
+            'statusCounts' => $documentControls->groupBy('status')->map(function ($group) {
+                return $group->count();
+            }), // Menghitung status dokumen
         ]);
     }
 
-    public function dashboarddocumentreview(Request $request)
+    public function dashboarddocumentreview()
     {
-        $month = $request->input('month');
-        $year = $request->input('year');
 
         // Memulai query DocumentReview untuk kolom 'obsolete'
-        $documentReviewsQuery = DocumentReview::select('department')
-            ->groupBy('department')
-            ->selectRaw('count(*) as total')
-            ->whereNotNull('review'); // Memastikan kolom 'review' tidak null
+        $currentDate = now(); // Mengambil tanggal dan waktu saat ini
 
-        // Menambahkan filter berdasarkan bulan dan tahun jika ada
-        if ($month && $year) {
-            $documentReviewsQuery->whereYear('review', $year)
-                ->whereMonth('review', $month);
+        // Memulai query DocumentControl
+        $documentReviewsQuery = DocumentReview::select('department', 'set_reminder', 'review', 'status')
+            ->whereNotNull('review') // Memastikan kolom 'review' tidak null
+            ->where('set_reminder', '<=', $currentDate) // Dokumen dengan tanggal set_reminder sebelum atau sama dengan hari ini
+            ->where('review', '>=', $currentDate) // Dokumen dengan tanggal review setelah atau sama dengan hari ini
+            ->groupBy('department', 'set_reminder', 'review', 'status')
+            ->selectRaw('count(*) as total'); // Hitung total dokumen
+
+        // Cek peran pengguna
+        if (auth()->user()->hasRole('admin')) {
+            // Jika pengguna adalah admin, ambil semua dokumen dalam rentang tanggal
+            $documentReviews = $documentReviewsQuery->get();
+        } else {
+            // Jika pengguna bukan admin, ambil dokumen hanya untuk departemennya sendiri
+            $userDepartments = auth()->user()->departemen->pluck('nama_departemen')->toArray(); // Ambil departemen pengguna
+            $documentReviews = $documentReviewsQuery->where('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
         }
-
-        // Mengambil data DocumentReview yang telah difilter
-        $documentReviews = $documentReviewsQuery->get();
 
         // Membuat array dengan format yang diinginkan
         $departmentTotals = [];
@@ -247,15 +265,28 @@ class HomeController extends Controller
             $departmentTotals[$department->nama_departemen] = 0; // Set nilai awal 0
         }
 
-        // Update total dokumen untuk departemen yang ada
+        // Update total dokumen untuk departemen yang ada dalam rentang tanggal
         foreach ($documentReviews as $control) {
             $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
         }
 
+        // Menghitung jumlah dokumen berdasarkan status, dengan filter untuk pengguna non-admin
+        if (!auth()->user()->hasRole('admin')) {
+            // Untuk pengguna non-admin, filter dokumen berdasarkan departemen yang bersangkutan dalam rentang tanggal
+            $documentReviews = DocumentReview::where('department', $userDepartments)
+                ->where('set_reminder', '<=', $currentDate) // Hanya dokumen yang masih dalam rentang tanggal
+                ->where('review', '>=', $currentDate)
+                ->select('department', 'set_reminder', 'review', 'status')
+                ->get();
+        }
+        
         // Kirim data ke view
-        return view('document_control.dashboard', [
+        return view('document_review.dashboard', [
             'departments' => $departments,
             'departmentTotals' => $departmentTotals, // Menambahkan total dokumen per departemen
+            'statusCounts' => $documentReviews->groupBy('status')->map(function ($group) {
+                return $group->count();
+            }), // Menghitung status dokumen
         ]);
     }
     public function downloadExcel(Request $request)

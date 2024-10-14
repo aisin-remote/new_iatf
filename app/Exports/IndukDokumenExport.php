@@ -45,7 +45,7 @@ class IndukDokumenExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Tipe Dokumen',
             'Kode Proses',
             'Tanggal efektif',
-            'Tanggal obsolate',
+            'Tanggal obsolete',
             'Revisi Log',
             'Departemen Tersebar',
         ];

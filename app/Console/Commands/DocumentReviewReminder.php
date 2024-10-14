@@ -49,6 +49,11 @@ class DocumentReviewReminder extends Command
             ->get()
             ->groupBy('department');
 
+        if ($documentReviews->isEmpty() && $documentIssues->isEmpty()) {
+            $this->info('Tidak ada dokumen untuk diingatkan atau yang bermasalah.');
+            return; // Tidak ada data, hentikan eksekusi
+        }
+
         $this->sendWaReminderDocument($group_id, $documentReviews, $documentIssues, $now);
     }
 
