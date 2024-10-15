@@ -186,7 +186,7 @@ class ValidateRuleController extends Controller
         $dokumen->tgl_upload = Carbon::now();
         $dokumen->departemen_id = $departemen_id;
         $dokumen->rule_id = $request->rule_id;
-        $dokumen->status = 'Waiting Final Approval';
+        $dokumen->status = 'Finish check by MS';
         $dokumen->statusdoc = 'not yet active';
         $dokumen->comment = 'Document "' . $dokumen->nama_dokumen . '" has been checked.';
         $dokumen->save();
@@ -214,13 +214,17 @@ class ValidateRuleController extends Controller
 
             // Cek apakah kolom file_pdf tidak null dan file tersebut ada
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
-                // Tambahkan watermark pada PDF
+
+                // Tentukan koordinat X dan Y untuk watermark teks
+                $textXPos = 100; // Sesuaikan posisi X
+                $textYPos = 150; // Sesuaikan posisi Y
+
+                // Tambahkan watermark pada PDF dengan koordinat X dan Y yang diatur
                 $watermarkedPath = $this->addWatermarkToPdf(
                     $dokumen->file_pdf,
                     'Controlled Copy',
-                    'stamp_controlled_copy.png',
-                    20,
-                    150
+                    $textXPos,
+                    $textYPos
                 );
 
                 // Perbarui kolom active_doc dengan path file yang sudah di-watermark
@@ -260,7 +264,7 @@ class ValidateRuleController extends Controller
 
             // Define group IDs for notifications
             $groupIds = [
-                '120363311478624933', // Ganti dengan ID grup WhatsApp yang relevan
+                '085691768379', // Ganti dengan ID grup WhatsApp yang relevan
             ];
 
             // Pastikan groupIds adalah array, meskipun hanya ada satu ID
@@ -280,6 +284,7 @@ class ValidateRuleController extends Controller
         Alert::error('The document cannot be activated.');
         return redirect()->back();
     }
+
     protected function sendWaReminderAudit($groupId, $message)
     {
         // Send WA notification
@@ -317,14 +322,20 @@ class ValidateRuleController extends Controller
 
         // Periksa apakah dokumen belum aktif atau sudah obsolete
         if ($dokumen->statusdoc != 'obsolete') {
-            // Tambahkan watermark pada PDF jika kolom file_pdf tidak null
+
+            // Cek apakah kolom file_pdf tidak null dan file tersebut ada
             if (!is_null($dokumen->file_pdf) && Storage::disk('public')->exists($dokumen->file_pdf)) {
+
+                // Tentukan koordinat X dan Y untuk watermark teks
+                $textXPos = 120; // Sesuaikan posisi X
+                $textYPos = 100; // Sesuaikan posisi Y
+
+                // Tambahkan watermark pada PDF dengan koordinat X dan Y yang diatur
                 $watermarkedPath = $this->addWatermarkToPdf(
                     $dokumen->file_pdf,
                     'Obsolete',
-                    'stamp_obsolete.png',
-                    50,
-                    120
+                    $textXPos,
+                    $textYPos
                 );
 
                 // Simpan path file yang sudah di-watermark ke kolom obsolete_doc

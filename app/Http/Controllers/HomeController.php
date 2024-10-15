@@ -252,10 +252,10 @@ class HomeController extends Controller
             $documentReviews = $documentReviewsQuery->get();
         } else {
             // Jika pengguna bukan admin, ambil dokumen hanya untuk departemennya sendiri
-            $userDepartments = auth()->user()->departemen->pluck('nama_departemen')->toArray(); // Ambil departemen pengguna
+            $userDepartments = auth()->user()->departemen->nama_departemen; // Ambil departemen pengguna
             $documentReviews = $documentReviewsQuery->where('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
         }
-
+        // dd($documentReviews);
         // Membuat array dengan format yang diinginkan
         $departmentTotals = [];
 
@@ -279,7 +279,7 @@ class HomeController extends Controller
                 ->select('department', 'set_reminder', 'review', 'status')
                 ->get();
         }
-        
+        // dd($documentReviews);
         // Kirim data ke view
         return view('document_review.dashboard', [
             'departments' => $departments,

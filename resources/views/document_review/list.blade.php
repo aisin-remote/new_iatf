@@ -431,6 +431,8 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         var viewButtonDisabled = data.file ? '' : 'disabled';
+                        var uploadButtonDisabled = (data.status === 'Approved' || data.status ===
+                            'Rejected') ? 'disabled' : '';
 
                         return `<div class="text-center">
                                     @role('admin')
@@ -438,7 +440,9 @@
                                         <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-trash-alt"></i></button>
                                     @endrole
 
-                                    <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-upload"></i></button>
+                                    @role('guest')
+                                    <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}"${uploadButtonDisabled}> <i class="fa-solid fa-upload"></i></button>
+                                    @endrole
                                     <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}> <i class="fa-solid fa-eye"></i></button>
                                 </div>`;
                     }
@@ -752,8 +756,15 @@
                         table.ajax.reload();
                         $('#uploadModal').modal('hide');
                     },
-                    error: function(xhr, status, error) {
-                        alert(error);
+                    error: function(xhr) {
+                        // Mengambil pesan error dari respons
+                        let errorMessage = xhr.responseJSON.message ||
+                            'File upload failed. Please try again.';
+                        toastr['error'](errorMessage, 'Error', {
+                            closeButton: true,
+                            progressBar: true,
+                        });
+
                         var uploadButton = document.getElementById('submit_upload');
                         uploadButton.removeAttribute('disabled');
                         uploadButton.innerHTML = 'Upload';

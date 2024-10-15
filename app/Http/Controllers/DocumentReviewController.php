@@ -7,6 +7,7 @@ use App\Models\DocumentReview;
 use Illuminate\Http\Request;
 use DataTables;
 use Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 
 
@@ -116,6 +117,7 @@ class DocumentReviewController extends Controller
         $document_review->update([
             'status' => 'Rejected',
             'comment' => $request->comment_reject,
+            'file' => null,
         ]);
 
         return "Reject Successfully";
@@ -124,7 +126,7 @@ class DocumentReviewController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'file' => 'required|mimes:pdf|max:20480',
+            'file' => 'required|mimes:pdf,doc,docx,xls,xlsx|max:20480',
         ]);
 
         $document_review = DocumentReview::findOrFail($request->id);

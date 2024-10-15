@@ -8,7 +8,7 @@ use Storage;
 
 trait AddWatermarkTrait
 {
-    protected function addWatermarkToPdf($filePath, $watermarkText, $watermarkImage, $textXPos, $textYPos)
+    protected function addWatermarkToPdf($filePath, $watermarkText, $textXPos, $textYPos)
     {
         // Buat direktori rule_watermark jika belum ada
         $watermarkDirectory = 'rule_watermark';
@@ -30,14 +30,6 @@ trait AddWatermarkTrait
         $fileNameWithoutExtension = pathinfo($filePath, PATHINFO_FILENAME);
         $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
 
-        // Path gambar watermark
-        $watermarkImagePath = storage_path('app/public/' . $watermarkImage);
-
-        if (!file_exists($watermarkImagePath)) {
-            Log::error("Gambar watermark tidak ditemukan: $watermarkImagePath");
-            return null;
-        }
-
         // Buat instance TCPDF dengan FPDI
         $pdf = new TcpdfFpdi();
         $pdf->SetAutoPageBreak(false);
@@ -55,15 +47,6 @@ trait AddWatermarkTrait
             // Import halaman asli
             $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
 
-            // Tambahkan watermark gambar kecil di kiri bawah halaman
-            $imageWidth = 36; // Lebar gambar watermark
-            $imageHeight = 36; // Tinggi gambar watermark
-            $xPos = 10; // Posisi X dari kiri
-            $yPos = $size['height'] - $imageHeight - 10; // Posisi Y dari bawah (10mm dari bagian bawah)
-
-            // Menggunakan metode "Image" untuk menempatkan gambar
-            $pdf->Image($watermarkImagePath, $xPos, $yPos, $imageWidth, $imageHeight, 'PNG');
-
             // Tambahkan watermark teks dengan transparansi abu-abu pada halaman
             $pdf->SetFont('helvetica', 'B', 72); // Ukuran font tetap 72
             $pdf->SetTextColor(150, 150, 150); // Warna abu-abu
@@ -73,8 +56,8 @@ trait AddWatermarkTrait
 
             // Menyesuaikan posisi watermark teks
             $pdf->StartTransform();
-            $pdf->Rotate(45, $textXPos + 50, $textYPos); // Rotasi sekitar titik tengah watermark teks
-            $pdf->Text($textXPos, $textYPos, $watermarkText); // Posisi teks dengan rotasi
+            $pdf->Rotate(45, $textXPos, $textYPos); // Rotasi sekitar titik tengah watermark teks
+            $pdf->Text($textXPos - 100, $textYPos, $watermarkText); // Gunakan variabel posisi X dan Y
             $pdf->StopTransform();
 
             // Kembalikan opacity ke default
