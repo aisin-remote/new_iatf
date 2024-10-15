@@ -93,7 +93,7 @@
                                         <div class="weather-info" style="position: absolute; bottom: 10px; left: 10px;">
                                             <div class="d-flex align-items-center justify-content-center">
                                                 <h2 class="mb-0 font-weight-bold text-white"><i
-                                                        class="icon-sun mr-2"></i>Dashboard Rule</h2>
+                                                        class="icon-sun mr-2"></i>Document Rule</h2>
                                             </div>
                                         </div>
                                     </div>
