@@ -157,6 +157,10 @@ class DocumentControlController extends Controller
     {
         $request->validate([
             'file' => 'required|mimes:pdf,doc,docx,xls,xlsx|max:20480',
+        ], [
+            'file.required' => 'File is required.',
+            'file.mimes' => 'Only PDF, Word, and Excel files are allowed.',
+            'file.max' => 'File size should not exceed 2MB.',
         ]);
 
         $document_control = DocumentControl::findOrFail($request->id);

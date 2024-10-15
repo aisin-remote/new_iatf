@@ -73,7 +73,7 @@
                     type: 'column'
                 },
                 title: {
-                    text: 'Department Document Obsolete Counts'
+                    text: 'Department Document Obsolete Monitoring'
                 },
                 xAxis: {
                     categories: departmentNames // Mengambil nama departemen dari model
@@ -81,11 +81,11 @@
                 yAxis: {
                     min: 0,
                     title: {
-                        text: 'Count'
+                        text: 'Number of documents'
                     }
                 },
                 series: [{
-                    name: 'Departments',
+                    name: 'Obsolete Document Count',
                     data: departmentCounts, // Mengisi data dengan total dokumen per departemen
                     colorByPoint: true
                 }],

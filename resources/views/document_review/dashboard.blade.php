@@ -81,11 +81,11 @@
                 yAxis: {
                     min: 0,
                     title: {
-                        text: 'Count'
+                        text: 'Number of documents'
                     }
                 },
                 series: [{
-                    name: 'Departments',
+                    name: 'Review Document Count',
                     data: departmentCounts, // Mengisi data dengan total dokumen per departemen
                     colorByPoint: true
                 }],

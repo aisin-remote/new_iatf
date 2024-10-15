@@ -101,7 +101,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Add Document Control</h5>
+                    <h5 class="modal-title" id="editModalLabel">Edit Document Control</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -232,8 +232,9 @@
                     <div class="form-group mb-0">
                         <label for="file_edit">File Document <span class="text-danger">*</span><span>(pdf, word,
                                 excel)</span></label>
-                        <input type="file" class="form-control" id="file_edit" name="file_edit" accept=".pdf"
-                            required>
+                        <input type="file" class="form-control" id="file_edit" name="file_edit"
+                            accept=".pdf, .doc, .docx, .xls, .xlsx" required>
+                        <small>Maks 20 mb</small>
                     </div>
                     <input type="hidden" id="id_upload">
                 </div>
@@ -454,29 +455,24 @@
                     render: function(data, type, row, meta) {
                         var viewButtonDisabled = data.file ? '' : 'disabled';
                         // Menonaktifkan tombol upload jika status adalah Approved atau Rejected
-                        var uploadButtonDisabled = (data.status === 'Approved' || data.status ===
-                            'Rejected') ? 'disabled' : '';
+                        var uploadButtonDisabled = (data.status === 'Completed') ? 'disabled' : '';
 
                         return `<div class="text-center">
-                    @role('admin')
-                        <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}">
-                            <i class="fa-solid fa-edit"></i>
-                        </button>
-                        <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}">
-                            <i class="fa-solid fa-trash-alt"></i>
-                        </button>
-                    @endrole
-
-                    @role('guest')
-                        <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}" ${uploadButtonDisabled}>
-                            <i class="fa-solid fa-upload"></i>
-                        </button>
-                    @endrole
-
-                    <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}>
-                        <i class="fa-solid fa-eye"></i>
-                    </button>
-                </div>`;
+                            @role('admin')
+                                <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}">
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}">
+                                    <i class="fa-solid fa-trash-alt"></i>
+                                </button>
+                            @endrole
+                                <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}" ${uploadButtonDisabled}>
+                                    <i class="fa-solid fa-upload"></i>
+                                </button>
+                                <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}>
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>`;
                     }
                 },
 
@@ -516,27 +512,33 @@
 
             $('#createModal').on('show.bs.modal', function() {
                 $('#name_create').val('');
-                $('#department_create').val([]);
+                $('#department_create').val([]).trigger('change');
                 $('#obsolete_create').val('');
                 $('#set_reminder_create').val('');
                 $('#comment_create').val('');
 
                 var createButton = document.getElementById('submit_create');
-                createButton.removeAttribute('disabled');
                 createButton.innerHTML = 'Submit';
             });
 
             // CREATE
             $('#submit_create').on('click', function(e) {
+                e.preventDefault(); // Mencegah form dari submit default
+
                 var obsoleteDate = new Date($('#obsolete_create').val());
                 var setReminderDate = new Date($('#set_reminder_create').val());
 
+                // Validasi tanggal
+                if (!$('#obsolete_create').val() || !$('#set_reminder_create').val()) {
+                    toastr['error']('Please fill in all dates.');
+                    enableSubmitButton(); // Mengaktifkan kembali tombol submit
+                    return; // Keluar dari fungsi jika validasi gagal
+                }
+
                 if (setReminderDate >= obsoleteDate) {
-                    toastr['error']('Tanggal Reminder harus lebih awal dari Obselete');
-                    var createButton = document.getElementById('submit_create');
-                    createButton.removeAttribute('disabled');
-                    createButton.innerHTML = 'Submit';
-                    return;
+                    toastr['error']('Reminder Date must be earlier than Obsolete Date.');
+                    enableSubmitButton(); // Mengaktifkan kembali tombol submit
+                    return; // Keluar dari fungsi jika validasi gagal
                 }
 
                 var selectedDepartments = $('#department_create').val();
@@ -565,18 +567,22 @@
                                     toastr['error'](message);
                                 });
                             });
-                            var createButton = document.getElementById('submit_create');
-                            createButton.removeAttribute('disabled');
-                            createButton.innerHTML = 'Submit';
                         } else {
                             toastr['error'](xhr.responseText || error);
-                            var createButton = document.getElementById('submit_create');
-                            createButton.removeAttribute('disabled');
-                            createButton.innerHTML = 'Submit';
                         }
+                        enableSubmitButton(); // Mengaktifkan kembali tombol submit
                     }
                 });
             });
+
+            // Fungsi untuk mengaktifkan kembali tombol submit setelah toast menghilang
+            function enableSubmitButton() {
+                var createButton = document.getElementById('submit_create');
+                setTimeout(function() {
+                    createButton.removeAttribute('disabled'); // Mengaktifkan tombol
+                    createButton.innerHTML = 'Submit'; // Reset teks tombol
+                }, 2000); // Waktu tunggu dalam milidetik (misalnya 2000 ms = 2 detik)
+            }
 
             // EDIT
             $('#app_table').on('click', '.btn-edit', function() {
@@ -606,6 +612,16 @@
                 let obsolete_edit = $('#obsolete_edit').val();
                 let set_reminder_edit = $('#set_reminder_edit').val();
                 let comment_edit = $('#comment_edit').val();
+
+                // Tambahkan validasi untuk tanggal set reminder dan obsolete
+                var obsoleteDate = new Date(obsolete_edit);
+                var setReminderDate = new Date(set_reminder_edit);
+
+                if (setReminderDate >= obsoleteDate) {
+                    toastr['error']('Tanggal Reminder harus lebih awal dari Tanggal Obsolete.');
+                    return; // Keluar dari fungsi jika validasi gagal
+                }
+
                 $.ajax({
                     url: "{{ route('document_control.update') }}",
                     type: "POST",
@@ -804,7 +820,6 @@
                     }
                 });
             });
-
 
             $('#app_table').on('click', '.btn-view', function() {
                 var id = $(this).data('id');

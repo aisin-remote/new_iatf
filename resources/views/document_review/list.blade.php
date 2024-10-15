@@ -230,9 +230,11 @@
                         <input type="text" readonly class="form-control-plaintext" id="name_upload">
                     </div>
                     <div class="form-group mb-0">
-                        <label for="file_edit">File Document <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" id="file_edit" name="file_edit" accept=".pdf"
-                            required>
+                        <label for="file_edit">File Document <span class="text-danger">*</span><span>(pdf, word,
+                                excel)</span></label>
+                        <input type="file" class="form-control" id="file_edit" name="file_edit"
+                            accept=".pdf, .doc, .docx, .xls, .xlsx" required>
+                        <small>Maks 20 mb</small>
                     </div>
                     <input type="hidden" id="id_upload">
                 </div>
@@ -431,18 +433,14 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         var viewButtonDisabled = data.file ? '' : 'disabled';
-                        var uploadButtonDisabled = (data.status === 'Approved' || data.status ===
-                            'Rejected') ? 'disabled' : '';
+                        var uploadButtonDisabled = (data.status === 'Completed') ? 'disabled' : '';
 
                         return `<div class="text-center">
                                     @role('admin')
                                         <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-review="${data.review}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}"> <i class="fa-solid fa-edit"></i></button>
                                         <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}"> <i class="fa-solid fa-trash-alt"></i></button>
                                     @endrole
-
-                                    @role('guest')
                                     <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}"${uploadButtonDisabled}> <i class="fa-solid fa-upload"></i></button>
-                                    @endrole
                                     <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}> <i class="fa-solid fa-eye"></i></button>
                                 </div>`;
                     }
@@ -483,7 +481,7 @@
 
             $('#createModal').on('show.bs.modal', function() {
                 $('#name_create').val('');
-                $('#department_create').val([]);
+                $('#department_create').val([]).trigger('change');
                 $('#review_create').val('');
                 $('#set_reminder_create').val('');
                 $('#comment_create').val('');
@@ -499,7 +497,7 @@
                 var setReminderDate = new Date($('#set_reminder_create').val());
 
                 if (setReminderDate >= reviewDate) {
-                    toastr['error']('Tanggal Reminder harus lebih awal dari Obselete');
+                    toastr['error']('Reminder Date must be earlier than Obsolete Date');
                     var createButton = document.getElementById('submit_create');
                     createButton.removeAttribute('disabled');
                     createButton.innerHTML = 'Submit';
@@ -566,6 +564,7 @@
                 $('#comment_edit').val(comment_edit);
             });
 
+            // Fungsi untuk menangani update
             $('#submit_edit').on('click', function() {
                 let id_edit = $('#id_edit').val();
                 let name_edit = $('#name_edit').val();
@@ -573,6 +572,16 @@
                 let review_edit = $('#review_edit').val();
                 let set_reminder_edit = $('#set_reminder_edit').val();
                 let comment_edit = $('#comment_edit').val();
+
+                // Tambahkan validasi untuk tanggal review dan set reminder
+                var reviewDate = new Date(review_edit);
+                var setReminderDate = new Date(set_reminder_edit);
+
+                if (setReminderDate >= reviewDate) {
+                    toastr['error']('Tanggal Reminder harus lebih awal dari Tanggal Review.');
+                    return; // Keluar dari fungsi jika validasi gagal
+                }
+
                 $.ajax({
                     url: "{{ route('document_review.update') }}",
                     type: "POST",
