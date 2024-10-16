@@ -184,10 +184,7 @@ class HomeController extends Controller
         $documentControlsQuery = DocumentControl::select('department', 'status')
             ->whereNotNull('obsolete') // Memastikan kolom 'obsolete' tidak null
             ->where('set_reminder', '<=', $currentDate) // Dokumen dengan tanggal set_reminder sebelum atau sama dengan hari ini
-            ->where('obsolete', '>=', $currentDate) // Dokumen dengan tanggal obsolete setelah atau sama dengan hari ini
-            ->where('status', 'uncomplete') // Ambil hanya dokumen yang statusnya uncomplete
-            ->groupBy('department', 'status') // Kelompokkan berdasarkan department dan status
-            ->selectRaw('count(*) as total'); // Hitung total dokumen
+            ->where('obsolete', '>=', $currentDate); // Dokumen dengan tanggal obsolete setelah atau sama dengan hari ini
 
         // Cek peran pengguna
         if (auth()->user()->hasRole('admin')) {
@@ -195,8 +192,8 @@ class HomeController extends Controller
             $documentControls = $documentControlsQuery->get();
         } else {
             // Jika pengguna bukan admin, ambil dokumen hanya untuk departemennya sendiri
-            $userDepartments = auth()->user()->departemen->pluck('nama_departemen')->toArray(); // Ambil departemen pengguna
-            $documentControls = $documentControlsQuery->whereIn('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
+            $userDepartments = auth()->user()->departemen->pluck('nama_departemen')->toArray(); // Ambil semua departemen pengguna
+            $documentControls = $documentControlsQuery->where('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
         }
 
         // Membuat array dengan format yang diinginkan
@@ -210,19 +207,22 @@ class HomeController extends Controller
 
         // Update total dokumen untuk departemen yang ada dalam rentang tanggal
         foreach ($documentControls as $control) {
-            $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
+            // Update total dokumen untuk setiap department
+            $departmentTotals[$control->department] += 1; // Menambahkan 1 untuk setiap dokumen
         }
+
+        // Menghitung jumlah dokumen berdasarkan status
+        $statusCounts = $documentControls->groupBy('status')->map(function ($group) {
+            return $group->count(); // Menghitung jumlah dokumen untuk setiap status
+        });
 
         // Kirim data ke view
         return view('document_control.dashboard', [
             'departments' => $departments,
             'departmentTotals' => $departmentTotals, // Menambahkan total dokumen per departemen
-            'statusCounts' => $documentControls->groupBy('status')->map(function ($group) {
-                return $group->count();
-            }), // Menghitung status dokumen
+            'statusCounts' => $statusCounts, // Menghitung status dokumen
         ]);
     }
-
 
     public function dashboarddocumentreview()
     {
@@ -235,7 +235,7 @@ class HomeController extends Controller
             ->whereNotNull('review') // Memastikan kolom 'review' tidak null
             ->where('set_reminder', '<=', $currentDate) // Dokumen dengan tanggal set_reminder sebelum atau sama dengan hari ini
             ->where('review', '>=', $currentDate) // Dokumen dengan tanggal obsolete setelah atau sama dengan hari ini
-            ->where('status', 'uncomplete') // Ambil hanya dokumen yang statusnya uncomplete
+            ->where('status', 'Uncomplete') // Ambil hanya dokumen yang statusnya uncomplete
             ->groupBy('department', 'status') // Kelompokkan berdasarkan department dan status
             ->selectRaw('count(*) as total'); // Hitung total dokumen
 
