@@ -29,7 +29,7 @@ class DocumentReviewReminder extends Command
      */
     public function handle()
     {
-        $now = Carbon::now('Asia/Jakarta');
+        $now = Carbon::now()->format('Y-m-d');
         $this->info("Current Time: " . $now);
 
         // Tentukan ID grup WhatsApp yang statis
@@ -72,49 +72,64 @@ class DocumentReviewReminder extends Command
 
             // Iterasi dokumen dalam departemen
             foreach ($documentsGroup as $document) {
-                // Mengambil nama dokumen dan waktu obsolete dari dokumen
+                // Mengambil nama dokumen dan waktu review dari dokumen
                 $documentName = $document->name;
 
                 // Mengonversi string menjadi objek Carbon
-                $obsoleteTime = Carbon::parse($document->obsolete);
-                $setReminderTime = Carbon::parse($document->set_reminder);
+                $reviewTime = Carbon::parse($document->review);
 
-                // Hitung rentang waktu dalam hari
-                $daysUntilObsolete = $obsoleteTime->diffInDays($setReminderTime);
+                // Periksa apakah tanggal review adalah hari ini
+                if ($reviewTime->isToday()) {
+                    $daysLeftMessage = 'Today'; // Jika tepat hari ini, tampilkan Today
+                } else {
+                    // Hitung rentang waktu dalam hari
+                    $daysUntilreview = $reviewTime->diffInDays($now);
+                    $daysLeftMessage = $daysUntilreview . ' days left';
+                }
 
                 // Tambahkan setiap dokumen ke dalam pesan
-                $message .= "- " . $documentName . " : " . $daysUntilObsolete . " days left ❗\n";
+                $message .= "- " . $documentName . " : " . $daysLeftMessage . " ❗\n";
             }
 
             $message .= "\n"; // Tambahkan baris kosong setelah setiap departemen
             $index++;
         }
 
+        // Menambahkan pesan untuk dokumen yang perlu diingatkan
         $message .= "*Please submit and verify to MS Department*\n\n";
-        // Menambahkan bagian "Dokumen issue"
-        $message .= "Pending Issue :\n\n";
-        $index = 1;
-        foreach ($issuesByDepartment as $departmentName => $issuesGroup) {
-            // Tambahkan nama departemen ke pesan
-            $message .= "[$index] *" . $departmentName . "*\n"; // Judul untuk departemen
 
-            // Iterasi dokumen yang melewati tanggal review
-            foreach ($issuesGroup as $issue) {
-                // Mengambil nama dokumen dan menghitung jumlah hari yang terlewat
-                $documentName = $issue->name;
-                $reviewDate = Carbon::parse($issue->review);
+        // Menambahkan bagian "Dokumen issue" jika ada
+        if ($issuesByDepartment->isNotEmpty()) {
+            $message .= "Pending Issue :\n\n";
+            $index = 1;
+            foreach ($issuesByDepartment as $departmentName => $issuesGroup) {
+                // Tambahkan nama departemen ke pesan
+                $message .= "[$index] *" . $departmentName . "*\n"; // Judul untuk departemen
 
-                // Hitung jumlah hari yang sudah terlewat
-                $daysOverdue = $reviewDate->diffInDays($now);
+                // Iterasi dokumen yang melewati tanggal review
+                foreach ($issuesGroup as $issue) {
+                    // Mengambil nama dokumen dan menghitung jumlah hari yang terlewat
+                    $documentName = $issue->name;
+                    $reviewDate = Carbon::parse($issue->review);
 
-                // Tambahkan ke pesan "Dokumen issue"
-                $message .= "- " . $documentName . " : " . $daysOverdue . " Overdue date ❗\n";
+                    // Hitung jumlah hari yang sudah terlewat
+                    $daysOverdue = $reviewDate->diffInDays($now);
+
+                    // Periksa apakah tanggal review adalah hari ini
+                    if ($reviewDate->isToday()) {
+                        continue; // Lewati dokumen ini jika review adalah hari ini
+                    }
+
+                    // Tambahkan ke pesan "Dokumen issue" jika tidak hari ini
+                    $message .= "- " . $documentName . " : Overdue by " . $daysOverdue . " days ❗\n";
+                }
+
+                $message .= "\n"; // Tambahkan baris kosong setelah setiap departemen
+                $index++;
             }
-
-            $message .= "\n"; // Tambahkan baris kosong setelah setiap departemen
-            $index++;
+            $message .= "*Please submit and verify to MS Department ASAP*\n\n";
         }
-        $message .= "*Please submit and verify to MS Department ASAP*\n\n";
+
         $message .= "------ BY AISIN BISA ------";
 
         // Kirim pesan ke WhatsApp Group

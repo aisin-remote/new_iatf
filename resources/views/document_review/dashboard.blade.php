@@ -31,10 +31,14 @@
             <div class="row" id="chartsContainer">
                 <div class="col-lg-12 grid-margin grid-margin-lg-0 stretch-card">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body d-flex justify-content-between align-items-center">
                             <h4 class="card-title">Uncomplete Document Review</h4>
-                            <div id="departmentChart" style="height: 417px;"></div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                <label class="form-check-label" for="flexSwitchCheckDefault">Show Details</label>
+                            </div>
                         </div>
+                        <div id="departmentChart" style="height: 417px;"></div>
                     </div>
                 </div>
             </div>
@@ -50,6 +54,7 @@
                 </div>
             </div>
         @endrole
+        <div id="documentControlTable" class="mt-3"></div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -73,7 +78,7 @@
                     type: 'column'
                 },
                 title: {
-                    text: 'Department Document Obsolete Counts'
+                    text: 'Department Document Review Monitoring'
                 },
                 xAxis: {
                     categories: departmentNames // Mengambil nama departemen dari model
@@ -154,6 +159,70 @@
             ];
             drawPieChart('guestRoleChart', statusData);
         @endrole
+        // Event listener untuk toggle switch
+        document.getElementById('flexSwitchCheckDefault').addEventListener('change', function() {
+            if (this.checked) {
+                // Kirim AJAX request ketika switch dinyalakan
+                $.ajax({
+                    url: '/document_review/details', // URL untuk mengambil data
+                    type: 'GET', // Tipe request
+                    dataType: 'json', // Format data yang diharapkan dari server
+                    success: function(data) {
+                        displayDocumentControlTable(data);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error fetching data:', textStatus, errorThrown);
+                    }
+                });
+            } else {
+                // Kosongkan tabel ketika switch dimatikan
+                document.getElementById('documentControlTable').innerHTML = '';
+            }
+        });
+
+        // Fungsi untuk menampilkan tabel data dokumen
+        function displayDocumentControlTable(data) {
+            let tableHtml = `
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Document Name</th>
+                            <th>Department</th>
+                            <th>review Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.forEach((doc, index) => {
+                tableHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${doc.name}</td>
+                        <td>${doc.department}</td>
+                        <td>${doc.review}</td>
+                    </tr>
+                `;
+            });
+
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('documentControlTable').innerHTML = tableHtml;
+        }
     </script>
 
 @endsection
+@push('styles')
+    <style>
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+@endpush

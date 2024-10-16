@@ -198,7 +198,6 @@ Route::post('/audit/master-data/auditcontrol/update/{id}', [MasterDataAuditContr
 Route::delete('/audit/master-data/auditcontrol/delete/{id}', [MasterDataAuditController::class, 'delete_auditcontrol'])
     ->middleware(['auth', 'role:admin'])
     ->name('delete.auditControl');
-Route::get('departments/{id}', 'DepartmentController@show')->name('department.detail');
 
 
 //Audit Control 
@@ -225,6 +224,7 @@ Route::group(['prefix' => 'audit'], function () {
 Route::middleware(['auth', 'role:admin|guest'])->group(function () {
     Route::group(['prefix' => 'document_control'], function () {
         Route::get('/dashboard-documentcontrol',[HomeController::class, 'dashboarddocumentcontrol'])->name('document_control.dashboard');
+        Route::get('/details', [DocumentControlController::class, 'fetchDocumentControls'])->name('document_control.details');
         Route::get('/list', [DocumentControlController::class, 'list'])->name('document_control.list');
         Route::get('/list_ajax', [DocumentControlController::class, 'list_ajax'])->name('document_control.list_ajax');
         Route::post('/store', [DocumentControlController::class, 'store'])->name('document_control.store');
@@ -240,6 +240,7 @@ Route::middleware(['auth', 'role:admin|guest'])->group(function () {
 Route::middleware(['auth', 'role:admin|guest'])->group(function () {
     Route::group(['prefix' => 'document_review'], function () {
         Route::get('/dashboard-documentreview',[HomeController::class, 'dashboarddocumentreview'])->name('document_review.dashboard');
+        Route::get('/details', [DocumentReviewController::class, 'fetchDocumentReviews'])->name('document_review.details');
         Route::get('/list', [DocumentReviewController::class, 'list'])->name('document_review.list');
         Route::get('/list_ajax', [DocumentReviewController::class, 'list_ajax'])->name('document_review.list_ajax');
         Route::post('/store', [DocumentReviewController::class, 'store'])->name('document_review.store');

@@ -454,26 +454,56 @@
                     data: null,
                     render: function(data, type, row, meta) {
                         var viewButtonDisabled = data.file ? '' : 'disabled';
-                        // Menonaktifkan tombol upload jika status adalah Approved atau Rejected
                         var uploadButtonDisabled = (data.status === 'Completed') ? 'disabled' : '';
 
+                        let buttonsHtml = '';
+
+                        // Check if file exists and extract extension if file is not null
+                        if (data.file) {
+                            const fileType = data.file.split('.').pop().toLowerCase();
+
+                            if (fileType === 'pdf') {
+                                // Button View for PDF
+                                buttonsHtml += `
+                <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            `;
+                            } else {
+                                // Button Download for Word or Excel
+                                buttonsHtml += `
+                <a href="/storage/document_control/${data.file}" class="btn btn-info btn-sm">
+                    <i class="fa-solid fa-download"></i>
+                </a>
+            `;
+                            }
+                        } else {
+                            // If no file or fileType is null, show disabled View button
+                            buttonsHtml += `
+            <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" disabled>
+                <i class="fa-solid fa-eye"></i>
+            </button>
+        `;
+                        }
+
+                        // Return the complete HTML
                         return `<div class="text-center">
-                            @role('admin')
-                                <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}">
-                                    <i class="fa-solid fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}">
-                                    <i class="fa-solid fa-trash-alt"></i>
-                                </button>
-                            @endrole
-                                <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}" ${uploadButtonDisabled}>
-                                    <i class="fa-solid fa-upload"></i>
-                                </button>
-                                <button class="btn btn-info btn-sm btn-view" data-toggle="modal" data-target="#viewModal" data-id="${data.id}" data-name="${data.name}" ${viewButtonDisabled}>
-                                    <i class="fa-solid fa-eye"></i>
-                                </button>
-                            </div>`;
+        @role('admin')
+            <button class="btn btn-warning btn-sm btn-edit" data-toggle="modal" data-target="#editModal" data-id="${data.id}" data-name="${data.name}" data-department="${data.department}" data-obsolete="${data.obsolete}" data-set_reminder="${data.set_reminder}" data-comment="${data.comment}">
+                <i class="fa-solid fa-edit"></i>
+            </button>
+            <button class="btn btn-danger btn-sm btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="${data.id}" data-name="${data.name}">
+                <i class="fa-solid fa-trash-alt"></i>
+            </button>
+        @endrole
+        <button class="btn btn-success btn-sm btn-upload" data-toggle="modal" data-target="#uploadModal" data-id="${data.id}" data-name="${data.name}" ${uploadButtonDisabled}>
+            <i class="fa-solid fa-upload"></i>
+        </button>
+        ${buttonsHtml}
+    </div>`;
                     }
+
+
                 },
 
                 {
@@ -509,6 +539,7 @@
                 },
                 columns: columnsConfig
             });
+
 
             $('#createModal').on('show.bs.modal', function() {
                 $('#name_create').val('');

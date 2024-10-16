@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\DB;
 
 class DocumentReviewController extends Controller
 {
+    public function fetchDocumentReviews()
+    {
+        // Mengambil data dari tabel document control
+        $documents = DocumentReview::where('status', 'Uncomplete')->get(); // Anda bisa menyesuaikan query jika diperlukan
+        // Mengembalikan data dalam format JSON
+        // dd($documents);
+        return response()->json($documents);
+    }
     public function list()
     {
         $departments = Departemen::orderBy('nama_departemen', 'ASC')->get();

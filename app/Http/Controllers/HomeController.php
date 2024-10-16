@@ -181,11 +181,12 @@ class HomeController extends Controller
         $currentDate = now(); // Mengambil tanggal dan waktu saat ini
 
         // Memulai query DocumentControl
-        $documentControlsQuery = DocumentControl::select('department', 'set_reminder', 'obsolete', 'status')
+        $documentControlsQuery = DocumentControl::select('department', 'status')
             ->whereNotNull('obsolete') // Memastikan kolom 'obsolete' tidak null
             ->where('set_reminder', '<=', $currentDate) // Dokumen dengan tanggal set_reminder sebelum atau sama dengan hari ini
             ->where('obsolete', '>=', $currentDate) // Dokumen dengan tanggal obsolete setelah atau sama dengan hari ini
-            ->groupBy('department', 'set_reminder', 'obsolete', 'status')
+            ->where('status', 'uncomplete') // Ambil hanya dokumen yang statusnya uncomplete
+            ->groupBy('department', 'status') // Kelompokkan berdasarkan department dan status
             ->selectRaw('count(*) as total'); // Hitung total dokumen
 
         // Cek peran pengguna
@@ -195,7 +196,7 @@ class HomeController extends Controller
         } else {
             // Jika pengguna bukan admin, ambil dokumen hanya untuk departemennya sendiri
             $userDepartments = auth()->user()->departemen->pluck('nama_departemen')->toArray(); // Ambil departemen pengguna
-            $documentControls = $documentControlsQuery->where('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
+            $documentControls = $documentControlsQuery->whereIn('department', $userDepartments)->get(); // Ambil dokumen berdasarkan departemen
         }
 
         // Membuat array dengan format yang diinginkan
@@ -212,16 +213,6 @@ class HomeController extends Controller
             $departmentTotals[$control->department] = $control->total; // Update dengan total dokumen
         }
 
-        // Menghitung jumlah dokumen berdasarkan status, dengan filter untuk pengguna non-admin
-        if (!auth()->user()->hasRole('admin')) {
-            // Untuk pengguna non-admin, filter dokumen berdasarkan departemen yang bersangkutan dalam rentang tanggal
-            $documentControls = DocumentControl::where('department', $userDepartments)
-                ->where('set_reminder', '<=', $currentDate) // Hanya dokumen yang masih dalam rentang tanggal
-                ->where('obsolete', '>=', $currentDate)
-                ->select('department', 'set_reminder', 'obsolete', 'status')
-                ->get();
-        }
-
         // Kirim data ke view
         return view('document_control.dashboard', [
             'departments' => $departments,
@@ -232,6 +223,7 @@ class HomeController extends Controller
         ]);
     }
 
+
     public function dashboarddocumentreview()
     {
 
@@ -239,11 +231,12 @@ class HomeController extends Controller
         $currentDate = now(); // Mengambil tanggal dan waktu saat ini
 
         // Memulai query DocumentControl
-        $documentReviewsQuery = DocumentReview::select('department', 'set_reminder', 'review', 'status')
+        $documentReviewsQuery = DocumentReview::select('department', 'status')
             ->whereNotNull('review') // Memastikan kolom 'review' tidak null
             ->where('set_reminder', '<=', $currentDate) // Dokumen dengan tanggal set_reminder sebelum atau sama dengan hari ini
-            ->where('review', '>=', $currentDate) // Dokumen dengan tanggal review setelah atau sama dengan hari ini
-            ->groupBy('department', 'set_reminder', 'review', 'status')
+            ->where('review', '>=', $currentDate) // Dokumen dengan tanggal obsolete setelah atau sama dengan hari ini
+            ->where('status', 'uncomplete') // Ambil hanya dokumen yang statusnya uncomplete
+            ->groupBy('department', 'status') // Kelompokkan berdasarkan department dan status
             ->selectRaw('count(*) as total'); // Hitung total dokumen
 
         // Cek peran pengguna

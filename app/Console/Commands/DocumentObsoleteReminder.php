@@ -27,7 +27,7 @@ class DocumentObsoleteReminder extends Command
      */
     public function handle()
     {
-        $now = Carbon::now('Asia/Jakarta');
+        $now = Carbon::now()->format('Y-m-d');
         $this->info("Current Time: " . $now);
 
         // Tentukan ID grup WhatsApp yang statis
@@ -37,18 +37,20 @@ class DocumentObsoleteReminder extends Command
         $documentControls = DocumentControl::select('document_controls.*')
             ->where('status', 'Uncomplete')
             ->where('set_reminder', '<=', $now)
-            ->where('obsolete', '=>', $now) // Menggunakan >= untuk termasuk hari ini
+            ->where('obsolete', '>=', $now) // Menggunakan >= untuk termasuk hari ini
             ->get()
             ->groupBy('department'); // Grupkan berdasarkan departemen
 
+        // Ambil dokumen yang sudah melewati tanggal review
         $documentIssues = DocumentControl::select('document_controls.*')
             ->where('status', 'Uncomplete')
-            ->where('obsolete', '>', $now) // Yang sudah melewati tanggal review
+            ->where('obsolete', '<', $now) // Dokumen yang sudah obsolete
             ->get()
             ->groupBy('department');
-        dd($documentIssues);
 
-        // Jika tidak ada dokumen yang perlu diingatkan atau tidak ada dokumen bermasalah, hentikan proses
+        // dd($documentIssues);
+
+        // Jika tidak ada dokumen yang perlu diingatkan atau yang sudah melewati tanggal review, hentikan proses
         if ($documentControls->isEmpty() && $documentIssues->isEmpty()) {
             $this->info("Tidak ada dokumen yang perlu diingatkan atau yang sudah melewati tanggal review.");
             return; // Berhenti jika tidak ada data
@@ -78,12 +80,15 @@ class DocumentObsoleteReminder extends Command
 
                 // Mengonversi string menjadi objek Carbon
                 $obsoleteTime = Carbon::parse($document->obsolete);
-                $setReminderTime = Carbon::parse($document->set_reminder);
 
-                // Hitung rentang waktu dalam hari
-                $daysUntilObsolete = $obsoleteTime->diffInDays($setReminderTime);
-
-                $daysLeftMessage = $daysUntilObsolete . ' days left';
+                // Periksa apakah tanggal obsolete adalah hari ini
+                if ($obsoleteTime->isToday()) {
+                    $daysLeftMessage = 'Today'; // Jika tepat hari ini, tampilkan Today
+                } else {
+                    // Hitung rentang waktu dalam hari
+                    $daysUntilObsolete = $obsoleteTime->diffInDays($now);
+                    $daysLeftMessage = $daysUntilObsolete . ' days left';
+                }
 
                 // Tambahkan setiap dokumen ke dalam pesan
                 $message .= "- " . $documentName . " : " . $daysLeftMessage . " ❗\n";
@@ -127,7 +132,6 @@ class DocumentObsoleteReminder extends Command
             }
             $message .= "*Please submit and verify to MS Department ASAP*\n\n";
         }
-
 
         $message .= "------ BY AISIN BISA ------";
 
