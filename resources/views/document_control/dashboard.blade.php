@@ -86,6 +86,18 @@
 
         // Fungsi untuk menggambar chart menggunakan Highcharts
         function drawColumnChart(containerId, departmentNames, departmentCounts) {
+            // Filter untuk mengecualikan "Aisin Indonesia"
+            let filteredNames = [];
+            let filteredCounts = [];
+
+            for (let i = 0; i < departmentNames.length; i++) {
+                if (departmentNames[i] !== 'Aisin Indonesia') {
+                    filteredNames.push(departmentNames[i]); // Menambahkan nama departemen kecuali Aisin Indonesia
+                    filteredCounts.push(departmentCounts[
+                    i]); // Menambahkan count dokumen kecuali yang terkait dengan Aisin Indonesia
+                }
+            }
+
             Highcharts.chart(containerId, {
                 chart: {
                     type: 'column'
@@ -94,7 +106,7 @@
                     text: 'Department Document Obsolete Monitoring'
                 },
                 xAxis: {
-                    categories: departmentNames // Mengambil nama departemen dari model
+                    categories: filteredNames // Mengambil nama departemen yang sudah difilter
                 },
                 yAxis: {
                     min: 0,
@@ -104,7 +116,7 @@
                 },
                 series: [{
                     name: 'Obsolete Document Count',
-                    data: departmentCounts, // Mengisi data dengan total dokumen per departemen
+                    data: filteredCounts, // Mengisi data dengan total dokumen per departemen yang sudah difilter
                     colorByPoint: true
                 }],
                 tooltip: {
@@ -120,6 +132,7 @@
                 }
             });
         }
+
 
         function drawPieChart(containerId, statusData) {
             Highcharts.chart(containerId, {

@@ -69,8 +69,10 @@
                         <select class="form-control select2" multiple="multiple" name="department_create[]"
                             id="department_create" style="width: 100%;" required>
                             @foreach ($departments as $department)
-                                <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
-                                </option>
+                                @if ($department->nama_departemen !== 'Aisin Indonesia')
+                                    <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -117,8 +119,10 @@
                         <select class="form-control" name="department_edit" id="department_edit" required>
                             <option value="">-- Choose --</option>
                             @foreach ($departments as $department)
-                                <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
-                                </option>
+                                @if ($department->nama_departemen !== 'Aisin Indonesia')
+                                    <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>
@@ -285,8 +289,10 @@
                                 <option value="">-- Select Department --</option>
                                 <!-- Tambahkan opsi departemen secara dinamis di sini -->
                                 @foreach ($departments as $department)
-                                    <option value="{{ $department->nama_departemen }}">{{ $department->nama_departemen }}
-                                    </option>
+                                    @if ($department->nama_departemen !== 'Aisin Indonesia')
+                                        <option value="{{ $department->nama_departemen }}">
+                                            {{ $department->nama_departemen }}</option>
+                                    @endif
                                 @endforeach
                             </select>
                         </div>

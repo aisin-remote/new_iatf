@@ -18,7 +18,10 @@ class DocumentControlController extends Controller
     public function fetchDocumentControls()
     {
         // Mengambil data dari tabel document control
-        $documents = DocumentControl::where('status', 'Uncomplete')->get(); // Anda bisa menyesuaikan query jika diperlukan
+        $documents = DocumentControl::where('status', 'Uncomplete')
+        ->where('department','!','Aisin Indonesia')
+        ->orderBy('department','ASC')
+        ->get(); // Anda bisa menyesuaikan query jika diperlukan
         // Mengembalikan data dalam format JSON
         // dd($documents);
         return response()->json($documents);
