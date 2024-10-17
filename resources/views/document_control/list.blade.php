@@ -556,7 +556,7 @@
 
                 var createButton = document.getElementById('submit_create');
                 createButton.removeAttribute('disabled');
-                createButton.innerHTML = 'Submit';
+                createButton.innerHTML = 'Submit'; 
             });
 
             // CREATE
