@@ -94,7 +94,7 @@
                 if (departmentNames[i] !== 'Aisin Indonesia') {
                     filteredNames.push(departmentNames[i]); // Menambahkan nama departemen kecuali Aisin Indonesia
                     filteredCounts.push(departmentCounts[
-                    i]); // Menambahkan count dokumen kecuali yang terkait dengan Aisin Indonesia
+                        i]); // Menambahkan count dokumen kecuali yang terkait dengan Aisin Indonesia
                 }
             }
 
@@ -215,34 +215,44 @@
         function displayDocumentControlTable(data) {
             // Buat struktur tabel
             let tableHtml = `
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Document Name</th>
-                            <th>Department</th>
-                            <th>Obsolete Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Document Name</th>
+                    <th>Department</th>
+                    <th>Obsolete Date</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+            // Mendapatkan tanggal saat ini
+            const currentDate = new Date();
 
             // Loop melalui data dan buat baris untuk setiap dokumen
             data.forEach((doc, index) => {
+                // Memeriksa apakah status "Uncomplete" dan tanggal obsolete sudah terlewat
+                let warningIcon = '';
+                if (doc.status === 'Uncomplete' && new Date(doc.obsolete) < currentDate) {
+                    warningIcon =
+                    '<span class="text-danger" title="Document is overdue!">⚠️</span>'; // Ikon peringatan
+                }
+
                 tableHtml += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${doc.name}</td>
-                        <td>${doc.department}</td>
-                        <td>${doc.obsolete}</td>
-                    </tr>
-                `;
+            <tr>
+                <td>${index + 1}</td>
+                <td>${doc.name} ${warningIcon}</td>
+                <td>${doc.department}</td>
+                <td>${doc.obsolete}</td>
+            </tr>
+        `;
             });
 
             tableHtml += `
-                    </tbody>
-                </table>
-            `;
+            </tbody>
+        </table>
+    `;
 
             // Sisipkan tabel ke dalam placeholder HTML
             document.getElementById('documentControlTable').innerHTML = tableHtml;

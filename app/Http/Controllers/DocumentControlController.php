@@ -18,9 +18,8 @@ class DocumentControlController extends Controller
     public function fetchDocumentControls()
     {
         // Mengambil data dari tabel document control
-        $documents = DocumentControl::where('status', 'Uncomplete')
-        ->where('department','!','Aisin Indonesia')
-        ->orderBy('department','ASC')
+        $documents = DocumentControl::orderBy('department','ASC')
+        ->where('status', 'Uncomplete')
         ->get(); // Anda bisa menyesuaikan query jika diperlukan
         // Mengembalikan data dalam format JSON
         // dd($documents);
@@ -171,7 +170,7 @@ class DocumentControlController extends Controller
         ], [
             'file.required' => 'File is required.',
             'file.mimes' => 'Only PDF, Word, and Excel files are allowed.',
-            'file.max' => 'File size should not exceed 2MB.',
+            'file.max' => 'File size should not exceed 20MB.',
         ]);
 
         $document_control = DocumentControl::findOrFail($request->id);

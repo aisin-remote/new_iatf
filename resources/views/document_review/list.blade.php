@@ -29,7 +29,7 @@
                                         <th width="50px">No</th>
                                         <th>Document Name</th>
                                         <th>Department</th>
-                                        <th>review</th>
+                                        <th>Review</th>
                                         <th>Set Reminder</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -783,6 +783,7 @@
                 var uploadButton = document.getElementById('submit_upload');
                 uploadButton.removeAttribute('disabled');
                 uploadButton.innerHTML = 'Upload';
+                $('#file_edit').val(''); 
 
                 $('#id_upload').val(id_upload);
                 $('#name_upload').val(name_upload);
@@ -807,6 +808,7 @@
                         toastr['success'](response);
                         table.ajax.reload();
                         $('#uploadModal').modal('hide');
+                        $('#file_edit').val(''); 
                     },
                     error: function(xhr) {
                         // Mengambil pesan error dari respons
@@ -820,6 +822,7 @@
                         var uploadButton = document.getElementById('submit_upload');
                         uploadButton.removeAttribute('disabled');
                         uploadButton.innerHTML = 'Upload';
+                        $('#file_edit').val(''); 
                     }
                 });
             });

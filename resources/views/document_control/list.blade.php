@@ -555,6 +555,7 @@
                 $('#comment_create').val('');
 
                 var createButton = document.getElementById('submit_create');
+                createButton.removeAttribute('disabled');
                 createButton.innerHTML = 'Submit';
             });
 
@@ -817,6 +818,7 @@
                 var uploadButton = document.getElementById('submit_upload');
                 uploadButton.removeAttribute('disabled');
                 uploadButton.innerHTML = 'Upload';
+                $('#file_edit').val(''); 
 
                 $('#id_upload').val(id_upload);
                 $('#name_upload').val(name_upload);
@@ -841,6 +843,7 @@
                         toastr['success'](response);
                         table.ajax.reload();
                         $('#uploadModal').modal('hide');
+                        $('#file_edit').val(''); 
                     },
                     error: function(xhr) {
                         // Mengambil pesan error dari respons
@@ -854,6 +857,7 @@
                         var uploadButton = document.getElementById('submit_upload');
                         uploadButton.removeAttribute('disabled');
                         uploadButton.innerHTML = 'Upload';
+                        $('#file_edit').val(''); 
                     }
                 });
             });

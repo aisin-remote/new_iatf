@@ -194,35 +194,48 @@
 
         // Fungsi untuk menampilkan tabel data dokumen
         function displayDocumentControlTable(data) {
+            // Buat struktur tabel
             let tableHtml = `
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Document Name</th>
-                            <th>Department</th>
-                            <th>review Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Document Name</th>
+                    <th>Department</th>
+                    <th>Review Date</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
+            // Mendapatkan tanggal saat ini
+            const currentDate = new Date();
+
+            // Loop melalui data dan buat baris untuk setiap dokumen
             data.forEach((doc, index) => {
+                // Memeriksa apakah status "Uncomplete" dan tanggal review sudah terlewat
+                let warningIcon = '';
+                if (doc.status === 'Uncomplete' && new Date(doc.review) < currentDate) {
+                    warningIcon =
+                        '<span class="text-danger" title="Document is overdue!">⚠️</span>'; // Ikon peringatan
+                }
+
                 tableHtml += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${doc.name}</td>
-                        <td>${doc.department}</td>
-                        <td>${doc.review}</td>
-                    </tr>
-                `;
+            <tr>
+                <td>${index + 1}</td>
+                <td>${doc.name} ${warningIcon}</td>
+                <td>${doc.department}</td>
+                <td>${doc.review}</td>
+            </tr>
+        `;
             });
 
             tableHtml += `
-                    </tbody>
-                </table>
-            `;
+            </tbody>
+        </table>
+    `;
 
+            // Sisipkan tabel ke dalam placeholder HTML
             document.getElementById('documentControlTable').innerHTML = tableHtml;
         }
     </script>

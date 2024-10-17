@@ -24,7 +24,7 @@
     <!-- inject:css -->
     <link rel="stylesheet" href="{{ asset('css/vertical-layout-light/style.css') }}">
     <!-- endinject -->
-    <link rel="shortcut icon" href="{{ asset('images/logodonna.png') }}" />
+    <link rel="shortcut icon" href="{{ asset('images/logodonnacilik.png') }}" />
 
     @stack('styles')
 </head>

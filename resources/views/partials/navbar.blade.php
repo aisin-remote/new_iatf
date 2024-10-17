@@ -4,7 +4,7 @@
                 src="{{ asset('images/logodonna.png') }}" class="mr-2" alt="logo"
                 style="width: 200px; height: auto;" /></a>
         <a class="navbar-brand brand-logo-mini" href="{{ route('select.dashboard') }}"><img
-                src="{{ asset('images/logodonna.png') }}" alt="logo" /></a>
+                src="{{ asset('images/logodonnacilik.png') }}" alt="logo" /></a>
     </div>
     <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
