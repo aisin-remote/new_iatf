@@ -19,7 +19,7 @@
     <!-- inject:css -->
     <link rel="stylesheet" href="css/vertical-layout-light/style.css">
     <!-- endinject -->
-    <link rel="shortcut icon" href="images/favicon.png" />
+    <link rel="shortcut icon" href="{{ asset('images/logodonnacilik.png') }}" />
 </head>
 
 <body>
@@ -29,9 +29,7 @@
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
                 <a class="navbar-brand brand-logo mr-5" href="{{ route('select.dashboard') }}"><img
                         src="images/logodonna.png" class="mr-2" alt="logo"
-                        style="width: 200px; height: auto;" /></a>
-                <a class="navbar-brand brand-logo-mini" href="{{ route('select.dashboard') }}"><img
-                        src="images/logodonna.png" alt="logo" /></a>
+                        style="width: 100px; height: auto;" /></a>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
                 <ul class="navbar-nav navbar-nav-right">

@@ -30,10 +30,9 @@
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo"
                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                <img src="../../images/logodonna.png" alt="logo"
-                                    style="width: 120px; height: auto;">
-                                <img src="../../images/aisin.png" alt="logo"
-                                    style="width: 64px; height: auto; margin-left: auto;">
+                                <img src="../../images/logodonna.png" alt="logo" style="width: 80px; height: auto;">
+                                <img src="../../images/aisinindo.png" alt="logo"
+                                    style="width: 80px; height: auto; margin-left: auto;">
                             </div>
 
                             <h4>New here?</h4>

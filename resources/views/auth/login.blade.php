@@ -17,7 +17,7 @@
     <!-- inject:css -->
     <link rel="stylesheet" href="../../css/vertical-layout-light/style.css">
     <!-- endinject -->
-    <link rel="shortcut icon" href="../../images/logodonna.png" />
+    <link rel="shortcut icon" href="../../images/logodonnacilik.png" />
 </head>
 
 <body>
@@ -34,9 +34,9 @@
                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                             <div class="brand-logo"
                                 style="display: flex; justify-content: space-between; align-items: center;">
-                                <img src="../../images/logodonna.png" alt="logo" style="width: 120px; height: auto;">
-                                <img src="../../images/aisin.png" alt="logo"
-                                    style="width: 64px; height: auto; margin-left: auto;">
+                                <img src="../../images/logodonna.png" alt="logo" style="width: 80px; height: auto;">
+                                <img src="../../images/aisinindo.png" alt="logo"
+                                    style="width: 80px; height: auto; margin-left: auto;">
                             </div>
                             <h4 style="margin-top: -16px;">Hello! let's get started</h4> <!-- Atur jarak -->
                             <h6 class="font-weight-light">Sign in to continue.</h6>
@@ -70,7 +70,7 @@
                                 Don't have an account? <a href="{{ route('register') }}" class="text-primary">Create</a>
                             </div>
                             <div class="text-center mt-4 font-weight-light">
-                                Forgot the password? contact ITD
+                                Forgot the password? <a href="https://wa.me/085691768379">contact ITD</a>
                             </div>
                         </div>
 

@@ -2,7 +2,7 @@
     <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
         <a class="navbar-brand brand-logo mr-5" href="{{ route('select.dashboard') }}"><img
                 src="{{ asset('images/logodonna.png') }}" class="mr-2" alt="logo"
-                style="width: 200px; height: auto;" /></a>
+                style="width: 100px; height: auto;" /></a>
         <a class="navbar-brand brand-logo-mini" href="{{ route('select.dashboard') }}"><img
                 src="{{ asset('images/logodonnacilik.png') }}" alt="logo" /></a>
     </div>
