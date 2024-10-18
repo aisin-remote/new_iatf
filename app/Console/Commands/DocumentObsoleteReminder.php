@@ -35,7 +35,7 @@ class DocumentObsoleteReminder extends Command
 
         // Ambil audit control yang perlu diingatkan berdasarkan rentang waktu
         $documentControls = DocumentControl::select('document_controls.*')
-            ->where('status', 'Uncomplete')
+            ->where('status', 'Uncomplete', 'Rejected')
             ->where('set_reminder', '<=', $now)
             ->where('obsolete', '>=', $now) // Menggunakan >= untuk termasuk hari ini
             ->get()
@@ -43,7 +43,7 @@ class DocumentObsoleteReminder extends Command
 
         // Ambil dokumen yang sudah melewati tanggal review
         $documentIssues = DocumentControl::select('document_controls.*')
-            ->where('status', 'Uncomplete')
+            ->where('status', 'Uncomplete', 'Rejected')
             ->where('obsolete', '<', $now) // Dokumen yang sudah obsolete
             ->get()
             ->groupBy('department');

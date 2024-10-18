@@ -37,14 +37,14 @@ class DocumentReviewReminder extends Command
 
         // Ambil audit control yang perlu diingatkan berdasarkan rentang waktu
         $documentReviews = DocumentReview::select('document_reviews.*')
-            ->where('status', 'Uncomplete')
+            ->where('status', 'Uncomplete','Rejected')
             ->where('set_reminder', '<=', $now)
             ->where('review', '>=', $now)
             ->get()
             ->groupBy('department'); // Grupkan berdasarkan departemen
 
         $documentIssues = DocumentReview::select('document_reviews.*')
-            ->where('status', 'Uncomplete')
+            ->where('status', 'Uncomplete','Rejected')
             ->where('review', '<', $now) // Yang sudah melewati tanggal review
             ->get()
             ->groupBy('department');

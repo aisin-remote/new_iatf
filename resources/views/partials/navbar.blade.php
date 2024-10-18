@@ -8,7 +8,7 @@
     </div>
     <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
         <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
-            <span class="icon-menu"><i class="fa-solid fa-bars"></i></span>
+            <span class="icon-menu" id="toggle-btn"><i class="fa-solid fa-bars"></i></span>
         </button>
 
         <ul class="navbar-nav navbar-nav-right">

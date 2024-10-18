@@ -29,6 +29,39 @@
     @stack('styles')
 </head>
 <style>
+    .page-body-wrapper {
+        display: flex;
+        transition: all 0.3s ease;
+    }
+
+    /* Sidebar default */
+    .sidebar {
+        width: 250px;
+        position: fixed;
+        transition: width 0.3s ease;
+    }
+
+    /* Sidebar ketika diminimalkan */
+    .sidebar.minimized {
+        width: 60px;
+    }
+
+    /* Main content */
+    .main-panel {
+        flex-grow: 1;
+        padding: 20px;
+        margin-left: 250px;
+        /* Margin default ketika sidebar terbuka */
+        transition: margin-left 0.3s ease;
+        /* Efek transisi */
+    }
+
+    /* Main content saat sidebar diminimalkan */
+    .main-panel.minimized {
+        margin-left: 60px;
+        /* Menyesuaikan dengan lebar sidebar yang diminimalkan */
+    }
+
     /* Dropdown notifications style */
     .nav-item.dropdown .dropdown-menu {
         width: 300px;
@@ -107,7 +140,7 @@
         <!-- partial:partials/_navbar.html -->
         @include('partials.navbar')
         <!-- partial -->
-        <div class="container-fluid page-body-wrapper">
+        <div class="container-fluid page-body-wrapper d-flex">
             <!-- partial:partials/_settings-panel.html -->
             {{-- @include('partials.settings-panel') --}}
             @php
@@ -127,7 +160,7 @@
             @endif
 
             <!-- partial -->
-            <div class="main-panel">
+            <div class="main-panel" id="main-content">
                 @yield('content')
                 <!-- content-wrapper ends -->
                 <!-- partial:partials/_footer.html -->
@@ -165,7 +198,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+    <script>
+        const toggleBtn = document.getElementById('toggle-btn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content'); // Pastikan elemen ini ada
 
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('minimized'); // Men-toggle class 'minimized' pada sidebar
+            mainContent.classList.toggle('minimized'); // Men-toggle class 'minimized' pada main content
+
+            // Tidak ada perubahan pada ikon di dalam toggleBtn
+        });
+    </script>
     @include('sweetalert::alert')
     @stack('scripts')
     <!-- End custom js for this page-->
