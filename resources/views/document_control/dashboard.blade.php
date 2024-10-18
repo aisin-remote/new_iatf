@@ -48,6 +48,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Document Status Department</h4>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckuser">
+                                <label class="form-check-label" for="flexSwitchCheckuser">Show Details</label>
+                            </div>
                             <div id="guestRoleChart" style="height: 417px;"></div>
                         </div>
                     </div>
@@ -64,11 +68,46 @@
     <script>
         document.getElementById('flexSwitchCheckDefault').addEventListener('change', function() {
             if (this.checked) {
-                console.log("Switch is ON");
-                // Lakukan aksi ketika switch ON
+                // Kirim AJAX request ketika switch dinyalakan
+                $.ajax({
+                    url: '/document_control/details', // URL untuk mengambil data
+                    type: 'GET', // Tipe request
+                    dataType: 'json', // Format data yang diharapkan dari server
+                    success: function(data) {
+                        // Panggil fungsi untuk menampilkan tabel setelah data berhasil diambil
+                        console.log(data); // Tampilkan data di console untuk debug
+                        displayDocumentControlTable(data);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error fetching data:', textStatus, errorThrown);
+                    }
+                });
             } else {
-                console.log("Switch is OFF");
-                // Lakukan aksi ketika switch OFF
+                // Kosongkan tabel ketika switch dimatikan
+                document.getElementById('documentControlTable').innerHTML = '';
+            }
+        });
+    </script>
+    <script>
+        document.getElementById('flexSwitchCheckuser').addEventListener('change', function() {
+            if (this.checked) {
+                // Kirim AJAX request ketika switch dinyalakan
+                $.ajax({
+                    url: '/document_control/details', // URL untuk mengambil data
+                    type: 'GET', // Tipe request
+                    dataType: 'json', // Format data yang diharapkan dari server
+                    success: function(data) {
+                        // Panggil fungsi untuk menampilkan tabel setelah data berhasil diambil
+                        console.log(data); // Tampilkan data di console untuk debug
+                        displayDocumentControlTable(data);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error fetching data:', textStatus, errorThrown);
+                    }
+                });
+            } else {
+                // Kosongkan tabel ketika switch dimatikan
+                document.getElementById('documentControlTable').innerHTML = '';
             }
         });
     </script>
@@ -133,7 +172,6 @@
             });
         }
 
-
         function drawPieChart(containerId, statusData) {
             Highcharts.chart(containerId, {
                 chart: {
@@ -188,29 +226,6 @@
         @endrole
     </script>
     <script>
-        // Event listener untuk toggle switch
-        document.getElementById('flexSwitchCheckDefault').addEventListener('change', function() {
-            if (this.checked) {
-                // Kirim AJAX request ketika switch dinyalakan
-                $.ajax({
-                    url: '/document_control/details', // URL untuk mengambil data
-                    type: 'GET', // Tipe request
-                    dataType: 'json', // Format data yang diharapkan dari server
-                    success: function(data) {
-                        // Panggil fungsi untuk menampilkan tabel setelah data berhasil diambil
-                        console.log(data); // Tampilkan data di console untuk debug
-                        displayDocumentControlTable(data);
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('Error fetching data:', textStatus, errorThrown);
-                    }
-                });
-            } else {
-                // Kosongkan tabel ketika switch dimatikan
-                document.getElementById('documentControlTable').innerHTML = '';
-            }
-        });
-
         // Fungsi untuk menampilkan tabel data dokumen
         function displayDocumentControlTable(data) {
             // Buat struktur tabel
@@ -236,7 +251,7 @@
                 let warningIcon = '';
                 if (doc.status === 'Uncomplete' && new Date(doc.obsolete) < currentDate) {
                     warningIcon =
-                    '<span class="text-danger" title="Document is overdue!">⚠️</span>'; // Ikon peringatan
+                        '<span class="text-danger" title="Document is overdue!">⚠️</span>'; // Ikon peringatan
                 }
 
                 tableHtml += `

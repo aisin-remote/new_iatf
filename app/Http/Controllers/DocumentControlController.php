@@ -11,20 +11,32 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use DataTables;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentControlController extends Controller
 {
     public function fetchDocumentControls()
     {
-        // Mengambil data dari tabel document control
-        $documents = DocumentControl::orderBy('department','ASC')
-        ->where('status', 'Uncomplete')
-        ->get(); // Anda bisa menyesuaikan query jika diperlukan
-        // Mengembalikan data dalam format JSON
-        // dd($documents);
+        // Inisialisasi query dari tabel DocumentControl
+        $query = DocumentControl::select('*');
+        // Cek apakah user memiliki peran admin
+        if (Auth::user()->hasRole('admin')) {
+            // Jika user admin, tambahkan filter dan urutan berdasarkan department dan status
+            $query->where('status', 'Uncomplete')
+                ->orderBy('department', 'ASC');
+        } else {
+            // Jika user bukan admin, filter berdasarkan departemen user yang sedang login
+            $query->where('department', Auth::user()->departemen->nama_departemen);
+        }
+        // dd($query);
+
+        // Dapatkan hasil query
+        $documents = $query->get();
+
+        // Kembalikan data dalam format JSON
         return response()->json($documents);
     }
+
     public function list(Request $request)
     {
         // Ambil semua departemen untuk dropdown
